@@ -282,6 +282,59 @@
         </footer>
     </div>
     <script src="https://pl29683994.effectivecpmnetwork.com/4f/5b/40/4f5b40222279f7d05ea3bbc36b7c5578.js"></script>
+<!-- Timer + Auto Scroll Box Start -->
+<div id="timer-box" style="position:fixed; top:10px; right:10px; background:#388e3c; color:white; padding:12px 20px; border-radius:8px; font-family:Arial; font-size:16px; font-weight:bold; z-index:9999; box-shadow: 0 4px 8px rgba(0,0,0,0.3); text-align:center; max-width:250px;">
+    <div style="margin-bottom:5px;">Screen ko dheere dheere scroll kare</div>
+    <div>⏱️ Rukiye: <span id="countdown">22</span>s</div>
+</div>
 
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const returnUrl = urlParams.get('return_url');
+    const startTime = parseInt(urlParams.get('start'));
+    let timeLeft = parseInt(urlParams.get('time')) || 22;
+
+    const countdownElement = document.getElementById('countdown');
+    const timerBox = document.getElementById('timer-box');
+    
+    if (returnUrl && startTime) {
+        // Auto Scroll Function - Dheere dheere neeche scroll karega
+        let scrollPosition = 0;
+        const scrollStep = 1; // Kitna pixel ek baar me scroll ho
+        const scrollInterval = 100; // Kitne ms baad scroll ho. Kam rakhega to fast hoga
+        
+        const autoScroll = setInterval(function() {
+            // Agar page ka end nahi aaya to scroll karo
+            if (window.innerHeight + window.scrollY < document.body.offsetHeight) {
+                scrollPosition += scrollStep;
+                window.scrollTo(0, scrollPosition);
+            } else {
+                clearInterval(autoScroll); // End me pahunch gaye to band
+            }
+        }, scrollInterval);
+
+        // Timer Function
+        const timer = setInterval(function() {
+            timeLeft--;
+            countdownElement.textContent = timeLeft;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                clearInterval(autoScroll); // Timer khatam to scroll bhi band
+                
+                const timeSpent = (Date.now() - startTime) / 1000;
+                
+                if (timeSpent >= 21) {
+                    window.location.href = decodeURIComponent(returnUrl) + "?status=success";
+                } else {
+                    window.location.href = decodeURIComponent(returnUrl) + "?status=failed";
+                }
+            }
+        }, 1000);
+    } else {
+        timerBox.style.display = 'none';
+    }
+</script>
+<!-- Timer + Auto Scroll Box End -->
 </body>
 </html>
