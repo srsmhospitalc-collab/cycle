@@ -6,7 +6,7 @@
     <title>Arrow Puzzle</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <!-- RichAds Telegram SDK + Init - YAHI ADS CODE HAI -->
+    <!-- RichAds Telegram SDK + Init -->
     <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
     <script>
       window.TelegramAdsController = new TelegramAdsController();
@@ -25,10 +25,10 @@
             min-height: 100vh;
             padding: 10px;
         }
-       .container { max-width: 400px; margin: 0 auto; }
-       .header { text-align: center; margin-bottom: 15px; }
-       .stats { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; }
-       .game-board {
+      .container { max-width: 400px; margin: 0 auto; }
+      .header { text-align: center; margin-bottom: 15px; }
+      .stats { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; font-size: 14px; }
+      .game-board {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 5px;
@@ -37,7 +37,7 @@
             border-radius: 10px;
             margin-bottom: 15px;
         }
-       .cell {
+      .cell {
             aspect-ratio: 1;
             background: rgba(255,255,255,0.1);
             border-radius: 8px;
@@ -47,12 +47,14 @@
             font-size: 24px;
             cursor: pointer;
             transition: 0.2s;
+            user-select: none;
         }
-       .cell:hover { background: rgba(255,255,255,0.2); }
-       .cell.arrow { background: #4CAF50; }
-       .cell.target { background: #FFC107; }
-       .cell.block { background: #424242; cursor: not-allowed; }
-       .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .cell:hover { background: rgba(255,255,255,0.2); }
+      .cell.arrow { background: #4CAF50; font-size: 28px; }
+      .cell.target { background: #FFC107; }
+      .cell.block { background: #424242; cursor: not-allowed; }
+      .cell.path { background: rgba(76, 175, 80, 0.3); }
+      .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         button {
             padding: 12px;
             border: none;
@@ -62,28 +64,27 @@
             font-weight: bold;
             cursor: pointer;
         }
-        button:hover { opacity: 0.9; }
-       .menu-btn { background: #9C27B0; grid-column: span 2; }
-       .ad-btn { background: #4CAF50; grid-column: span 2; }
+        button:active { transform: scale(0.95); }
+      .menu-btn { background: #9C27B0; grid-column: span 2; }
+      .ad-btn { background: #4CAF50; grid-column: span 2; }
 
-        /* Level Select Menu */
-       .level-menu {
+      .level-menu {
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
             z-index: 100;
             padding: 20px;
             overflow-y: auto;
         }
-       .level-grid {
+      .level-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 10px;
             max-width: 400px;
             margin: 20px auto;
         }
-       .level-item {
+      .level-item {
             aspect-ratio: 1;
             background: #2196F3;
             border-radius: 8px;
@@ -93,10 +94,10 @@
             font-weight: bold;
             cursor: pointer;
         }
-       .level-item.locked { background: #555; cursor: not-allowed; }
-       .level-item.current { background: #4CAF50; box-shadow: 0 0 10px #4CAF50; }
+      .level-item.locked { background: #555; cursor: not-allowed; opacity: 0.5; }
+      .level-item.current { background: #4CAF50; box-shadow: 0 0 10px #4CAF50; }
 
-       .modal {
+      .modal {
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -105,7 +106,7 @@
             justify-content: center;
             z-index: 200;
         }
-       .modal-content {
+      .modal-content {
             background: #764ba2;
             padding: 30px;
             border-radius: 15px;
@@ -129,25 +130,25 @@
 
         <div class="controls">
             <button onclick="resetLevel()">🔄 Reset</button>
+            <button onclick="undoMove()">↩️ Undo</button>
             <button onclick="showMenu()" class="menu-btn">📋 Select Level</button>
             <button onclick="watchAdForCoins()" class="ad-btn">🎬 Watch Ad +50 Coins</button>
         </div>
     </div>
 
-    <!-- Level Select Menu -->
     <div class="level-menu" id="levelMenu">
-        <h2 style="text-align:center;">Select Level</h2>
+        <h2 style="text-align:center;margin-bottom:10px;">Select Level</h2>
+        <p style="text-align:center;opacity:0.7;font-size:12px;">Unlock karke khelo</p>
         <div class="level-grid" id="levelGrid"></div>
         <button onclick="closeMenu()" style="width:100%;margin-top:20px;">Close</button>
     </div>
 
-    <!-- Win Modal -->
     <div class="modal" id="modal">
         <div class="modal-content">
             <h2 id="modal-title">Level Complete!</h2>
             <p id="modal-text"></p>
-            <button onclick="nextLevel()" style="margin-top:15px;">Next Level</button>
-            <button onclick="showMenu()" style="margin-top:10px;background:#9C27B0;">Select Level</button>
+            <button onclick="nextLevel()" style="margin-top:15px;width:100%;">Next Level</button>
+            <button onclick="showMenu();closeModal();" style="margin-top:10px;background:#9C27B0;width:100%;">Select Level</button>
         </div>
     </div>
 
@@ -156,7 +157,6 @@
     tg.expand();
     tg.ready();
 
-    // Game Variables
     let currentLevel = 1;
     let maxUnlockedLevel = 1;
     let moves = 0;
@@ -164,52 +164,50 @@
     let board = [];
     let arrowPos = {x: 0, y: 0};
     let targetPos = {x: 4, y: 4};
+    let moveHistory = [];
 
-    // 40 Levels Data - 0=empty, 1=block, 2=arrow, 3=target
+    // Fixed 40 Levels - 0=empty, 1=block, 2=arrow, 3=target
     const levels = [
-        // Level 1-10 Easy
-        [[2,0,0,0,0],[0,1,0,0,0],[0,0,0,1,0],[0,0,0],[0,0,0,0,3]],
-        [[2,0,1,0,0],[0,0,1,0,0],[0,0,0,0,1],[1,0,0],[0,0,0,0,3]],
-        [[2,0,0,1,0],[0,1,0,1,0],[0,0,0],[0,1,1,0,1],[0,0,0,0,3]],
-        [[2,1,0,0,0],[0,1,0,1,0],[0,0,0,1,0],[0,1,0,0,0],[0,0,0,1,3]],
-        [[2,0,0,0,1],[1,1,0,0,1],[0,0,0,1,0],[0,1,0,0,0],[0,0,0,0,3]],
-        [[2,0,1,0,0],[0,0,1,0,1],[1,0,0,0,0],[0,0,1,0,0],[0,1,0,0,3]],
-        [[2,0,0,0,0],[0,1,1,1,0],[0,0,0,1,0],[1,0,0,1,0],[0,0,0,0,3]],
-        [[2,1,0,1,0],[0,0,0,1,0],[1,0,1,0,0],[0,0,0,0,1],[0,1,0,0,3]],
-        [[2,0,0,1,0],[0,1,0,0,0],[0,1,1,0,1],[0,0,0],[1,0,1,0,3]],
-        [[2,0,1,0,0],[1,0,1],[0,0,0,0,0],[0,1,0],[0,0,0,1,3]],
-        // Level 11-20 Medium - add more patterns
-        [[2,0,0,0,1],[0,1,1,0,1],[0,0,0,0,0],[1,0,1,0,0],[0,0,0,1,3]],
-        [[2,1,0,0,0],[0,1,0,1,0],[0,0,0,1,1],[0,1,0,0,0],[1,0,0,0,3]],
-        [[2,0,1],[0,0,1,0,0],[1,0,0,0,1],[0,0,1,0,0],[0,1,0,0,3]],
-        [[2,0,0,1,0],[1,1,0,1,0],[0,0,0],[0,1,1,0,1],[0,0,0,0,3]],
-        [[2,0,0],[0,1,0,1,1],[0,1,0,0,0],[1,0,0,1,0],[0,0,1,0,3]],
-        [[2,1,0,0,1],[0,0,0,1,0],[1,0,1,0,0],[0,0,0,0,1],[0,1,0,0,3]],
-        [[2,0,1,0,0],[0,0,1,0,1],[0,1,0,0,0],[1,0,0,1,0],[0,0,0,1,3]],
-        [[2,0,0,1,0],[1,0,1,0,0],[0,0,0,0,1],[0,1,0,1,0],[0,0,0,0,3]],
-        [[2,0,0,0,1],[0,1,1,0,0],[1,0,0,0,1],[0,0,1,0,0],[0,1,0,0,3]],
-        [[2,1,0,0,0],[0,0,0,1,1],[0,1,0,1,0],[1,0,0],[0,0,1,0,3]],
-        // Level 21-40 Hard - repeat with variations for demo
-        [[2,0,1,0,0],[1,0,1,0,1],[0,0,0,0,0],[0,1,1,0,1],[0,0,0,0,3]],
-        [[2,1,0,1,0],[0,0,0,1,0],[1,0,1,0,0],[0,0,0,0,1],[0,1,0,0,3]],
-        [[2,0,0,0,1],[1,1,0,0,1],[0,0,0,1,0],[0,1,0,0,0],[0,0,1,0,3]],
-        [[2,0,1],[0,0,1,0,0],[1,0,0,0,1],[0,0,1,0,0],[0,1,0,0,3]],
-        [[2,0,0,1,0],[0,1,0,1,0],[0,1,0,0,0],[1,0,1],[0,0,0,0,3]],
-        [[2,1,0,0,0],[0,1,0,1,1],[0,0,0],[1,0,1,0,0],[0,0,0,1,3]],
-        [[2,0,0],[1,0,1,1,0],[0,0,0,1,0],[0,1,0,0,1],[0,0,1,0,3]],
-        [[2,0,1,0,0],[0,0,1,0,1],[1,0,0,0,0],[0,0,1,1,0],[0,1,0,0,3]],
-        [[2,0,0,1,1],[0,1,0,0,0],[0,1,1,0,1],[0,0,0,0,0],[1,0,0,0,3]],
-        [[2,1,0,0,0],[0,0,0,1,0],[1,0,1,0,1],[0,0,0,0,0],[0,1,1,0,3]],
-        [[2,0,0,0,1],[0,1,1,0,0],[0,0,0,1,0],[1,0,0,0,1],[0,0,1,0,3]],
-        [[2,0,1,0,0],[1,0,0,1],[0,1,0,1,0],[0,1,0,0,0],[0,0,0,1,3]],
-        [[2,0,0,1,0],[0,1,0,0,1],[1,0,1,0,0],[0,0,0,1,0],[0,1,0,0,3]],
-        [[2,1,0,0,1],[0,0,0,1,0],[0,1,1,0,0],[1,0,0,0,1],[0,0,0,0,3]],
-        [[2,0,0,0,0],[0,1,0,1,1],[1,0,0],[0,0,1,0,1],[0,1,0,0,3]],
-        [[2,0,1],[0,0,0,0,0],[1,0,1,1,0],[0,0,0,0,1],[0,1,0,0,3]],
-        [[2,0,0,1,0],[1,0,1,0,0],[0,0,0,0,1],[0,1,1,0,0],[0,0,0,1,3]],
-        [[2,1,0,0,0],[0,0,1,0,1],[0,1,0,0,0],[1,0,0,1,0],[0,0,1,0,3]],
-        [[2,0,0,0,1],[0,1,0,1,0],[1,0,0,1,0],[0,0,1,0,0],[0,1,0,0,3]],
-        [[2,0,1,1,0],[0,0,0,0,1],[1,0,1,0,0],[0,0,0,0,1],[0,1,0,0,3]]
+        [[2,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,3]],
+        [[2,0,0],[0,1,0,0,0],[0,0,0,0,0],[0,0,0,1,0],[0,0,0,0,3]],
+        [[2,0,1,0,0],[0,0,1,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,3]],
+        [[2,0,0,0,0],[1,1,0,0,0],[0,0,0,1,0],[0,0,0,1,0],[0,0,0,0,3]],
+        [[2,0,0,1,0],[0,0,0,1,0],[0,1,0,0,0],[0,1,0,0,0],[0,0,0,0,3]],
+        [[2,0,1,0,0],[0,0,0,0,0],[1,0,0,1,0],[0,0,0,1,0],[0,0,0,0,3]],
+        [[2,0,0],[0,1,1,0,0],[0,0,0,0,1],[0,0,0,0,0],[0,0,0,0,3]],
+        [[2,0,1,0,0],[0,0,0,0,0],[0,1,0,1,0],[0,0,0,1,0],[0,0,0,0,3]],
+        [[2,0,0],[1,1,0,0,1],[0,0,0,0,0],[0,0,1,0,0],[0,0,0,0,3]],
+        [[2,0,0,0,1],[0,1,0,0,1],[0,0,0,0,0],[0,0,1,0,0],[0,0,0,0,3]],
+        [[2,0,0,0,0],[0,1,0],[0,0,0,1,0],[0,0,0,0,0],[1,0,0,0,3]],
+        [[2,0,0,1,0],[0,0,0,1,0],[1,0,0],[0,0,1,0,0],[0,0,0,0,3]],
+        [[2,0,1,0,0],[0,0,1],[0,0,0,0,0],[1,0,0],[0,0,0,0,3]],
+        [[2,0,0,0,0],[0,1,1,0,0],[0,0,0,0,1],[0,1,0,0,0],[0,0,0,0,3]],
+        [[2,0,0,1,0],[0,0,0,1,0],[0,1,0,0,0],[0,0,0,1,0],[0,0,0,0,3]],
+        [[2,0,1,0,1],[0,0,0,0,0],[0,1,0,1,0],[0,0,0,1,0],[0,0,0,0,3]],
+        [[2,0,0],[1,0,1,0,0],[1,0,1,0,0],[0,0,0,0,1],[0,0,0,0,3]],
+        [[2,0,0,1,0],[0,1,0,1,0],[0,1,0,0,0],[0,0,0,0,1],[0,0,0,0,3]],
+        [[2,0,0],[0,0,1,0,1],[1,0,1,0,0],[0,0,0,0,0],[0,0,0,1,3]],
+        [[2,1,0,0,0],[0,0,0,1,0],[0,1,0,1,0],[0,0,0,0,0],[1,0,0,0,3]],
+        [[2,0,0,0,1],[0,1,1,0,0],[0,0,0,0,1],[0,0,1,0,0],[0,0,0,0,3]],
+        [[2,0,1,0,0],[0,0,0,0,1],[1,0,1,0,0],[0,0,1,0,0],[0,0,0,0,3]],
+        [[2,0,0,1,0],[1,0,0,1,0],[1,0,0],[0,0,1,0,1],[0,0,0,0,3]],
+        [[2,0,0,0,0],[0,1,0],[0,1,0,1,0],[0,0,0],[1,0,0,0,3]],
+        [[2,0,1,0,1],[0,0,0,0,0],[0,1,1,0,1],[0,0,0,0,0],[0,0,0,1,3]],
+        [[2,0,0,0,0],[1,1,0,1,0],[0,0,0,1,0],[0,1,0,0,0],[0,0,0,0,3]],
+        [[2,0,0,1,0],[0,0,0,1,0],[1,1,0,0,0],[0,0,0,0,1],[0,0,0,0,3]],
+        [[2,1,0,0,1],[0,0,0,0,0],[0,1,1,0,1],[0,0,0,0,0],[0,0,0,1,3]],
+        [[2,0,0,0,0],[0,1,0,1,1],[0,1,0,0,0],[0,0,0,1,0],[1,0,0,0,3]],
+        [[2,0,1,0,0],[0,0,1,0,1],[0,0,0,0,1],[1,0,0],[0,0,0,0,3]],
+        [[2,0,0,1,1],[0,1,0,0,0],[0,1,0,1,0],[0,0,0,1,0],[0,0,0,0,3]],
+        [[2,0,0],[1,0,1,0,1],[1,0,1,0,0],[0,0,0,0,1],[0,0,0,0,3]],
+        [[2,1,0,0,0],[0,0,0,1,1],[0,1,0,1,0],[0,1,0,0,0],[0,0,0,0,3]],
+        [[2,0,1],[0,0,0,0,1],[0,1,1,0,0],[0,0,0,0,1],[0,0,0,0,3]],
+        [[2,0,0,0,1],[0,1,1,0,1],[0,0,0,0,0],[1,0,1,0,0],[0,0,0,0,3]],
+        [[2,0,1,0,0],[0,0,1,0,1],[1,0,0,0,1],[0,0,1,0,0],[0,0,0,0,3]],
+        [[2,0,0,1,0],[1,1,0,1,0],[0,0,0,0,1],[0,1,0,0,1],[0,0,0,0,3]],
+        [[2,1,0,0,1],[0,0,0,1,0],[0,1,0,1,0],[1,0,0],[0,0,1,0,3]],
+        [[2,0,0,0,0],[0,1,1,0,1],[0,1,0,0,1],[0,0,0,1,0],[1,0,0,0,3]],
+        [[2,0,1,1,0],[0,0,0,0,1],[1,0,1],[0,0,1,0,0],[0,0,0,0,3]]
     ];
 
     // Load saved data
@@ -225,10 +223,20 @@
     function loadLevel(level) {
         currentLevel = level;
         moves = 0;
+        moveHistory = [];
         document.getElementById('level').textContent = level;
         document.getElementById('moves').textContent = moves;
 
         board = JSON.parse(JSON.stringify(levels[level-1]));
+
+        // Find arrow and target positions
+        for(let y = 0; y < 5; y++) {
+            for(let x = 0; x < 5; x++) {
+                if(board[y][x] === 2) arrowPos = {x, y};
+                if(board[y][x] === 3) targetPos = {x, y};
+            }
+        }
+
         renderBoard();
     }
 
@@ -240,19 +248,19 @@
             for(let x = 0; x < 5; x++) {
                 const cell = document.createElement('div');
                 cell.className = 'cell';
+                cell.dataset.x = x;
+                cell.dataset.y = y;
 
                 if(board[y][x] === 1) {
                     cell.classList.add('block');
                 } else if(board[y][x] === 2) {
                     cell.classList.add('arrow');
                     cell.textContent = '→';
-                    arrowPos = {x, y};
                 } else if(board[y][x] === 3) {
                     cell.classList.add('target');
                     cell.textContent = '🎯';
-                    targetPos = {x, y};
                 } else {
-                    cell.onclick = () => moveArrow(x, y);
+                    cell.onclick = () => tryMove(x, y);
                 }
 
                 boardEl.appendChild(cell);
@@ -260,18 +268,63 @@
         }
     }
 
-    function moveArrow(x, y) {
-        // Simple move logic - arrow moves to clicked empty cell
-        if(board[y][x] === 0) {
+    function tryMove(targetX, targetY) {
+        const dx = targetX - arrowPos.x;
+        const dy = targetY - arrowPos.y;
+
+        // Sirf horizontal ya vertical move allowed
+        if(dx!== 0 && dy!== 0) return;
+        if(dx === 0 && dy === 0) return;
+
+        const steps = Math.max(Math.abs(dx), Math.abs(dy));
+        const stepX = dx === 0? 0 : dx / Math.abs(dx);
+        const stepY = dy === 0? 0 : dy / Math.abs(dy);
+
+        // Path check karo - beech me block to nahi
+        let canMove = true;
+        let newX = arrowPos.x;
+        let newY = arrowPos.y;
+
+        for(let i = 0; i < steps; i++) {
+            newX += stepX;
+            newY += stepY;
+
+            if(newX < 0 || newX >= 5 || newY < 0 || newY >= 5) {
+                canMove = false;
+                break;
+            }
+            if(board[newY][newX] === 1) {
+                canMove = false;
+                break;
+            }
+        }
+
+        if(canMove) {
+            moveHistory.push({x: arrowPos.x, y: arrowPos.y});
             board[arrowPos.y][arrowPos.x] = 0;
-            board[y][x] = 2;
-            arrowPos = {x, y};
+            board[targetY][targetX] = 2;
+            arrowPos = {x: targetX, y: targetY};
             moves++;
             document.getElementById('moves').textContent = moves;
             tg.HapticFeedback.impactOccurred('light');
             renderBoard();
-            checkWin();
+
+            setTimeout(() => checkWin(), 100);
+        } else {
+            tg.HapticFeedback.notificationOccurred('error');
         }
+    }
+
+    function undoMove() {
+        if(moveHistory.length === 0) return;
+        const lastPos = moveHistory.pop();
+        board[arrowPos.y][arrowPos.x] = 0;
+        board[lastPos.y][lastPos.x] = 2;
+        arrowPos = lastPos;
+        moves = Math.max(0, moves - 1);
+        document.getElementById('moves').textContent = moves;
+        renderBoard();
+        tg.HapticFeedback.impactOccurred('medium');
     }
 
     function checkWin() {
@@ -291,21 +344,26 @@
             tg.CloudStorage.setItem('level', maxUnlockedLevel.toString());
         }
 
-        // Level 5,10,15... pe Interstitial Video Ad dikhao
+        // Level 5,10,15... pe Interstitial Video Ad
         if(currentLevel % 5 === 0) {
             TelegramAdsController.showAd({
-                adBlockUuid: "399185_KA_UUID_YAHAN_DAALNA" // #399185 Interstitial ka UUID
+                adBlockUuid: "399185_KA_UUID_YAHAN_DAALNA" // #399185 ka UUID
             }).catch(() => {});
         }
     }
 
     function nextLevel() {
-        document.getElementById('modal').style.display = 'none';
+        closeModal();
         if(currentLevel < 40) {
             loadLevel(currentLevel + 1);
         } else {
-            tg.showAlert('🎉 Sab levels complete! New levels jald aayenge.');
+            tg.showAlert('🎉 Sab 40 levels complete! New levels jald aayenge.');
+            showMenu();
         }
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
     }
 
     function resetLevel() {
