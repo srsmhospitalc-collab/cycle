@@ -1,340 +1,284 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026 Me Best Motorcycle Kaise Kharide - Complete Guide 1 Lakh Se 3 Lakh Tak</title>
-    <meta name="description" content="2026 me nayi bike lene ka plan hai? Mileage, ABS, service cost aur 1-3 lakh tak ki best motorcycles ki poori jankari. Expert guide yaha padho.">
-    
-    <!-- RichAds In-Page Code - async hataya hua -->
-    <script src="https://richinfo.co/richpartners/in-page/js/richads-ob.js?pubid=1013423&siteId=399852"></script>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Arrow Puzzle - 40 Levels</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', Arial, sans-serif; 
-            line-height: 1.7; 
-            color: #333; 
-            background: #f5f5f5;
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 10px;
+            overflow: hidden;
         }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-        }
-        header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 30px 20px;
+        #game-container {
             text-align: center;
-        }
-        header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-        nav {
-            background: #333;
-            padding: 15px;
-            text-align: center;
-        }
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin: 0 15px;
-            font-weight: 500;
-        }
-        nav a:hover { color: #ffd700; }
-        .main-content {
-            padding: 30px 25px;
-        }
-        article h1 {
-            font-size: 32px;
-            color: #1e3c72;
-            margin-bottom: 10px;
-            line-height: 1.3;
-        }
-        article h2 {
-            font-size: 24px;
-            color: #2a5298;
-            margin: 35px 0 15px 0;
-            border-left: 4px solid #ffd700;
-            padding-left: 15px;
-        }
-        article h3 {
-            font-size: 20px;
-            color: #444;
-            margin: 25px 0 12px 0;
-        }
-        .meta {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
-        }
-        article p {
-            margin-bottom: 18px;
-            font-size: 16px;
-        }
-        article ul, article ol {
-            margin: 15px 0 20px 30px;
-        }
-        article li {
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-        article img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            margin: 25px 0;
-        }
-        table {
             width: 100%;
-            border-collapse: collapse;
-            margin: 25px 0;
-            font-size: 15px;
+            max-width: 400px;
         }
-        table th {
-            background: #2a5298;
-            color: white;
-            padding: 12px;
-            text-align: left;
+        h1 { font-size: 24px; margin-bottom: 10px; }
+        #info { display: flex; justify-content: space-between; margin: 15px 0; font-size: 18px; font-weight: bold; }
+        #grid {
+            display: grid;
+            gap: 5px;
+            margin: 20px auto;
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 10px;
         }
-        table td {
-            border: 1px solid #ddd;
-            padding: 12px;
+      .cell {
+            aspect-ratio: 1;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s;
         }
-        table tr:nth-child(even) {
-            background: #f9f9f9;
+      .cell.active { background: #4CAF50; transform: scale(0.95); }
+      .cell.wall { background: #333; cursor: not-allowed; }
+      .cell.target { background: #FFC107; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+        button {
+            background: #fff;
+            color: #764ba2;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 5px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        footer {
-            background: #222;
-            color: #aaa;
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+      .modal-content {
+            background: #fff;
+            color: #333;
+            padding: 30px;
+            border-radius: 15px;
             text-align: center;
-            padding: 25px;
-            margin-top: 40px;
-            font-size: 14px;
-        }
-        @media (max-width: 768px) {
-            article h1 { font-size: 26px; }
-            article h2 { font-size: 22px; }
-            .main-content { padding: 20px 15px; }
-            nav a { display: block; margin: 8px 0; }
         }
     </style>
-    <script src="https://pl29683992.effectivecpmnetwork.com/0a/12/f4/0a12f44bbdcd51952e1704bd92b8b41a.js"></script>
-
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Bike Guide India 2026</h1>
-            <p>Har Budget Me Best Motorcycle Ki Poori Jankari</p>
-        </header>
-        
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="bike-guide.html">Bike Guide</a>
-            <a href="contact.html">Contact</a>
-        </nav>
-
-        <main class="main-content">
-            <article>
-                <h1>2026 Me Motorcycle Kharidne Ki Complete Guide: 1 Lakh Se 3 Lakh Tak Best Bikes</h1>
-                
-                <p class="meta">Published on June 9, 2026 | By Bike Expert | Category: Automobile Guide</p>
-                
-                <img src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=1200" alt="Motorcycle collection 2026">
-
-                <p><strong>Dosto, 2026 me motorcycle lena pehle se kahi zyada confusing ho gaya hai.</strong> Market me 100+ models, har mahine naya launch, aur YouTube pe har koi apni bike ko "best" bolta hai. Budget ₹1 lakh ka hai ya ₹3 lakh ka, galat bike le li to 5 saal tak pachtana padega.</p>
-                
-                <p>To aaj main tumhara bada bhai banke poori kundli khol raha hu. Petrol ka kharcha, service cost, resale value, sab kuch batunga. Article lamba hai, par padh liya to showroom wala tumhe bewakoof nahi bana payega. Promise.</p>
-
-                <h2>Section 1: Pehle Ye Decide Karo - Bike Lene Ka Reason Kya Hai?</h2>
-                <p>Bina reason ke bike loge to paisa barbaad. 4 type ke riders hote hain:</p>
-                <script async="async" data-cfasync="false" src="https://pl29683993.effectivecpmnetwork.com/8f269ac801384d85d94aa5f4c4f51d06/invoke.js"></script>
-<div id="container-8f269ac801384d85d94aa5f4c4f51d06"></div>
-
-                
-                <h3>1. Office Wala Banda - Daily 20-30 KM</h3>
-                <p><strong>Tumhari zarurat:</strong> Mileage, Comfort, Low Maintenance<br>
-                <strong>Budget:</strong> ₹80,000 - ₹1,20,000<br>
-                <strong>Best Options 2026:</strong></p>
-                <ul>
-                    <li><strong>Honda Shine 100:</strong> ₹79,000. Mileage 65 kmpl. 5 saal me ek baar bhi dhoka nahi degi. Service ₹1500/year.</li>
-                    <li><strong>Bajaj Platina 110 ABS:</strong> ₹82,000. ABS ke saath sabse sasti bike. Mileage 70 kmpl. Gaon-shahar dono ke liye best.</li>
-                    <li><strong>TVS Radeon:</strong> ₹75,000. Majboot body, 15 saal purana model. Parts har jagah milte hain.</li>
-                </ul>
-                <p><strong>Galti Mat Karna:</strong> Style ke chakkar me FZ ya Apache mat le lena. Traffic me ghutna dukhega aur mileage 40 ka.</p>
-
-                <h3>2. College Ka Launda - Style + Thodi Power</h3>
-                <p><strong>Tumhari zarurat:</strong> Looks, Pickup, Instagram Photo<br>
-                <strong>Budget:</strong> ₹1,20,000 - ₹1,70,000<br>
-                <strong>Best Options 2026:</strong></p>
-                <ul>
-                    <li><strong>Yamaha FZ-S Fi V4:</strong> ₹1,35,000. Muscle look, Yamaha ki reliability. Mileage 50 kmpl. Ladki impress 100%.</li>
-                    <li><strong>TVS Apache RTR 160 4V:</strong> ₹1,28,000. 17 BHP power, 0-60 in 4.5 sec. Race mode bhi milta hai.</li>
-                    <li><strong>Bajaj Pulsar N160:</strong> ₹1,30,000. Dual-channel ABS is budget me. Rat me LED projector headlamp gajab lagta hai.</li>
-                </ul>
-
-                <h3>3. Ghumakkad Aadmi - Weekend Pe 200 KM Ride</h3>
-                <p><strong>Tumhari zarurat:</strong> Comfort, Highway Stability, Luggage Space<br>
-                <strong>Budget:</strong> ₹1,80,000 - ₹2,50,000<br>
-                <strong>Best Options 2026:</strong></p>
-                <ul>
-                    <li><strong>Royal Enfield Classic 350:</strong> ₹1,95,000. Highway ka raja. 80 ki speed pe makhan jaisa chalta hai.</li>
-                    <li><strong>Honda CB350 H'ness:</strong> ₹2,10,000. RE se zyada smooth, vibration 0. Bluetooth, traction control sab milta hai.</li>
-                    <li><strong>Yezdi Adventure:</strong> ₹2,15,000. Pahaad-jungle sab ghum lo. Off-road tyre + long travel suspension.</li>
-                </ul>
-
-                <h2>Section 2: 2026 Me Bike Lete Waqt Ye 7 Cheez Check Karna</h2>
-                
-                <h3>1. E20 Petrol Ready Hai Ya Nahi?</h3>
-                <p>2026 me sab petrol pump pe E20 mil raha hai - 20% ethanol wala. Purani BS4 bike me ye petrol engine kharab kar dega. <strong>2023 ke baad ki sabhi bikes E20 ready hain.</strong></p>
-
-                <h3>2. ABS Ke Type Samjho</h3>
-                <table>
-                    <tr>
-                        <th>ABS Type</th>
-                        <th>Kaam</th>
-                        <th>Lena Chahiye?</th>
-                    </tr>
-                    <tr>
-                        <td>No ABS</td>
-                        <td>Emergency me tyre lock = Fisk jayegi</td>
-                        <td>2026 me mat lena</td>
-                    </tr>
-                    <tr>
-                        <td>Single-Channel</td>
-                        <td>Sirf aage wale tyre pe ABS</td>
-                        <td>Budget bike ke liye OK</td>
-                    </tr>
-                    <tr>
-                        <td>Dual-Channel</td>
-                        <td>Dono tyre pe ABS + Cornering ABS</td>
-                        <td>₹1.5 lakh ke upar zaruri</td>
-                    </tr>
-                </table>
-
-                <h3>3. Service Network Check Karo</h3>
-                <p>KTM ki bike le li aur gaon me service center hi nahi hai to kya fayda? <strong>Honda, Hero, Bajaj</strong> ka network har 20 KM pe mil jayega.</p>
-
-                <h3>4. Resale Value Ka Ganit</h3>
-                <ul>
-                    <li><strong>Hero Splendor:</strong> 5 saal baad 60% price mil jayegi.</li>
-                    <li><strong>Royal Enfield:</strong> 70% resale. Bullet ka craze kabhi khatam nahi hota.</li>
-                    <li><strong>KTM Duke:</strong> 40% hi milta hai.</li>
-                </ul>
-
-                <h3>5. Test Ride Ke 5 Rule</h3>
-                <ol>
-                    <li>Traffic me 10 min chalao - pair zameen pe aaram se lag raha?</li>
-                    <li>Speed breaker pe se nikalo - suspension kitna uchhal raha?</li>
-                    <li>U-Turn lo - handle kitna kat-ta hai?</li>
-                    <li>60 ki speed pe brake maro - ABS kaam kar raha?</li>
-                    <li>Peeche kisi ko bithao - seat ka comfort check karo</li>
-                </ol>
-
-                <h2>Section 3: 2026 Ki Top 3 "Paisa Vasool" Bikes</h2>
-                
-                <h3>1. Budget King: Honda SP 125 - ₹91,000</h3>
-                <p><strong>Kyu Lu:</strong> 65 kmpl mileage, Honda ka engine 10 saal tak khulwaoge nahi, 5-step adjustable suspension.<br>
-                <strong>Kami:</strong> Look basic hai.</p>
-
-                <h3>2. All-Rounder: TVS Apache RTR 200 4V - ₹1,49,000</h3>
-                <p><strong>Kyu Lu:</strong> 20.5 BHP power, Dual-channel ABS, 3 Ride Mode, Bluetooth, Showa suspension.<br>
-                <strong>Kami:</strong> Mileage 38 kmpl.</p>
-
-                <h3>3. Swag King: Royal Enfield Hunter 350 - ₹1,50,000</h3>
-                <p><strong>Kyu Lu:</strong> RE ki sabse halki bike, 181 KG only. Traffic me Splendor jaisi chalti hai.<br>
-                <strong>Kami:</strong> 100 ke upar vibration.</p>
-
-                <h2>Final Baat: Kaunsi Bike Tumhare Liye Bani Hai?</h2>
-                <p><strong>₹1 Lakh ke andar:</strong> Honda Shine 100 le lo aankh band karke.<br>
-                <strong>₹1.5 Lakh tak:</strong> Apache RTR 160 4V ya Pulsar N160. ABS wali.<br>
-                <strong>₹2 Lakh tak:</strong> Classic 350 agar swag chahiye, CB350 agar smoothness.<br>
-                <strong>₹3 Lakh tak:</strong> Duke 390 agar aag lagani hai, Dominar 400 agar touring karni hai.</p>
-                
-                <p>Dosto, bike dimaag se lo, dil se chalao. Helmet pehno, signal tod ke mat bhago. 2026 me challan ka rate double ho gaya hai.</p>
-                
-                <p><strong>Tum kaunsi bike lene ka plan kar rahe ho? Comment me batao!</strong></p>
-                
-                <p><em>Disclaimer: Price ex-showroom Delhi ke hain. June 2026 ke hisaab se.</em></p>
-                <script>
-  atOptions = {
-    'key' : 'bb6af06d4acba0229f736a63010fa8fd',
-    'format' : 'iframe',
-    'height' : 250,
-    'width' : 300,
-    'params' : {}
-  };
-</script>
-<script src="https://www.highperformanceformat.com/bb6af06d4acba0229f736a63010fa8fd/invoke.js"></script>
-
-            </article>
-        </main>
-
-        <footer>
-            <p>&copy; 2026 Bike Guide India. Sabhi Adhikar Surakshit.</p>
-            <p>Contact: info@bikeguide.com</p>
-        </footer>
+    <div id="game-container">
+        <h1>Arrow Puzzle</h1>
+        <div id="info">
+            <span>Level: <span id="level">1</span>/40</span>
+            <span>Moves: <span id="moves">0</span></span>
+        </div>
+        <div id="grid"></div>
+        <button onclick="resetLevel()">Reset Level</button>
+        <button onclick="prevLevel()">← Prev</button>
+        <button onclick="nextLevelManual()">Next →</button>
     </div>
-    <script src="https://pl29683994.effectivecpmnetwork.com/4f/5b/40/4f5b40222279f7d05ea3bbc36b7c5578.js"></script>
-<!-- Timer + Auto Scroll Box Start -->
-<div id="timer-box" style="position:fixed; top:10px; right:10px; background:#388e3c; color:white; padding:12px 20px; border-radius:8px; font-family:Arial; font-size:16px; font-weight:bold; z-index:9999; box-shadow: 0 4px 8px rgba(0,0,0,0.3); text-align:center; max-width:250px;">
-    <div style="margin-bottom:5px;">Screen ko dheere dheere scroll kare</div>
-    <div>⏱️ Rukiye: <span id="countdown">22</span>s</div>
-</div>
+
+    <div id="modal">
+        <div class="modal-content">
+            <h2 id="modal-title">Level Complete!</h2>
+            <p id="modal-text"></p>
+            <button onclick="nextLevel()">Next Level</button>
+        </div>
+    </div>
 
 <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const returnUrl = urlParams.get('return_url');
-    const startTime = parseInt(urlParams.get('start'));
-    let timeLeft = parseInt(urlParams.get('time')) || 22;
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+    tg.setHeaderColor('#667eea');
+    tg.setBackgroundColor('#667eea');
 
-    const countdownElement = document.getElementById('countdown');
-    const timerBox = document.getElementById('timer-box');
-    
-    if (returnUrl && startTime) {
-        // Auto Scroll Function - Dheere dheere neeche scroll karega
-        let scrollPosition = 0;
-        const scrollStep = 1; // Kitna pixel ek baar me scroll ho
-        const scrollInterval = 100; // Kitne ms baad scroll ho. Kam rakhega to fast hoga
-        
-        const autoScroll = setInterval(function() {
-            // Agar page ka end nahi aaya to scroll karo
-            if (window.innerHeight + window.scrollY < document.body.offsetHeight) {
-                scrollPosition += scrollStep;
-                window.scrollTo(0, scrollPosition);
-            } else {
-                clearInterval(autoScroll); // End me pahunch gaye to band
+    let currentLevel = 1;
+    let moves = 0;
+    let grid = [];
+    let playerPos = { x: 0, y: 0 };
+    let targetPos = { x: 0, y: 0 };
+    let gridSize = 5;
+
+    // 40 Levels - x=player, t=target, w=wall, 0=empty
+    const levels = [
+        { size: 5, map: ['x0000','00000','00000','00000','0000t'] },
+        { size: 5, map: ['x0000','w0000','00000','0000w','0000t'] },
+        { size: 5, map: ['0000x','00000','ww0ww','00000','t0000'] },
+        { size: 5, map: ['x0w00','00w00','00000','w0000','0000t'] },
+        { size: 5, map: ['x000w','0w000','00w00','000w0','t0000'] },
+        { size: 6, map: ['x00000','0ww000','000000','000ww0','000000','00000t'] },
+        { size: 6, map: ['00000x','0w0w00','0w0w00','0w0w00','0w0w00','t00000'] },
+        { size: 6, map: ['x0ww00','000w00','ww0w00','000w00','00ww00','00000t'] },
+        { size: 6, map: ['00x000','ww0w0w','000000','w0w0ww','000000','t00000'] },
+        { size: 6, map: ['x0000w','0w0w00','00w000','w0w0w0','000000','00000t'] },
+        { size: 7, map: ['x000000','0www000','0000000','000w000','0000000','000000t'] },
+        { size: 7, map: ['000000x','0w0w0w0','0w0w0w0','0w0w0w0','0w0w0w0','0w0w0w0','t000000'] }
+    ];
+
+    // Baki 28 level auto generate
+    while(levels.length < 40) {
+        let size = levels.length < 15? 6 : levels.length < 30? 7 : 8;
+        levels.push(generateRandomLevel(size));
+    }
+
+    function generateRandomLevel(size) {
+        let map = Array(size).fill().map(() => Array(size).fill('0'));
+        map[0][0] = 'x';
+        map[size-1][size-1] = 't';
+        let wallCount = Math.floor(size * size * 0.2);
+        for(let i=0; i<wallCount; i++) {
+            let x = Math.floor(Math.random() * size);
+            let y = Math.floor(Math.random() * size);
+            if(map[y][x] === '0') map[y][x] = 'w';
+        }
+        return { size: size, map: map.map(row => row.join('')) };
+    }
+
+    function loadLevel(levelNum) {
+        currentLevel = levelNum;
+        moves = 0;
+        const levelData = levels[levelNum - 1];
+        gridSize = levelData.size;
+
+        document.getElementById('level').textContent = currentLevel;
+        document.getElementById('moves').textContent = moves;
+
+        const gridEl = document.getElementById('grid');
+        gridEl.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+        gridEl.innerHTML = '';
+
+        grid = [];
+        for(let i = 0; i < gridSize; i++) {
+            grid[i] = [];
+            for(let j = 0; j < gridSize; j++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.x = j;
+                cell.dataset.y = i;
+
+                const char = levelData.map[i][j];
+                if(char === 'x') {
+                    playerPos = { x: j, y: i };
+                    cell.classList.add('active');
+                    cell.innerHTML = '➡️';
+                } else if(char === 't') {
+                    targetPos = { x: j, y: i };
+                    cell.classList.add('target');
+                    cell.innerHTML = '🎯';
+                } else if(char === 'w') {
+                    cell.classList.add('wall');
+                    grid[i][j] = 'wall';
+                }
+
+                cell.onclick = () => movePlayer(j, i);
+                gridEl.appendChild(cell);
+                grid[i][j] = grid[i][j] || 'empty';
             }
-        }, scrollInterval);
+        }
+    }
 
-        // Timer Function
-        const timer = setInterval(function() {
-            timeLeft--;
-            countdownElement.textContent = timeLeft;
-            
-            if (timeLeft <= 0) {
-                clearInterval(timer);
-                clearInterval(autoScroll); // Timer khatam to scroll bhi band
-                
-                const timeSpent = (Date.now() - startTime) / 1000;
-                
-                if (timeSpent >= 21) {
-                    window.location.href = decodeURIComponent(returnUrl) + "?status=success";
-                } else {
-                    window.location.href = decodeURIComponent(returnUrl) + "?status=failed";
+    function movePlayer(x, y) {
+        const dx = Math.abs(x - playerPos.x);
+        const dy = Math.abs(y - playerPos.y);
+        if((dx === 1 && dy === 0) || (dx === 0 && dy === 1)) {
+            if(x >= 0 && x < gridSize && y >= 0 && y < gridSize && grid[y][x]!== 'wall') {
+                const oldCell = document.querySelector(`[data-x="${playerPos.x}"][data-y="${playerPos.y}"]`);
+                oldCell.classList.remove('active');
+                oldCell.innerHTML = '';
+
+                playerPos = { x, y };
+                const newCell = document.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+                newCell.classList.add('active');
+                newCell.innerHTML = '➡️';
+
+                moves++;
+                document.getElementById('moves').textContent = moves;
+
+                if(x === targetPos.x && y === targetPos.y) {
+                    setTimeout(winLevel, 300);
                 }
             }
-        }, 1000);
-    } else {
-        timerBox.style.display = 'none';
+        }
     }
+
+    function winLevel() {
+        document.getElementById('modal-title').textContent = `Level ${currentLevel} Complete!`;
+        document.getElementById('modal-text').textContent = `You did it in ${moves} moves!`;
+        document.getElementById('modal').style.display = 'flex';
+        tg.HapticFeedback.notificationOccurred('success');
+        tg.CloudStorage.setItem('level', (currentLevel + 1).toString());
+    }
+
+    function nextLevel() {
+        document.getElementById('modal').style.display = 'none';
+        if(currentLevel < 40) {
+            loadLevel(currentLevel + 1);
+        } else {
+            alert('Congratulations! You completed all 40 levels!');
+            tg.close();
+        }
+    }
+
+    function nextLevelManual() {
+        if(currentLevel < 40) loadLevel(currentLevel + 1);
+    }
+
+    function prevLevel() {
+        if(currentLevel > 1) loadLevel(currentLevel - 1);
+    }
+
+    function resetLevel() {
+        loadLevel(currentLevel);
+    }
+
+    // Swipe controls
+    let touchStartX = 0, touchStartY = 0;
+    document.addEventListener('touchstart', e => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    });
+    document.addEventListener('touchend', e => {
+        let dx = e.changedTouches[0].clientX - touchStartX;
+        let dy = e.changedTouches[0].clientY - touchStartY;
+        if(Math.abs(dx) > Math.abs(dy)) {
+            if(dx > 30) movePlayer(playerPos.x + 1, playerPos.y);
+            if(dx < -30) movePlayer(playerPos.x - 1, playerPos.y);
+        } else {
+            if(dy > 30) movePlayer(playerPos.x, playerPos.y + 1);
+            if(dy < -30) movePlayer(playerPos.x, playerPos.y - 1);
+        }
+    });
+
+    // Keyboard controls for PC testing
+    document.addEventListener('keydown', e => {
+        if(e.key === 'ArrowRight') movePlayer(playerPos.x + 1, playerPos.y);
+        if(e.key === 'ArrowLeft') movePlayer(playerPos.x - 1, playerPos.y);
+        if(e.key === 'ArrowDown') movePlayer(playerPos.x, playerPos.y + 1);
+        if(e.key === 'ArrowUp') movePlayer(playerPos.x, playerPos.y - 1);
+        if(e.key === 'r') resetLevel();
+    });
+
+    // Load saved level
+    tg.CloudStorage.getItem('level', (err, value) => {
+        const savedLevel = value? parseInt(value) : 1;
+        loadLevel(savedLevel > 40 || savedLevel < 1? 1 : savedLevel);
+    });
 </script>
-<!-- Timer + Auto Scroll Box End -->
 </body>
 </html>
