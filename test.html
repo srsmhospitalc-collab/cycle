@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Ad Test</title>
+    <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
+    <script>
+      window.TelegramAdsController = new TelegramAdsController();
+      window.TelegramAdsController.initialize({
+        pubId: "1013423",
+        appId: "7744",
+        debug: true
+      });
+    </script>
+</head>
+<body>
+    <h1>Ad Test</h1>
+    <button onclick="testAd()" style="font-size:30px;padding:20px">SHOW AD</button>
+    
+    <script>
+      function testAd() {
+        console.log('Button daba, ad call kar raha...');
+        window.TelegramAdsController.triggerInterstitialBanner().then((res) => {
+            alert('Ad Success: ' + res);
+        }).catch((err) => {
+            alert('Ad Fail: ' + err);
+        });
+      }
+    </script>
+</body>
+</html>
