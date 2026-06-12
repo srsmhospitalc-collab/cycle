@@ -25,10 +25,10 @@
             min-height: 100vh;
             padding: 10px;
         }
-     .container { max-width: 400px; margin: 0 auto; }
-     .header { text-align: center; margin-bottom: 15px; }
-     .stats { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; font-size: 14px; }
-     .game-board {
+    .container { max-width: 400px; margin: 0 auto; }
+    .header { text-align: center; margin-bottom: 15px; }
+    .stats { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; font-size: 14px; }
+    .game-board {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 5px;
@@ -37,7 +37,7 @@
             border-radius: 10px;
             margin-bottom: 15px;
         }
-     .cell {
+    .cell {
             aspect-ratio: 1;
             background: rgba(255,255,255,0.1);
             border-radius: 8px;
@@ -49,12 +49,12 @@
             transition: 0.2s;
             user-select: none;
         }
-     .cell:hover { background: rgba(255,255,255,0.2); }
-     .cell.arrow { background: #4CAF50; font-size: 28px; }
-     .cell.target { background: #FFC107; animation: pulse 1s infinite; }
-     .cell.block { background: #424242; cursor: not-allowed; }
-      @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
-     .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .cell:hover { background: rgba(255,255,255,0.3); }
+    .cell.arrow { background: #4CAF50; font-size: 32px; }
+    .cell.target { background: #FFC107; animation: pulse 1s infinite; }
+    .cell.block { background: #424242; cursor: not-allowed; }
+      @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+    .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         button {
             padding: 12px;
             border: none;
@@ -65,10 +65,11 @@
             cursor: pointer;
         }
         button:active { transform: scale(0.95); }
-     .menu-btn { background: #9C27B0; grid-column: span 2; }
-     .ad-btn { background: #4CAF50; grid-column: span 2; }
+    .menu-btn { background: #9C27B0; grid-column: span 2; }
+    .skip-btn { background: #FF5722; grid-column: span 2; }
+    .ad-btn { background: #4CAF50; grid-column: span 2; }
 
-     .level-menu {
+    .level-menu {
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -77,14 +78,14 @@
             padding: 20px;
             overflow-y: auto;
         }
-     .level-grid {
+    .level-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 10px;
             max-width: 400px;
             margin: 20px auto;
         }
-     .level-item {
+    .level-item {
             aspect-ratio: 1;
             background: #2196F3;
             border-radius: 8px;
@@ -94,11 +95,10 @@
             font-weight: bold;
             cursor: pointer;
         }
-     .level-item.locked { background: #555; cursor: not-allowed; opacity: 0.4; }
-     .level-item.current { background: #4CAF50; box-shadow: 0 0 10px #4CAF50; }
-     .level-item.completed { background: #FF9800; }
+    .level-item.current { background: #4CAF50; box-shadow: 0 0 10px #4CAF50; }
+    .level-item.completed { background: #FF9800; }
 
-     .modal {
+    .modal {
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -107,7 +107,7 @@
             justify-content: center;
             z-index: 200;
         }
-     .modal-content {
+    .modal-content {
             background: #764ba2;
             padding: 30px;
             border-radius: 15px;
@@ -131,15 +131,16 @@
 
         <div class="controls">
             <button onclick="resetLevel()">🔄 Reset</button>
-            <button onclick="undoMove()">↩️ Undo</button>
+            <button onclick="moveToTarget()">🎯 Auto Win</button>
             <button onclick="showMenu()" class="menu-btn">📋 Select Level</button>
+            <button onclick="skipLevel()" class="skip-btn">⏭️ Skip Level</button>
             <button onclick="watchAdForCoins()" class="ad-btn">🎬 Watch Ad +50 Coins</button>
         </div>
     </div>
 
     <div class="level-menu" id="levelMenu">
         <h2 style="text-align:center;margin-bottom:10px;">Select Level</h2>
-        <p style="text-align:center;opacity:0.7;font-size:12px;">Unlock karke khelo</p>
+        <p style="text-align:center;opacity:0.7;font-size:12px;">Sab unlocked hain - koi bhi khelo</p>
         <div class="level-grid" id="levelGrid"></div>
         <button onclick="closeMenu()" style="width:100%;margin-top:20px;">Close</button>
     </div>
@@ -159,70 +160,66 @@
     tg.ready();
 
     let currentLevel = 1;
-    let maxUnlockedLevel = 1;
     let moves = 0;
     let coins = 0;
     let board = [];
     let arrowPos = {x: 0, y: 0};
     let targetPos = {x: 4, y: 4};
-    let moveHistory = [];
 
-    // 40 Levels - 0=empty, 1=block, 2=arrow, 3=target
+    // Super Easy 40 Levels - Har level 2-3 move me complete
     const levels = [
-        [[2,0,0,0,0],[0,0,0],[0,0,0,0,0],[0,0,0],[0,0,0,0,3]],
-        [[2,0,0,0,0],[0,1,0,0,0],[0,0,0,0,0],[0,0,0,1,0],[0,0,0,0,3]],
-        [[2,0,1,0,0],[0,0,1,0,0],[0,0,0,0,0],[0,0,0],[0,0,0,0,3]],
-        [[2,0,0,0,0],[1,1,0,0,0],[0,0,0,1,0],[0,0,0,1,0],[0,0,0,0,3]],
-        [[2,0,0,1,0],[0,0,0,1,0],[0,1,0,0,0],[0,1,0,0,0],[0,0,0,0,3]],
-        [[2,0,1,0,0],[0,0,0,0,0],[1,0,0,1,0],[0,0,0,1,0],[0,0,0,0,3]],
-        [[2,0,0],[0,1,1,0,0],[0,0,0,0,1],[0,0,0,0,0],[0,0,0,0,3]],
-        [[2,0,1,0,0],[0,0,0,0,0],[0,1,0],[0,0,0,1,0],[0,0,0,0,3]],
-        [[2,0,0,0,0],[1,1,0,0,1],[0,0,0],[0,0,1,0,0],[0,0,0,0,3]],
-        [[2,0,0,0,1],[0,1,0,0,1],[0,0,0],[0,0,1,0,0],[0,0,0,0,3]],
-        [[2,0,0],[0,1,0,1,0],[0,0,0,1,0],[0,0,0,0,0],[1,0,0,0,3]],
-        [[2,0,0,1,0],[0,0,0,1,0],[1,0,0],[0,0,1,0,0],[0,0,0,0,3]],
-        [[2,0,1,0,0],[0,0,1,0,0],[0,0,0],[1,0,0,1,0],[0,0,0,0,3]],
-        [[2,0,0],[0,1,1,0,0],[0,0,0,0,1],[0,1,0,0,0],[0,0,0,0,3]],
-        [[2,0,0,1,0],[0,0,0,1,0],[0,1,0,0,0],[0,0,0,1,0],[0,0,0,0,3]],
-        [[2,0,1],[0,0,0,0,0],[0,1,0],[0,0,0,1,0],[0,0,0,0,3]],
-        [[2,0,0],[1,0,1,0,0],[1,0,1,0,0],[0,0,0,0,1],[0,0,0,0,3]],
-        [[2,0,0,1,0],[0,1,0,1,0],[0,1,0,0,0],[0,0,0,0,1],[0,0,0,0,3]],
-        [[2,0,0,0,0],[0,0,1,0,1],[1,0,1,0,0],[0,0,0,0,0],[0,0,0,1,3]],
-        [[2,1,0,0,0],[0,0,0,1,0],[0,1,0],[0,0,0,0,0],[1,0,0,0,3]],
-        [[2,0,0,0,1],[0,1,1,0,0],[0,0,0,0,1],[0,0,1,0,0],[0,0,0,0,3]],
-        [[2,0,1,0,0],[0,0,0,0,1],[1,0,1,0,0],[0,0,1,0,0],[0,0,0,0,3]],
-        [[2,0,0,1,0],[1,0,0,1,0],[1,0,0],[0,0,1,0,1],[0,0,0,0,3]],
-        [[2,0,0,0,0],[0,1,0,1,0],[0,1,0,1,0],[0,0,0,0,0],[1,0,0,0,3]],
-        [[2,0,1],[0,0,0,0,0],[0,1,1,0,1],[0,0,0,0,0],[0,0,0,1,3]],
-        [[2,0,0,0,0],[1,1,0,1,0],[0,0,0,1,0],[0,1,0,0,0],[0,0,0,0,3]],
-        [[2,0,0,1,0],[0,0,0,1,0],[1,1,0,0,0],[0,0,0,0,1],[0,0,0,0,3]],
-        [[2,1,0,0,1],[0,0,0,0,0],[0,1,1,0,1],[0,0,0,0,0],[0,0,0,1,3]],
-        [[2,0,0],[0,1,0,1,1],[0,1,0,0,0],[0,0,0,1,0],[1,0,0,0,3]],
-        [[2,0,1,0,0],[0,0,1,0,1],[0,0,0,0,1],[1,0,0,0,0],[0,0,0,0,3]],
-        [[2,0,0,1,1],[0,1,0,0,0],[0,1,0],[0,0,0,1,0],[0,0,0,0,3]],
-        [[2,0,0,0,0],[1,0,1,0,1],[1,0,1,0,0],[0,0,0,0,1],[0,0,0,0,3]],
-        [[2,1,0,0,0],[0,0,0,1,1],[0,1,0],[0,1,0,0,0],[0,0,0,0,3]],
-        [[2,0,1,0,0],[0,0,0,0,1],[0,1,1,0,0],[0,0,0,0,1],[0,0,0,0,3]],
-        [[2,0,0,0,1],[0,1,1,0,1],[0,0,0],[1,0,1,0,0],[0,0,0,0,3]],
-        [[2,0,1,0,0],[0,0,1,0,1],[1,0,0,0,1],[0,0,1,0,0],[0,0,0,0,3]],
-        [[2,0,0,1,0],[1,1,0,1,0],[0,0,0,0,1],[0,1,0,0,1],[0,0,0,0,3]],
-        [[2,1,0,0,1],[0,0,0,1,0],[0,1,0],[1,0,0,0,0],[0,0,1,0,3]],
-        [[2,0,0],[0,1,1,0,1],[0,1,0,0,1],[0,0,0,1,0],[1,0,0,0,3]],
-        [[2,0,1,1,0],[0,0,0,0,1],[1,0,1,0,0],[0,0,1,0,0],[0,0,0,0,3]]
+        [[2,0,0,0,3],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0]],
+        [[2,0,0],[0,0,0,0,3],[0,0,0],[0,0,0,0,0],[0,0,0]],
+        [[2,0,0],[0,0,0,0,0],[0,0,0,0,3],[0,0,0,0,0],[0,0,0]],
+        [[2,0,0],[0,0,0,0,0],[0,0,0],[0,0,0,0,3],[0,0,0]],
+        [[2,0,0,0,0],[0,0,0,0,0],[0,0,0],[0,0,0,0,0],[0,0,0,0,3]],
+        [[2,0,0],[0,1,0,0,3],[0,0,0],[0,0,0,0,0],[0,0,0,0,0]],
+        [[2,0,0,0,0],[0,0,1,0,3],[0,0,0,0,0],[0,0,0],[0,0,0,0,0]],
+        [[2,0,0,0,0],[0,0,0,1,3],[0,0,0,0,0],[0,0,0,0,0],[0,0,0]],
+        [[2,0,0],[0,1,0,0,0],[0,0,0,0,3],[0,0,0,0,0],[0,0,0]],
+        [[2,0,0],[0,0,1,0,0],[0,0,0,0,3],[0,0,0,0,0],[0,0,0,0,0]],
+        [[2,0,0,0,0],[0,0,0,1,0],[0,0,3],[0,0,0,0,0],[0,0,0]],
+        [[2,0,0,0,0],[0,1,0,0,0],[0,0,0],[0,0,0,0,3],[0,0,0]],
+        [[2,0,0,0,0],[0,0,1,0,0],[0,0,0],[0,0,0,0,3],[0,0,0,0,0]],
+        [[2,0,0,0,0],[0,0,0,1,0],[0,0,0],[0,0,0,0,3],[0,0,0]],
+        [[2,0,0],[0,1,0,0,0],[0,0,0],[0,0,0,0,0],[0,0,0,0,3]],
+        [[2,0,0],[0,0,1,0,0],[0,0,0],[0,0,0,0,0],[0,0,0,0,3]],
+        [[2,0,0],[0,0,0,1,0],[0,0,0],[0,0,0,0,0],[0,0,0,0,3]],
+        [[2,0,0],[1,0,0,0,3],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]],
+        [[2,0,0,0,0],[0,1,0,0,3],[0,0,0,0,0],[0,0,0],[0,0,0,0,0]],
+        [[2,0,0,0,0],[0,0,1,0,3],[0,0,0,0,0],[0,0,0],[0,0,0,0,0]],
+        [[2,0,0,0,0],[0,0,0,1,3],[0,0,0,0,0],[0,0,0],[0,0,0,0,0]],
+        [[2,0,0,0,0],[0,1,0,0,0],[0,0,0,0,3],[0,0,0,0,0],[0,0,0,0,0]],
+        [[2,0,0,0,0],[0,0,1,0,0],[0,0,0,0,3],[0,0,0,0,0],[0,0,0]],
+        [[2,0,0],[0,0,0,1,0],[0,0,0,0,3],[0,0,0,0,0],[0,0,0,0,0]],
+        [[2,0,0],[0,1,0,0,0],[0,0,0,0,0],[0,0,0,0,3],[0,0,0,0,0]],
+        [[2,0,0,0,0],[0,0,1,0,0],[0,0,0],[0,0,0,0,3],[0,0,0]],
+        [[2,0,0],[0,0,0,1,0],[0,0,0,0,0],[0,0,0,0,3],[0,0,0]],
+        [[2,0,0],[0,1,0,0,0],[0,0,0],[0,0,0,0,0],[0,0,0,0,3]],
+        [[2,0,0,0,0],[0,0,1,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,3]],
+        [[2,0,0,0,0],[0,0,0,1,0],[0,0,0],[0,0,0,0,0],[0,0,0,0,3]],
+        [[2,0,0],[1,0,0],[0,0,0,0,3],[0,0,0],[0,0,0,0,0]],
+        [[2,0,0,0,0],[0,1,0,0,0],[0,0,0,0,3],[0,0,0],[0,0,0,0,0]],
+        [[2,0,0,0,0],[0,0,1,0,0],[0,0,0,0,3],[0,0,0,0,0],[0,0,0,0,0]],
+        [[2,0,0,0,0],[0,0,0,1,0],[0,0,0,0,3],[0,0,0],[0,0,0,0,0]],
+        [[2,0,0,0,0],[1,0,0],[0,0,0,0,0],[0,0,0,0,3],[0,0,0,0,0]],
+        [[2,0,0,0,0],[0,1,0,0,0],[0,0,0,0,0],[0,0,0,0,3],[0,0,0,0,0]],
+        [[2,0,0,0,0],[0,0,1,0,0],[0,0,0,0,0],[0,0,0,0,3],[0,0,0,0,0]],
+        [[2,0,0,0,0],[0,0,0,1,0],[0,0,0,0,0],[0,0,0,0,3],[0,0,0,0,0]],
+        [[2,0,0,0,0],[1,0,0],[0,0,0,0,0],[0,0,0],[0,0,0,0,3]],
+        [[2,0,0,0,0],[0,1,0,0,0],[0,0,0,0,0],[0,0,0],[0,0,0,0,3]]
     ];
 
-    // Load saved data - FIX: maxUnlockedLevel properly load karo
-    tg.CloudStorage.getItems(['level', 'coins'], (err, res) => {
-        if(res && res.level) maxUnlockedLevel = parseInt(res.level);
-        if(res && res.coins) coins = parseInt(res.coins);
+    // Sab level unlocked - start se hi
+    tg.CloudStorage.getItem('coins', (err, val) => {
+        if(val) coins = parseInt(val);
         document.getElementById('coins').textContent = coins;
-        loadLevel(currentLevel);
+        loadLevel(1);
     });
 
     function loadLevel(level) {
         currentLevel = level;
         moves = 0;
-        moveHistory = [];
         document.getElementById('level').textContent = level;
         document.getElementById('moves').textContent = moves;
 
@@ -256,6 +253,7 @@
                 } else if(board[y][x] === 3) {
                     cell.classList.add('target');
                     cell.textContent = '🎯';
+                    cell.onclick = () => tryMove(x, y); // Target pe click karne do
                 } else {
                     cell.onclick = () => tryMove(x, y);
                 }
@@ -264,61 +262,32 @@
         }
     }
 
-    // FIX: Target pe jaane do - target cell ko block mat maano
+    // EASY MODE: Kahi bhi click karo, block nahi hai to chal jayega
     function tryMove(targetX, targetY) {
-        const dx = targetX - arrowPos.x;
-        const dy = targetY - arrowPos.y;
-
-        if(dx!== 0 && dy!== 0) return;
-        if(dx === 0 && dy === 0) return;
-
-        const steps = Math.max(Math.abs(dx), Math.abs(dy));
-        const stepX = dx === 0? 0 : dx / Math.abs(dx);
-        const stepY = dy === 0? 0 : dy / Math.abs(dy);
-
-        let canMove = true;
-        let newX = arrowPos.x;
-        let newY = arrowPos.y;
-
-        for(let i = 0; i < steps; i++) {
-            newX += stepX;
-            newY += stepY;
-
-            if(newX < 0 || newX >= 5 || newY < 0 || newY >= 5) {
-                canMove = false;
-                break;
-            }
-            // FIX: Target cell 3 hai to jaane do, sirf block 1 ko roko
-            if(board[newY][newX] === 1) {
-                canMove = false;
-                break;
-            }
-        }
-
-        if(canMove) {
-            moveHistory.push({x: arrowPos.x, y: arrowPos.y});
-            board[arrowPos.y][arrowPos.x] = 0;
-            board[targetY][targetX] = 2;
-            arrowPos = {x: targetX, y: targetY};
-            moves++;
-            document.getElementById('moves').textContent = moves;
-            tg.HapticFeedback.impactOccurred('light');
-            renderBoard();
-            setTimeout(() => checkWin(), 150);
-        } else {
+        // Block hai to mat jao
+        if(board === 1) {
             tg.HapticFeedback.notificationOccurred('error');
+            return;
         }
+
+        // Seedha move kar do
+        board[arrowPos.y][arrowPos.x] = 0;
+        board[targetY][targetX] = 2;
+        arrowPos = {x: targetX, y: targetY};
+        moves++;
+        document.getElementById('moves').textContent = moves;
+        tg.HapticFeedback.impactOccurred('light');
+        renderBoard();
+        setTimeout(() => checkWin(), 100);
+    }
+
+    // Auto win button
+    function moveToTarget() {
+        tryMove(targetPos.x, targetPos.y);
     }
 
     function undoMove() {
-        if(moveHistory.length === 0) return;
-        const lastPos = moveHistory.pop();
-        board[arrowPos.y][arrowPos.x] = 0;
-        board[lastPos.y][lastPos.x] = 2;
-        arrowPos = lastPos;
-        moves = Math.max(0, moves - 1);
-        document.getElementById('moves').textContent = moves;
-        renderBoard();
+        resetLevel();
         tg.HapticFeedback.impactOccurred('medium');
     }
 
@@ -328,23 +297,27 @@
         }
     }
 
-    // FIX: Unlock logic sahi karo
     function winLevel() {
         document.getElementById('modal-title').textContent = `Level ${currentLevel} Complete!`;
         document.getElementById('modal-text').textContent = `You did it in ${moves} moves!`;
         document.getElementById('modal').style.display = 'flex';
         tg.HapticFeedback.notificationOccurred('success');
 
-        // FIX: Next level unlock karo aur save karo
-        if(currentLevel >= maxUnlockedLevel && currentLevel < 40) {
-            maxUnlockedLevel = currentLevel + 1;
-            tg.CloudStorage.setItem('level', maxUnlockedLevel.toString());
-        }
-
+        // Har 5 level pe ad
         if(currentLevel % 5 === 0) {
             TelegramAdsController.showAd({
                 adBlockUuid: "399185_KA_UUID_YAHAN_DAALNA"
             }).catch(() => {});
+        }
+    }
+
+    // Skip level button
+    function skipLevel() {
+        if(currentLevel < 40) {
+            loadLevel(currentLevel + 1);
+            tg.HapticFeedback.notificationOccurred('success');
+        } else {
+            tg.showAlert('🎉 Sab 40 levels complete!');
         }
     }
 
@@ -367,6 +340,7 @@
         tg.HapticFeedback.impactOccurred('medium');
     }
 
+    // SAB LEVEL UNLOCKED
     function showMenu() {
         const grid = document.getElementById('levelGrid');
         grid.innerHTML = '';
@@ -376,22 +350,16 @@
             item.className = 'level-item';
             item.textContent = i;
 
-            if(i > maxUnlockedLevel) {
-                item.classList.add('locked');
-            } else if(i === currentLevel) {
+            if(i === currentLevel) {
                 item.classList.add('current');
-            } else if(i < maxUnlockedLevel) {
-                item.classList.add('completed');
-                item.onclick = () => {
-                    loadLevel(i);
-                    closeMenu();
-                };
             } else {
-                item.onclick = () => {
-                    loadLevel(i);
-                    closeMenu();
-                };
+                item.classList.add('completed');
             }
+
+            item.onclick = () => {
+                loadLevel(i);
+                closeMenu();
+            };
             grid.appendChild(item);
         }
         document.getElementById('levelMenu').style.display = 'block';
