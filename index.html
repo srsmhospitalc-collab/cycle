@@ -3,149 +3,187 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Arrow Puzzle 100</title>
+<title>Arrow Puzzle 100 Pro</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<!-- RICHADS HEAD CODE -->
+<script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
+<script>
+  window.TelegramAdsController = new TelegramAdsController();
+  window.TelegramAdsController.initialize({
+    pubId: "1013423",
+    appId: "7744",
+    debug: true
+  });
+</script>
+
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
         font-family: 'Segoe UI', sans-serif;
         background: linear-gradient(135deg, #0f172a, #1e293b);
-        color: #fff; overflow: hidden; height: 100vh;
-        display: flex; align-items: center; justify-content: center;
+        color: #fff; overflow-x: hidden; min-height: 100vh;
     }
-   .screen { display: none; width: 100%; max-width: 400px; padding: 20px; text-align: center; }
-   .screen.active { display: block; }
-   .btn {
+.container { max-width: 400px; margin: 0 auto; padding: 15px; }
+.screen { display: none; text-align: center; }
+.screen.active { display: block; }
+.btn {
         background: linear-gradient(135deg, #8b5cf6, #7c3aed);
         border: none; padding: 18px 40px; border-radius: 15px;
         color: white; font-size: 20px; font-weight: 700;
-        cursor: pointer; margin: 10px; width: 80%;
+        cursor: pointer; margin: 10px; width: 85%;
         box-shadow: 0 8px 20px rgba(139,92,246,0.4);
     }
-   .btn:active { transform: scale(0.95); }
-    h1 { font-size: 48px; margin-bottom: 10px; background: linear-gradient(135deg, #8b5cf6, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-   .subtitle { color: #94a3b8; margin-bottom: 40px; }
-   .header {
+.btn:active { transform: scale(0.95); }
+.btn-small { padding: 10px 20px; font-size: 16px; width: auto; }
+    h1 { font-size: 42px; margin: 30px 0 10px; background: linear-gradient(135deg, #8b5cf6, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.subtitle { color: #94a3b8; margin-bottom: 40px; }
+.header {
         display: flex; justify-content: space-between; align-items: center;
         margin-bottom: 15px; padding: 12px 16px;
         background: rgba(30,41,59,0.6); border-radius: 12px;
     }
-   .game-grid {
-        display: grid; gap: 4px; margin: 20px auto; padding: 10px;
+.game-grid {
+        display: grid; gap: 4px; margin: 15px auto; padding: 10px;
         background: rgba(30,41,59,0.4); border-radius: 15px;
         max-width: 360px;
     }
-   .cell {
+.cell {
         aspect-ratio: 1; background: #334155; border-radius: 8px;
         display: flex; align-items: center; justify-content: center;
-        font-size: 24px; cursor: pointer; transition: 0.2s;
+        font-size: 20px; cursor: pointer; transition: 0.2s;
     }
-   .cell:active { transform: scale(0.9); }
-   .cell.block { background: #475569; cursor: not-allowed; }
-   .cell.arrow { background: #8b5cf6; animation: pulse 1s infinite; }
-   .cell.target { background: #10b981; box-shadow: 0 0 20px rgba(16,185,129,0.6); }
+.cell:active { transform: scale(0.9); }
+.cell.block { background: #475569; cursor: not-allowed; }
+.cell.arrow { background: #8b5cf6; animation: pulse 1s infinite; }
+.cell.target { background: #10b981; box-shadow: 0 0 20px rgba(16,185,129,0.6); }
     @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
-   .level-grid {
+.level-grid {
         display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
-        max-height: 60vh; overflow-y: auto; padding: 10px;
+        max-height: 55vh; overflow-y: auto; padding: 10px;
     }
-   .level-btn {
+.level-btn {
         aspect-ratio: 1; background: #334155; border: 2px solid #475569;
         border-radius: 10px; color: #94a3b8; font-weight: 700;
         cursor: pointer; display: flex; align-items: center; justify-content: center;
+        font-size: 14px;
     }
-   .level-btn.unlocked { background: #8b5cf6; border-color: #7c3aed; color: white; }
-   .level-btn.current { background: #10b981; border-color: #059669; animation: pulse 1s infinite; }
-   .level-btn.locked { opacity: 0.4; cursor: not-allowed; }
+.level-btn.unlocked { background: #8b5cf6; border-color: #7c3aed; color: white; }
+.level-btn.current { background: #10b981; border-color: #059669; animation: pulse 1s infinite; }
+.level-btn.locked { opacity: 0.4; cursor: not-allowed; }
+.stats { display: flex; justify-content: space-around; margin: 20px 0; color: #94a3b8; }
+.native-ad {
+        margin: 15px 0; min-height: 80px; background: rgba(30,41,59,0.3);
+        border-radius: 12px; display: flex; align-items: center; justify-content: center;
+        border: 1px dashed #475569; color: #64748b; font-size: 12px;
+    }
 </style>
-   
-          <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
-          <script>
-            window.TelegramAdsController = new TelegramAdsController();
-            window.TelegramAdsController.initialize({
-              pubId: "1013423",
-              appId: "7744",
-            });
-          </script>
 </head>
 <body>
-    <!-- Home Screen -->
+<div class="container">
+    <!-- HOME SCREEN -->
     <div id="homeScreen" class="screen active">
         <h1>ARROW PUZZLE</h1>
         <p class="subtitle">100 Challenging Levels</p>
-        <button class="btn" onclick="showLevelSelect()">▶ PLAY</button>
-        <p style="margin-top:30px;color:#64748b">Highest: Level <span id="maxLevel">1</span></p>
+        <div class="stats">
+            <div>🏆 Highest<br><b id="maxLevel">1</b></div>
+            <div>⭐ Total Moves<br><b id="totalMoves">0</b></div>
+        </div>
+        <button class="btn" onclick="showLevelSelect()">▶ PLAY GAME</button>
+        <!-- NATIVE AD HOME PE - SIRF 1 BAAR LOAD HOGA -->
+        <div class="native-ad" id="nativeAdHome">Advertisement</div>
     </div>
 
-    <!-- Level Select -->
+    <!-- LEVEL SELECT -->
     <div id="levelScreen" class="screen">
-        <h2 style="margin-bottom:20px">SELECT LEVEL</h2>
+        <h2 style="margin-bottom:15px">SELECT LEVEL</h2>
         <div class="level-grid" id="levelGrid"></div>
-        <button class="btn" onclick="showHome()" style="margin-top:15px">⬅ BACK</button>
+        <button class="btn btn-small" onclick="showHome()">⬅ BACK</button>
     </div>
 
-    <!-- Game Screen -->
+    <!-- GAME SCREEN -->
     <div id="gameScreen" class="screen">
         <div class="header">
             <button onclick="showLevelSelect()" style="background:none;border:none;color:#94a3b8;font-size:24px">←</button>
             <div>Level <span id="levelNum">1</span>/100</div>
-            <div>⭐ <span id="moves">0</span></div>
+            <div>Moves: <span id="moves">0</span></div>
         </div>
         <div class="game-grid" id="gameGrid"></div>
-        <p style="color:#94a3b8;margin-top:10px">Tap target 🎯 to win</p>
+        <p style="color:#94a3b8;margin:10px 0">Reach 🎯 to win</p>
     </div>
+</div>
 
 <script>
 const tg = window.Telegram.WebApp;
 tg.ready(); tg.expand();
 
-// 1. RICHADS INIT - Zone 399185
-window.TelegramAdsController = new TelegramAdsController();
-window.TelegramAdsController.initialize({
-    pubId: "1013423",
-    appId: "7744", 
-    debug: true // Live pe false rakhna
-});
-
-// 2. GAME DATA
+// GAME STATE
 let currentLevel = 1;
 let maxUnlocked = 1;
+let totalMoves = 0;
 let grid = [];
 let arrowPos = {x: 0, y: 0};
-let targetPos = {x: 0, y: 0};
 let moves = 0;
 let gridSize = 5;
+let adLoaded = false; // ← NATIVE AD FIX
+let lastInterstitialTime = 0; // ← INTERSTITIAL FIX
 
-// Load save
-const saved = tg.CloudStorage.getItem('arrowSave');
-if(saved) {
-    const data = JSON.parse(saved);
-    maxUnlocked = data.maxUnlocked || 1;
+// LOAD SAVE DATA
+function loadGame() {
+    try {
+        const saved = localStorage.getItem('arrowPuzzle100');
+        if(saved) {
+            const data = JSON.parse(saved);
+            maxUnlocked = data.maxUnlocked || 1;
+            totalMoves = data.totalMoves || 0;
+        }
+    } catch(e) { console.log('Load error:', e); }
     document.getElementById('maxLevel').textContent = maxUnlocked;
+    document.getElementById('totalMoves').textContent = totalMoves;
 }
 
-// 3. LEVEL GENERATOR - Auto difficulty badhegi
+// SAVE DATA
+function saveGame() {
+    try {
+        localStorage.setItem('arrowPuzzle100', JSON.stringify({
+            maxUnlocked: maxUnlocked,
+            totalMoves: totalMoves
+        }));
+    } catch(e) { console.log('Save error:', e); }
+}
+
+// NATIVE AD - SIRF 1 BAAR LOAD HOGA PURI GAME ME
+function loadNativeAds() {
+    if(adLoaded) return; // Agar pehle se load hai to skip
+    try {
+        window.TelegramAdsController.triggerNativeBanner('nativeAdHome');
+        adLoaded = true;
+        console.log('Native ad loaded once');
+    } catch(e) { console.log('Native ad error:', e); }
+}
+
+// LEVEL GENERATOR
 function generateLevel(lvl) {
-    gridSize = Math.min(5 + Math.floor(lvl / 15), 9); // Level 1=5x5, Level 100=9x9
-    const blockCount = Math.min(3 + Math.floor(lvl / 5), 20); // Har 5 level pe block badhe
-    
+    gridSize = Math.min(5 + Math.floor((lvl-1) / 20), 9);
+    const blockCount = Math.min(3 + Math.floor(lvl / 3), 25);
+
     grid = Array(gridSize).fill().map(() => Array(gridSize).fill(0));
-    
-    // Random blocks
+
     let blocks = 0;
-    while(blocks < blockCount) {
+    let attempts = 0;
+    while(blocks < blockCount && attempts < 200) {
         const x = Math.floor(Math.random() * gridSize);
         const y = Math.floor(Math.random() * gridSize);
         if(grid[y][x] === 0 &&!(x === 0 && y === 0) &&!(x === gridSize-1 && y === gridSize-1)) {
-            grid[y][x] = 1; // 1 = block
+            grid[y][x] = 1;
             blocks++;
         }
+        attempts++;
     }
-    
+
     arrowPos = {x: 0, y: 0};
-    targetPos = {x: gridSize-1, y: gridSize-1};
-    grid[0][0] = 2; // 2 = arrow
-    grid[gridSize-1][gridSize-1] = 3; // 3 = target
+    grid[0][0] = 2;
+    grid[gridSize-1][gridSize-1] = 3;
     moves = 0;
 }
 
@@ -153,12 +191,12 @@ function renderGrid() {
     const gameGrid = document.getElementById('gameGrid');
     gameGrid.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
     gameGrid.innerHTML = '';
-    
+
     for(let y = 0; y < gridSize; y++) {
         for(let x = 0; x < gridSize; x++) {
             const cell = document.createElement('div');
             cell.className = 'cell';
-            
+
             if(grid[y][x] === 1) {
                 cell.className += ' block';
                 cell.textContent = '⬛';
@@ -169,7 +207,7 @@ function renderGrid() {
                 cell.className += ' target';
                 cell.textContent = '🎯';
             }
-            
+
             cell.onclick = () => moveArrow(x, y);
             gameGrid.appendChild(cell);
         }
@@ -178,56 +216,57 @@ function renderGrid() {
     document.getElementById('levelNum').textContent = currentLevel;
 }
 
-// 4. ARROW MOVEMENT - Simple logic: click karo jahan jana hai
+// ARROW MOVEMENT
 function moveArrow(x, y) {
-    if(grid[y][x] === 1) return; // Block pe nahi ja sakta
-    
-    // Line of sight check - beech me block to nahi
+    if(grid[y][x] === 1) return;
+
     const dx = Math.sign(x - arrowPos.x);
     const dy = Math.sign(y - arrowPos.y);
-    if(dx!== 0 && dy!== 0) return; // Diagonal nahi
-    
+    if(dx!== 0 && dy!== 0) return;
+    if(dx === 0 && dy === 0) return;
+
     let cx = arrowPos.x, cy = arrowPos.y;
     while(cx!== x || cy!== y) {
         cx += dx; cy += dy;
-        if(grid[cy][cx] === 1) return; // Raaste me block hai
+        if(grid[cy][cx] === 1) return;
     }
-    
-    // Move karo
+
     grid[arrowPos.y][arrowPos.x] = 0;
     arrowPos = {x, y};
     moves++;
-    
+    totalMoves++;
+
     if(grid[y][x] === 3) {
-        winLevel(); // Target pe pahunch gaye
+        winLevel();
     } else {
         grid[y][x] = 2;
         renderGrid();
     }
 }
 
-// 5. WIN + AD LOGIC - Har 2 level pe ad
+// WIN LEVEL + INTERSTITIAL AD WITH 30s COOLDOWN
 function winLevel() {
     tg.HapticFeedback.notificationOccurred('success');
-    
+
     if(currentLevel === maxUnlocked && currentLevel < 100) {
         maxUnlocked++;
-        tg.CloudStorage.setItem('arrowSave', JSON.stringify({maxUnlocked}));
+        saveGame();
         document.getElementById('maxLevel').textContent = maxUnlocked;
+        document.getElementById('totalMoves').textContent = totalMoves;
     }
-    
-    // Har 2 level ke baad ad - 2,4,6,8...
-    if(currentLevel % 2 === 0) {
-        tg.showPopup({
-            title: 'Level Complete!',
-            message: `Level ${currentLevel} clear! Ads ke baad next level.`,
-            buttons: [{type: 'ok'}]
-        });
-        
+
+    // INTERSTITIAL: Har 2 level + 30 second ka gap
+    const now = Date.now();
+    const timeSinceLastAd = now - lastInterstitialTime;
+
+    if(currentLevel % 2 === 0 && timeSinceLastAd > 30000) {
+        console.log('Interstitial ad trigger for level', currentLevel);
+        lastInterstitialTime = now;
+
         window.TelegramAdsController.triggerInterstitialBanner().then(() => {
             nextLevelLoad();
         }).catch(() => {
-            nextLevelLoad(); // Ad na mile to bhi aage badho
+            nextLevelLoad();
         });
     } else {
         tg.showAlert(`Level ${currentLevel} Complete! 🎉`);
@@ -240,12 +279,12 @@ function nextLevelLoad() {
         currentLevel++;
         startLevel(currentLevel);
     } else {
-        tg.showAlert('🏆 Sab 100 Level Complete! You are a Puzzle Master!');
+        tg.showAlert('🏆 CONGRATULATIONS!\nAll 100 Levels Complete!');
         showHome();
     }
 }
 
-// 6. SCREEN NAVIGATION
+// NAVIGATION
 function showHome() {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('homeScreen').classList.add('active');
@@ -264,7 +303,7 @@ function renderLevelGrid() {
         const btn = document.createElement('div');
         btn.className = 'level-btn';
         btn.textContent = i;
-        
+
         if(i <= maxUnlocked) {
             btn.className += ' unlocked';
             if(i === currentLevel) btn.className += ' current';
@@ -284,6 +323,9 @@ function startLevel(lvl) {
     renderGrid();
 }
 
+// INIT - SIRF EK BAAR AD LOAD
+loadGame();
+setTimeout(loadNativeAds, 1000); // 1 sec baad native ad load
 tg.BackButton.onClick(showLevelSelect);
 </script>
 </body>
