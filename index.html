@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Arrow Escape 100</title>
+<title>Arrow Escape Puzzle</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
 <script>
@@ -17,40 +17,41 @@
   } catch(e) {}
 </script>
 <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', sans-serif; background: #fff; color: #000; min-height: 100vh; overflow: hidden; }
+    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f5f5f5; color: #000; min-height: 100vh; overflow: hidden; }
 .container { max-width: 420px; margin: 0 auto; padding: 10px; }
 .screen { display: none; }
 .screen.active { display: block; }
     
-.game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; padding: 10px 5px; position: relative; }
+.game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; padding: 10px 5px; }
 .icon-btn { width: 45px; height: 45px; border-radius: 50%; background: #4a90e2; border: none; color: white; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-.level-badge { background: #4a90e2; color: white; padding: 12px 35px; border-radius: 25px; font-size: 18px; font-weight: 700; }
+.level-badge { background: #4a90e2; color: white; padding: 12px 35px; border-radius: 25px; font-size: 18px; font-weight: 700; box-shadow: 0 2px 8px rgba(74,144,226,0.3); }
 .top-right-icons { display: flex; flex-direction: column; gap: 8px; }
-.color-wheel { width: 45px; height: 45px; border-radius: 50%; background: conic-gradient(#ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000); }
-.lives { text-align: center; font-size: 28px; margin: 5px 0 15px; letter-spacing: 8px; }
+.color-wheel { width: 45px; height: 45px; border-radius: 50%; background: conic-gradient(#ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+.lives { text-align: center; font-size: 32px; margin: 5px 0 15px; letter-spacing: 10px; }
 .lives.lost { animation: shake 0.3s; }
-@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
     
-.game-area { position: relative; width: 100%; height: 60vh; background: #f8f8f8; border: 3px solid #ddd; border-radius: 15px; overflow: hidden; }
+.game-area { position: relative; width: 100%; height: 62vh; background: #fff; border: 3px solid #e0e0e0; border-radius: 20px; overflow: hidden; box-shadow: inset 0 2px 10px rgba(0,0,0,0.05); }
     
 .arrow {
         position: absolute;
-        background: #2c3e50;
+        background: #1a1a1a;
         cursor: pointer;
         transform-origin: 0 50%;
         z-index: 5;
         border-radius: 3px;
+        transition: opacity 0.2s;
     }
 .arrow::after {
         content: '';
         position: absolute;
-        right: -15px;
+        right: -16px;
         top: 50%;
         transform: translateY(-50%);
         width: 0;
         height: 0;
-        border-left: 18px solid #2c3e50;
+        border-left: 18px solid #1a1a1a;
         border-top: 15px solid transparent;
         border-bottom: 15px solid transparent;
     }
@@ -60,53 +61,57 @@
 .arrow.large { height: 16px; }
 .arrow.large::after { border-left-width: 22px; border-top-width: 19px; border-bottom-width: 19px; right: -20px; }
     
-.arrow.moving { transition: all 0.7s ease-out; z-index: 10; }
-.arrow.removed { opacity: 0; pointer-events: none; transition: opacity 0.2s; }
-.arrow.returning { transition: all 0.5s ease-in-out; }
+.arrow.moving { transition: all 0.65s cubic-bezier(0.22, 0.61, 0.36, 1); z-index: 10; }
+.arrow.removed { opacity: 0; pointer-events: none; transform: scale(0.5); }
+.arrow.returning { transition: all 0.45s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+.arrow:active { opacity: 0.6; }
     
 .arrow.zigzag {
         background: repeating-linear-gradient(
             90deg,
-            #2c3e50 0px,
-            #2c3e50 10px,
-            #34495e 10px,
-            #34495e 15px
+            #1a1a1a 0px,
+            #1a1a1a 10px,
+            #333 10px,
+            #333 15px
         );
     }
     
-.bottom-bar { display: flex; justify-content: space-between; margin-top: 25px; padding: 0 40px; }
-.circle-btn { width: 60px; height: 60px; border-radius: 50%; background: #e8e8e8; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #999; }
+.bottom-bar { display: flex; justify-content: space-between; margin-top: 20px; padding: 0 40px; }
+.circle-btn { width: 65px; height: 65px; border-radius: 50%; background: #e8e8e8; border: none; font-size: 30px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #666; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
+.circle-btn:active { transform: scale(0.92); }
 .hint-btn { background: #ffc107; color: #fff; position: relative; }
 .hint-btn::after {
         content: '▶';
         position: absolute;
-        top: -5px;
-        right: -5px;
+        top: -6px;
+        right: -6px;
         background: #4caf50;
         color: white;
-        width: 20px;
-        height: 20px;
+        width: 22px;
+        height: 22px;
         border-radius: 50%;
-        font-size: 10px;
+        font-size: 11px;
         display: flex;
         align-items: center;
         justify-content: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
     
-.btn { background: #4a90e2; border: none; padding: 18px 40px; border-radius: 15px; color: white; font-size: 20px; font-weight: 700; cursor: pointer; margin: 10px; width: 85%; }
-    h1 { font-size: 42px; margin: 30px 0 10px; color: #4a90e2; text-align: center; }
-.level-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; max-height: 60vh; overflow-y: auto; padding: 10px; margin: 20px 0; }
-.level-btn { aspect-ratio: 1; background: #e0e0e0; border: 2px solid #ccc; border-radius: 10px; color: #666; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-.level-btn.unlocked { background: #4a90e2; border-color: #357abd; color: white; }
-.level-btn.current { background: #10b981; border-color: #059669; }
-.level-btn.locked { opacity: 0.4; cursor: not-allowed; }
+.btn { background: #4a90e2; border: none; padding: 18px 40px; border-radius: 15px; color: white; font-size: 20px; font-weight: 700; cursor: pointer; margin: 10px; width: 85%; box-shadow: 0 4px 12px rgba(74,144,226,0.4); }
+.btn:active { transform: scale(0.98); }
+    h1 { font-size: 44px; margin: 30px 0 10px; color: #4a90e2; text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.level-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-height: 60vh; overflow-y: auto; padding: 10px; margin: 20px 0; }
+.level-btn { aspect-ratio: 1; background: #e0e0e0; border: 3px solid #ccc; border-radius: 12px; color: #666; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+.level-btn.unlocked { background: #4a90e2; border-color: #357abd; color: white; box-shadow: 0 2px 8px rgba(74,144,226,0.3); }
+.level-btn.current { background: #10b981; border-color: #059669; transform: scale(1.05); }
+.level-btn.locked { opacity: 0.35; cursor: not-allowed; }
 </style>
 </head>
 <body>
 <div class="container">
     <div id="homeScreen" class="screen active">
         <h1>ARROW ESCAPE</h1>
-        <p style="color:#666;margin-bottom:40px;text-align:center">100 Tangled Levels</p>
+        <p style="color:#666;margin-bottom:40px;text-align:center;font-size:16px">100 Tangled Levels</p>
         <div style="text-align:center">
             <button class="btn" onclick="showLevelSelect()">▶ PLAY GAME</button>
         </div>
@@ -152,35 +157,54 @@ try {
 let currentLevel = 1, maxUnlocked = 1, canShowAd = true;
 let arrows = [], lives = 3, gameArea = null;
 
-// Level 1 se hi tangled arrows - sab collide karenge
+// Level 1-10 handcrafted, baaki auto-generated
 const LEVELS = {
     1: [
-        {x: 80, y: 150, dir: 0, size: 'small', length: 70},
-        {x: 180, y: 130, dir: 90, size: 'small', length: 70},
-        {x: 200, y: 230, dir: 180, size: 'small', length: 70},
-        {x: 100, y: 250, dir: 270, size: 'small', length: 70}
+        {x: 90, y: 150, dir: 0, size: 'small', length: 75},
+        {x: 190, y: 130, dir: 90, size: 'small', length: 75},
+        {x: 210, y: 230, dir: 180, size: 'small', length: 75},
+        {x: 110, y: 250, dir: 270, size: 'small', length: 75}
     ],
     2: [
-        {x: 60, y: 120, dir: 0, size: 'medium', length: 100},
-        {x: 190, y: 90, dir: 90, size: 'large', length: 140, zigzag: true},
-        {x: 170, y: 240, dir: 180, size: 'small', length: 80},
-        {x: 90, y: 210, dir: 270, size: 'medium', length: 95},
-        {x: 130, y: 170, dir: 45, size: 'small', length: 65}
+        {x: 70, y: 120, dir: 0, size: 'medium', length: 110},
+        {x: 200, y: 90, dir: 90, size: 'large', length: 150, zigzag: true},
+        {x: 180, y: 240, dir: 180, size: 'small', length: 85},
+        {x: 100, y: 210, dir: 270, size: 'medium', length: 100},
+        {x: 140, y: 170, dir: 45, size: 'small', length: 70}
     ],
     3: [
-        {x: 50, y: 80, dir: 0, size: 'large', length: 160, zigzag: true},
-        {x: 230, y: 70, dir: 90, size: 'large', length: 170, zigzag: true},
-        {x: 190, y: 210, dir: 180, size: 'medium', length: 110},
-        {x: 70, y: 190, dir: 270, size: 'medium', length: 105},
-        {x: 110, y: 150, dir: 30, size: 'small', length: 70},
-        {x: 210, y: 250, dir: 315, size: 'large', length: 150, zigzag: true}
+        {x: 50, y: 80, dir: 0, size: 'large', length: 170, zigzag: true},
+        {x: 240, y: 70, dir: 90, size: 'large', length: 180, zigzag: true},
+        {x: 200, y: 210, dir: 180, size: 'medium', length: 120},
+        {x: 80, y: 190, dir: 270, size: 'medium', length: 115},
+        {x: 120, y: 150, dir: 30, size: 'small', length: 75},
+        {x: 220, y: 250, dir: 315, size: 'large', length: 160, zigzag: true}
+    ],
+    4: [
+        {x: 60, y: 100, dir: 0, size: 'medium', length: 110},
+        {x: 190, y: 80, dir: 90, size: 'large', length: 185, zigzag: true},
+        {x: 170, y: 230, dir: 180, size: 'large', length: 155, zigzag: true},
+        {x: 70, y: 210, dir: 270, size: 'small', length: 80},
+        {x: 130, y: 165, dir: 35, size: 'medium', length: 100},
+        {x: 230, y: 185, dir: 125, size: 'small', length: 70},
+        {x: 110, y: 250, dir: 215, size: 'large', length: 145, zigzag: true}
+    ],
+    5: [
+        {x: 50, y: 90, dir: 0, size: 'large', length: 175, zigzag: true},
+        {x: 250, y: 80, dir: 90, size: 'large', length: 190, zigzag: true},
+        {x: 210, y: 240, dir: 180, size: 'large', length: 165, zigzag: true},
+        {x: 60, y: 220, dir: 270, size: 'medium', length: 125},
+        {x: 120, y: 140, dir: 15, size: 'small', length: 80},
+        {x: 200, y: 150, dir: 135, size: 'medium', length: 105},
+        {x: 100, y: 200, dir: 225, size: 'small', length: 75},
+        {x: 180, y: 100, dir: 300, size: 'large', length: 140, zigzag: true}
     ]
 };
 
 function generateLevel(lvl) {
     if(LEVELS[lvl]) {
         arrows = LEVELS[lvl].map((a, i) => ({
-          ...a, 
+         ...a, 
             id: i, 
             removed: false, 
             originalX: a.x, 
@@ -188,24 +212,24 @@ function generateLevel(lvl) {
             moving: false
         }));
     } else {
-        const count = Math.min(4 + Math.floor(lvl/5), 12);
+        const count = Math.min(5 + Math.floor(lvl/4), 15);
         arrows = [];
         const sizes = ['small', 'medium', 'large'];
         
         for(let i = 0; i < count; i++) {
             const size = sizes[Math.floor(Math.random()*3)];
-            const length = size === 'small'? 60 + Math.random()*30 : 
-                          size === 'medium'? 90 + Math.random()*40 : 
-                          130 + Math.random()*60;
+            const length = size === 'small'? 65 + Math.random()*35 : 
+                          size === 'medium'? 100 + Math.random()*50 : 
+                          140 + Math.random()*70;
             
             arrows.push({
                 id: i,
-                x: 40 + Math.random() * 260,
-                y: 40 + Math.random() * 260,
-                dir: Math.floor(Math.random() * 8) * 45, // 0,45,90...315
+                x: 35 + Math.random() * 270,
+                y: 35 + Math.random() * 270,
+                dir: Math.floor(Math.random() * 12) * 30,
                 size: size,
                 length: length,
-                zigzag: size === 'large' && Math.random() > 0.3,
+                zigzag: size === 'large' && Math.random() > 0.25,
                 removed: false,
                 originalX: 0,
                 originalY: 0,
@@ -251,37 +275,42 @@ function shootArrow(id) {
     el.classList.add('moving');
     
     const radians = arrow.dir * Math.PI / 180;
-    const moveDistance = 700;
+    const moveDistance = 800;
     const newX = arrow.x + Math.cos(radians) * moveDistance;
     const newY = arrow.y + Math.sin(radians) * moveDistance;
     
     el.style.left = newX + 'px';
     el.style.top = newY + 'px';
     
-    let hasCollided = false;
-    const collisionInterval = setInterval(() => {
+    let collided = false;
+    const checkInterval = setInterval(() => {
+        if(!arrow.moving) {
+            clearInterval(checkInterval);
+            return;
+        }
+        
         const rect = el.getBoundingClientRect();
         const gameRect = gameArea.getBoundingClientRect();
         
-        const currentX = rect.left - gameRect.left;
-        const currentY = rect.top - gameRect.top + rect.height/2;
-        const tipX = currentX + Math.cos(radians) * arrow.length;
-        const tipY = currentY + Math.sin(radians) * arrow.length;
+        const baseX = rect.left - gameRect.left;
+        const baseY = rect.top - gameRect.top + rect.height/2;
+        const tipX = baseX + Math.cos(radians) * arrow.length;
+        const tipY = baseY + Math.sin(radians) * arrow.length;
         
-        // Check collision with other arrows
+        // Check collision with all other arrows
         for(let other of arrows) {
             if(other.id === arrow.id || other.removed || other.moving) continue;
             
-            const otherRad = other.dir * Math.PI / 180;
+            const oRad = other.dir * Math.PI / 180;
             const ox1 = other.x;
             const oy1 = other.y;
-            const ox2 = other.x + Math.cos(otherRad) * other.length;
-            const oy2 = other.y + Math.sin(otherRad) * other.length;
+            const ox2 = other.x + Math.cos(oRad) * other.length;
+            const oy2 = other.y + Math.sin(oRad) * other.length;
             
-            // Check if arrow tip/body intersects other arrow
-            if(lineIntersects(currentX, currentY, tipX, tipY, ox1, oy1, ox2, oy2, 15)) {
-                hasCollided = true;
-                clearInterval(collisionInterval);
+            // Check if arrow body intersects with other arrow
+            if(linesIntersect(baseX, baseY, tipX, tipY, ox1, oy1, ox2, oy2, 18)) {
+                collided = true;
+                clearInterval(checkInterval);
                 
                 el.classList.remove('moving');
                 el.classList.add('returning');
@@ -291,7 +320,7 @@ function shootArrow(id) {
                 setTimeout(() => {
                     el.classList.remove('returning');
                     arrow.moving = false;
-                }, 500);
+                }, 450);
                 
                 loseLife();
                 tg.HapticFeedback.notificationOccurred('error');
@@ -299,11 +328,11 @@ function shootArrow(id) {
             }
         }
         
-        // Out of bounds check
-        if(rect.left > gameRect.right + 50 || rect.right < gameRect.left - 50 || 
-           rect.top > gameRect.bottom + 50 || rect.bottom < gameRect.top - 50) {
-            clearInterval(collisionInterval);
-            if(!hasCollided) {
+        // Check bounds
+        if(rect.left > gameRect.right + 60 || rect.right < gameRect.left - 60 || 
+           rect.top > gameRect.bottom + 60 || rect.bottom < gameRect.top - 60) {
+            clearInterval(checkInterval);
+            if(!collided) {
                 arrow.removed = true;
                 el.classList.add('removed');
                 arrow.moving = false;
@@ -311,68 +340,51 @@ function shootArrow(id) {
                 checkWin();
             }
         }
-    }, 20);
+    }, 16);
     
-    // Safety timeout
     setTimeout(() => {
-        clearInterval(collisionInterval);
-        if(arrow.moving &&!arrow.removed &&!hasCollided) {
+        clearInterval(checkInterval);
+        if(arrow.moving &&!arrow.removed &&!collided) {
             arrow.removed = true;
             el.classList.add('removed');
             arrow.moving = false;
             checkWin();
         }
-    }, 900);
+    }, 850);
 }
 
-function lineIntersects(x1, y1, x2, y2, x3, y3, x4, y4, threshold = 0) {
-    // Line segment intersection with threshold
-    const dx1 = x2 - x1;
-    const dy1 = y2 - y1;
-    const dx2 = x4 - x3;
-    const dy2 = y4 - y3;
-    
+function linesIntersect(x1, y1, x2, y2, x3, y3, x4, y4, threshold) {
+    const dx1 = x2 - x1, dy1 = y2 - y1;
+    const dx2 = x4 - x3, dy2 = y4 - y3;
     const denominator = dy2 * dx1 - dx2 * dy1;
-    if(denominator === 0) return false;
+    
+    if(Math.abs(denominator) < 0.01) {
+        // Parallel - check distance
+        const dist = pointToSegmentDistance(x1, y1, x3, y3, x4, y4);
+        return dist < threshold;
+    }
     
     const ua = (dx2 * (y1 - y3) - dy2 * (x1 - x3)) / denominator;
     const ub = (dx1 * (y1 - y3) - dy1 * (x1 - x3)) / denominator;
     
-    if(ua >= -0.1 && ua <= 1.1 && ub >= -0.1 && ub <= 1.1) {
-        // Also check distance for thick lines
-        if(threshold > 0) {
-            const ix = x1 + ua * dx1;
-            const iy = y1 + ua * dy1;
-            const distToLine = pointToLineDistance(ix, iy, x3, y3, x4, y4);
-            return distToLine < threshold;
-        }
-        return true;
+    if(ua >= -0.05 && ua <= 1.05 && ub >= -0.05 && ub <= 1.05) {
+        const ix = x1 + ua * dx1;
+        const iy = y1 + ua * dy1;
+        const dist = pointToSegmentDistance(ix, iy, x3, y3, x4, y4);
+        return dist < threshold;
     }
     return false;
 }
 
-function pointToLineDistance(px, py, x1, y1, x2, y2) {
-    const A = px - x1;
-    const B = py - y1;
-    const C = x2 - x1;
-    const D = y2 - y1;
-    const dot = A * C + B * D;
-    const lenSq = C * C + D * D;
-    let param = -1;
-    if(lenSq!== 0) param = dot / lenSq;
-    
+function pointToSegmentDistance(px, py, x1, y1, x2, y2) {
+    const A = px - x1, B = py - y1, C = x2 - x1, D = y2 - y1;
+    const dot = A * C + B * D, lenSq = C * C + D * D;
+    let param = lenSq!== 0? dot / lenSq : -1;
     let xx, yy;
-    if(param < 0) {
-        xx = x1; yy = y1;
-    } else if(param > 1) {
-        xx = x2; yy = y2;
-    } else {
-        xx = x1 + param * C;
-        yy = y1 + param * D;
-    }
-    
-    const dx = px - xx;
-    const dy = py - yy;
+    if(param < 0) { xx = x1; yy = y1; }
+    else if(param > 1) { xx = x2; yy = y2; }
+    else { xx = x1 + param * C; yy = y1 + param * D; }
+    const dx = px - xx, dy = py - yy;
     return Math.sqrt(dx * dx + dy * dy);
 }
 
@@ -385,7 +397,7 @@ function loseLife() {
     
     if(lives <= 0) {
         setTimeout(() => {
-            tg.showAlert('Game Over! 💔');
+            tg.showAlert('Game Over! 💔 Try Again');
             restartLevel();
         }, 500);
     }
@@ -425,7 +437,7 @@ function nextLevelLoad() {
         currentLevel++; 
         startLevel(currentLevel); 
     } else { 
-        tg.showAlert('🏆 All 100 Levels Complete!'); 
+        tg.showAlert('🏆 All 100 Levels Complete! You Are A Master!'); 
         showHome(); 
     }
 }
@@ -435,7 +447,9 @@ function restartLevel() {
 }
 
 function showHint() {
-    tg.showAlert('Hint: Jo teer dusre se nahi takrayega pehle use nikalo!');
+    const remaining = arrows.filter(a =>!a.removed);
+    if(remaining.length === 0) return;
+    tg.showAlert(`Hint: ${remaining.length} arrows left! Find the one that won't collide.`);
 }
 
 function showHome() {
