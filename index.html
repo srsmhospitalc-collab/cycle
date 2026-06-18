@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>One Line Maze 100</title>
+<title>Arrow Escape 100</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
 <script>
@@ -18,28 +18,34 @@
 </script>
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { 
-        font-family: 'Segoe UI', sans-serif; 
-        background: #fff; 
-        color: #000; 
-        min-height: 100vh;
-        overflow: hidden;
-    }
+    body { font-family: 'Segoe UI', sans-serif; background: #fff; color: #000; min-height: 100vh; overflow: hidden; }
 .container { max-width: 420px; margin: 0 auto; padding: 10px; }
 .screen { display: none; }
 .screen.active { display: block; }
     
-    /* Header */
 .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; padding: 10px 5px; }
 .icon-btn { width: 45px; height: 45px; border-radius: 50%; background: #4a90e2; border: none; color: white; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 .level-badge { background: #4a90e2; color: white; padding: 12px 35px; border-radius: 25px; font-size: 18px; font-weight: 700; }
 .top-right-icons { display: flex; flex-direction: column; gap: 8px; }
 .color-wheel { width: 45px; height: 45px; border-radius: 50%; background: conic-gradient(#ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000); }
-.lives { text-align: center; font-size: 22px; margin: 5px 0 15px; letter-spacing: 8px; }
+.lives { text-align: center; font-size: 28px; margin: 5px 0 15px; letter-spacing: 8px; }
+.lives.lost { animation: shake 0.3s; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
     
-    /* Maze Canvas */
-.maze-wrapper { position: relative; width: 100%; height: 60vh; background: #fff; }
-#mazeCanvas { width: 100%; height: 100%; touch-action: none; }
+.game-area { position: relative; width: 100%; height: 60vh; background: #f8f8f8; border: 3px solid #ddd; border-radius: 15px; overflow: hidden; }
+.arrow {
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        background: #333;
+        clip-path: polygon(0% 40%, 60% 40%, 60% 20%, 100% 50%, 60% 80%, 60% 60%, 0% 60%);
+        cursor: pointer;
+        transition: transform 0.1s;
+        z-index: 5;
+    }
+.arrow:active { transform: scale(0.9); }
+.arrow.moving { transition: all 0.8s linear; z-index: 10; }
+.arrow.removed { opacity: 0; pointer-events: none; }
     
 .bottom-bar { display: flex; justify-content: space-between; margin-top: 25px; padding: 0 40px; }
 .circle-btn { width: 60px; height: 60px; border-radius: 50%; background: #e8e8e8; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #999; }
@@ -72,8 +78,8 @@
 <body>
 <div class="container">
     <div id="homeScreen" class="screen active">
-        <h1>ONE LINE MAZE</h1>
-        <p style="color:#666;margin-bottom:40px;text-align:center">100 Challenging Levels</p>
+        <h1>ARROW ESCAPE</h1>
+        <p style="color:#666;margin-bottom:40px;text-align:center">100 Tangled Levels</p>
         <div style="text-align:center">
             <button class="btn" onclick="showLevelSelect()">▶ PLAY GAME</button>
         </div>
@@ -96,11 +102,9 @@
                 <div class="color-wheel"></div>
             </div>
         </div>
-        <div class="lives">❤️❤️❤️</div>
+        <div class="lives" id="livesDisplay">❤️❤️❤️</div>
         
-        <div class="maze-wrapper">
-            <canvas id="mazeCanvas"></canvas>
-        </div>
+        <div class="game-area" id="gameArea"></div>
         
         <div class="bottom-bar">
             <button class="circle-btn" onclick="restartLevel()">🔄</button>
@@ -119,149 +123,157 @@ try {
 }
 
 let currentLevel = 1, maxUnlocked = 1, canShowAd = true;
-let canvas, ctx, isDrawing = false, drawPath = [], mazePath = [];
+let arrows = [], lives = 3, gameArea = null;
 
-// Level 46 ka pattern video se
+// Level designs - teer ki position + direction
 const LEVELS = {
-    1: {
-        size: 400,
-        start: {x: 50, y: 350},
-        end: {x: 350, y: 50},
-        maze: [
-            {x: 50, y: 350}, {x: 50, y: 300}, {x: 100, y: 300}, {x: 100, y: 250},
-            {x: 150, y: 250}, {x: 150, y: 300}, {x: 200, y: 300}, {x: 200, y: 250},
-            {x: 250, y: 250}, {x: 250, y: 200}, {x: 300, y: 200}, {x: 300, y: 150},
-            {x: 350, y: 150}, {x: 350, y: 100}, {x: 300, y: 100}, {x: 300, y: 50},
-            {x: 350, y: 50}
-        ]
-    },
-    46: {
-        size: 400,
-        start: {x: 40, y: 300},
-        end: {x: 360, y: 80},
-        maze: [
-            {x: 40, y: 300}, {x: 40, y: 250}, {x: 80, y: 250}, {x: 80, y: 200},
-            {x: 120, y: 200}, {x: 120, y: 150}, {x: 160, y: 150}, {x: 160, y: 200},
-            {x: 200, y: 200}, {x: 200, y: 150}, {x: 240, y: 150}, {x: 240, y: 100},
-            {x: 280, y: 100}, {x: 280, y: 150}, {x: 320, y: 150}, {x: 320, y: 100},
-            {x: 360, y: 100}, {x: 360, y: 80}
-        ]
-    }
+    1: [ // Easy - 4 teer
+        {x: 150, y: 150, dir: 'right'},
+        {x: 200, y: 150, dir: 'down'},
+        {x: 200, y: 200, dir: 'left'},
+        {x: 150, y: 200, dir: 'up'}
+    ],
+    2: [ // Medium - 6 teer uljhe hue
+        {x: 100, y: 100, dir: 'right'},
+        {x: 200, y: 100, dir: 'down'},
+        {x: 200, y: 200, dir: 'left'},
+        {x: 100, y: 200, dir: 'up'},
+        {x: 150, y: 150, dir: 'right'},
+        {x: 180, y: 180, dir: 'up'}
+    ],
+    3: [ // Hard - 8 teer
+        {x: 80, y: 80, dir: 'right'}, {x: 160, y: 80, dir: 'down'},
+        {x: 240, y: 80, dir: 'left'}, {x: 80, y: 160, dir: 'down'},
+        {x: 160, y: 160, dir: 'up'}, {x: 240, y: 160, dir: 'right'},
+        {x: 120, y: 240, dir: 'up'}, {x: 200, y: 240, dir: 'left'}
+    ]
 };
 
-function initCanvas() {
-    canvas = document.getElementById('mazeCanvas');
-    ctx = canvas.getContext('2d');
-    
-    const rect = canvas.parentElement.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-    
-    // Touch events
-    canvas.addEventListener('touchstart', startDraw);
-    canvas.addEventListener('touchmove', drawing);
-    canvas.addEventListener('touchend', endDraw);
-    
-    // Mouse events
-    canvas.addEventListener('mousedown', startDraw);
-    canvas.addEventListener('mousemove', drawing);
-    canvas.addEventListener('mouseup', endDraw);
-}
-
-function getPos(e) {
-    const rect = canvas.getBoundingClientRect();
-    const clientX = e.touches? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches? e.touches[0].clientY : e.clientY;
-    return {
-        x: clientX - rect.left,
-        y: clientY - rect.top
-    };
-}
-
-function startDraw(e) {
-    e.preventDefault();
-    const pos = getPos(e);
-    const start = getCurrentLevel().start;
-    
-    // Start point ke paas click kiya kya
-    if(Math.abs(pos.x - start.x) < 20 && Math.abs(pos.y - start.y) < 20) {
-        isDrawing = true;
-        drawPath = [start];
-    }
-}
-
-function drawing(e) {
-    if(!isDrawing) return;
-    e.preventDefault();
-    const pos = getPos(e);
-    drawPath.push(pos);
-    render();
-}
-
-function endDraw(e) {
-    if(!isDrawing) return;
-    isDrawing = false;
-    
-    // Check if reached end
-    const last = drawPath[drawPath.length - 1];
-    const end = getCurrentLevel().end;
-    if(Math.abs(last.x - end.x) < 30 && Math.abs(last.y - end.y) < 30) {
-        winLevel();
+function generateLevel(lvl) {
+    // Level 1-3 hand made, baaki random
+    if(LEVELS[lvl]) {
+        arrows = LEVELS[lvl].map((a, i) => ({...a, id: i, removed: false}));
     } else {
-        // Reset if not complete
-        drawPath = [];
-        render();
-    }
-}
-
-function getCurrentLevel() {
-    return LEVELS[currentLevel] || LEVELS[46]; // Default level 46 ka pattern
-}
-
-function render() {
-    const level = getCurrentLevel();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw maze path - BLACK
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 8;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.beginPath();
-    
-    for(let i = 0; i < level.maze.length - 1; i++) {
-        const curr = level.maze[i];
-        const next = level.maze[i + 1];
-        ctx.moveTo(curr.x, curr.y);
-        ctx.lineTo(next.x, next.y);
-    }
-    ctx.stroke();
-    
-    // Draw user path - GRAY
-    if(drawPath.length > 1) {
-        ctx.strokeStyle = '#999';
-        ctx.lineWidth = 8;
-        ctx.beginPath();
-        ctx.moveTo(drawPath[0].x, drawPath[0].y);
-        for(let i = 1; i < drawPath.length; i++) {
-            ctx.lineTo(drawPath[i].x, drawPath[i].y);
+        // Random 5-12 teer
+        const count = Math.min(5 + Math.floor(lvl/10), 12);
+        arrows = [];
+        const dirs = ['up','down','left','right'];
+        for(let i = 0; i < count; i++) {
+            arrows.push({
+                id: i,
+                x: 60 + Math.random() * 240,
+                y: 60 + Math.random() * 240,
+                dir: dirs[Math.floor(Math.random()*4)],
+                removed: false
+            });
         }
-        ctx.stroke();
     }
+    lives = 3;
+    updateLives();
+    renderArrows();
+}
+
+function renderArrows() {
+    gameArea = document.getElementById('gameArea');
+    gameArea.innerHTML = '';
     
-    // Start point - Green dot
-    ctx.fillStyle = '#10b981';
-    ctx.beginPath();
-    ctx.arc(level.start.x, level.start.y, 8, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // End point - Red dot 
-    ctx.fillStyle = '#ef4444';
-    ctx.beginPath();
-    ctx.arc(level.end.x, level.end.y, 8, 0, Math.PI * 2);
-    ctx.fill();
+    arrows.forEach(arrow => {
+        if(arrow.removed) return;
+        
+        const el = document.createElement('div');
+        el.className = 'arrow';
+        el.id = 'arrow-' + arrow.id;
+        el.style.left = arrow.x + 'px';
+        el.style.top = arrow.y + 'px';
+        
+        // Direction ke hisaab se rotate
+        if(arrow.dir === 'up') el.style.transform = 'rotate(-90deg)';
+        if(arrow.dir === 'down') el.style.transform = 'rotate(90deg)';
+        if(arrow.dir === 'left') el.style.transform = 'rotate(180deg)';
+        if(arrow.dir === 'right') el.style.transform = 'rotate(0deg)';
+        
+        el.onclick = () => shootArrow(arrow.id);
+        gameArea.appendChild(el);
+    });
     
     document.getElementById('levelNum').textContent = currentLevel;
+}
+
+function shootArrow(id) {
+    const arrow = arrows.find(a => a.id === id);
+    if(!arrow || arrow.removed) return;
+    
+    const el = document.getElementById('arrow-' + id);
+    el.classList.add('moving');
+    
+    // Move direction me
+    const speed = 400; // pixels
+    let newX = arrow.x, newY = arrow.y;
+    
+    if(arrow.dir === 'right') newX += speed;
+    if(arrow.dir === 'left') newX -= speed;
+    if(arrow.dir === 'up') newY -= speed;
+    if(arrow.dir === 'down') newY += speed;
+    
+    el.style.left = newX + 'px';
+    el.style.top = newY + 'px';
+    
+    // Collision check - 400ms baad
+    setTimeout(() => {
+        const hit = checkCollision(arrow, newX, newY);
+        
+        if(hit) {
+            // Takra gaya - wapas jao + heart kam
+            el.style.left = arrow.x + 'px';
+            el.style.top = arrow.y + 'px';
+            el.classList.remove('moving');
+            loseLife();
+            tg.HapticFeedback.notificationOccurred('error');
+        } else {
+            // Bahar nikal gaya - gayab
+            arrow.removed = true;
+            el.classList.add('removed');
+            tg.HapticFeedback.notificationOccurred('success');
+            checkWin();
+        }
+    }, 800);
+}
+
+function checkCollision(movingArrow, newX, newY) {
+    // Check karo kisi dusre teer se takraya kya
+    return arrows.some(a => {
+        if(a.id === movingArrow.id || a.removed) return false;
+        
+        // Simple box collision
+        const dist = Math.hypot(newX - a.x, newY - a.y);
+        return dist < 50; // 50px ke andar to collision
+    });
+}
+
+function loseLife() {
+    lives--;
+    updateLives();
+    const livesEl = document.getElementById('livesDisplay');
+    livesEl.classList.add('lost');
+    setTimeout(() => livesEl.classList.remove('lost'), 300);
+    
+    if(lives <= 0) {
+        setTimeout(() => {
+            tg.showAlert('Game Over! 💔');
+            restartLevel();
+        }, 500);
+    }
+}
+
+function updateLives() {
+    document.getElementById('livesDisplay').textContent = '❤️'.repeat(lives);
+}
+
+function checkWin() {
+    const remaining = arrows.filter(a =>!a.removed).length;
+    if(remaining === 0) {
+        setTimeout(winLevel, 500);
+    }
 }
 
 function winLevel() {
@@ -293,12 +305,11 @@ function nextLevelLoad() {
 }
 
 function restartLevel() {
-    drawPath = [];
-    render();
+    generateLevel(currentLevel);
 }
 
 function showHint() {
-    tg.showAlert('Hint: Start se end tak line draw karo!');
+    tg.showAlert('Hint: Tap karo teer pe. Jo bahar nikal sake pehle use nikalo!');
 }
 
 function showHome() {
@@ -332,22 +343,18 @@ function renderLevelGrid() {
 
 function startLevel(lvl) {
     currentLevel = lvl; 
-    drawPath = [];
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('gameScreen').classList.add('active'); 
-    setTimeout(() => {
-        initCanvas();
-        render();
-    }, 100);
+    setTimeout(() => generateLevel(lvl), 100);
 }
 
 function saveGame() {
-    try { localStorage.setItem('mazePuzzle100', JSON.stringify({ maxUnlocked: maxUnlocked })); } catch(e) {}
+    try { localStorage.setItem('arrowEscape100', JSON.stringify({ maxUnlocked: maxUnlocked })); } catch(e) {}
 }
 
 function loadGame() {
     try {
-        const saved = localStorage.getItem('mazePuzzle100');
+        const saved = localStorage.getItem('arrowEscape100');
         if(saved) maxUnlocked = JSON.parse(saved).maxUnlocked || 1;
     } catch(e) {}
 }
