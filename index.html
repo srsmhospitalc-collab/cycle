@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Maze Puzzle 100</title>
+<title>One Line Maze 100</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
 <script>
@@ -14,7 +14,7 @@
       appId: "7744",
       debug: false
     });
-  } catch(e) { console.log("Web mode - Ads skip"); }
+  } catch(e) {}
 </script>
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -22,120 +22,29 @@
         font-family: 'Segoe UI', sans-serif; 
         background: #fff; 
         color: #000; 
-        min-height: 100vh; 
+        min-height: 100vh;
+        overflow: hidden;
     }
- .container { max-width: 420px; margin: 0 auto; padding: 10px; }
- .screen { display: none; }
- .screen.active { display: block; }
+.container { max-width: 420px; margin: 0 auto; padding: 10px; }
+.screen { display: none; }
+.screen.active { display: block; }
     
-    /* Header - Image Jaisa */
- .game-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 5px;
-        padding: 10px 5px;
-        position: relative;
-    }
- .icon-btn {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        background: #4a90e2;
-        border: none;
-        color: white;
-        font-size: 20px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-    }
- .level-badge {
-        background: #4a90e2;
-        color: white;
-        padding: 12px 35px;
-        border-radius: 25px;
-        font-size: 18px;
-        font-weight: 700;
-    }
- .top-right-icons {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
- .color-wheel {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        background: conic-gradient(#ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
-    }
- .lives {
-        text-align: center;
-        font-size: 22px;
-        margin: 5px 0 15px;
-        letter-spacing: 8px;
-    }
+    /* Header */
+.game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; padding: 10px 5px; }
+.icon-btn { width: 45px; height: 45px; border-radius: 50%; background: #4a90e2; border: none; color: white; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+.level-badge { background: #4a90e2; color: white; padding: 12px 35px; border-radius: 25px; font-size: 18px; font-weight: 700; }
+.top-right-icons { display: flex; flex-direction: column; gap: 8px; }
+.color-wheel { width: 45px; height: 45px; border-radius: 50%; background: conic-gradient(#ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000); }
+.lives { text-align: center; font-size: 22px; margin: 5px 0 15px; letter-spacing: 8px; }
     
-    /* Maze - Thick Lines + Arrows */
- .maze-wrapper {
-        padding: 15px 10px;
-        background: #fff;
-    }
- .maze-grid {
-        display: grid;
-        gap: 0;
-        margin: 0 auto;
-        max-width: 360px;
-    }
- .maze-cell {
-        aspect-ratio: 1;
-        background: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-    }
-    /* Walls - Thick Black */
- .maze-cell.wall-top { border-top: 5px solid #000; }
- .maze-cell.wall-bottom { border-bottom: 5px solid #000; }
- .maze-cell.wall-left { border-left: 5px solid #000; }
- .maze-cell.wall-right { border-right: 5px solid #000; }
+    /* Maze Canvas */
+.maze-wrapper { position: relative; width: 100%; height: 60vh; background: #fff; }
+#mazeCanvas { width: 100%; height: 100%; touch-action: none; }
     
-    /* Arrows */
- .maze-cell.arrow-up::after { content: '↑'; font-size: 24px; font-weight: 900; }
- .maze-cell.arrow-down::after { content: '↓'; font-size: 24px; font-weight: 900; }
- .maze-cell.arrow-left::after { content: '←'; font-size: 24px; font-weight: 900; }
- .maze-cell.arrow-right::after { content: '→'; font-size: 24px; font-weight: 900; }
- .maze-cell.player { background: #4a90e2; border-radius: 50%; }
- .maze-cell.player::after { content: ''; }
-    
-    /* Bottom Buttons */
- .bottom-bar {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 25px;
-        padding: 0 40px;
-    }
- .circle-btn {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: #e8e8e8;
-        border: none;
-        font-size: 28px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #999;
-    }
- .hint-btn { 
-        background: #ffc107; 
-        color: #fff;
-        position: relative;
-    }
- .hint-btn::after {
+.bottom-bar { display: flex; justify-content: space-between; margin-top: 25px; padding: 0 40px; }
+.circle-btn { width: 60px; height: 60px; border-radius: 50%; background: #e8e8e8; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #999; }
+.hint-btn { background: #ffc107; color: #fff; position: relative; }
+.hint-btn::after {
         content: '▶';
         position: absolute;
         top: -5px;
@@ -151,51 +60,19 @@
         justify-content: center;
     }
     
-    /* Home/Level Select */
- .btn { 
-        background: #4a90e2; 
-        border: none; 
-        padding: 18px 40px; 
-        border-radius: 15px; 
-        color: white; 
-        font-size: 20px; 
-        font-weight: 700; 
-        cursor: pointer; 
-        margin: 10px; 
-        width: 85%; 
-    }
+.btn { background: #4a90e2; border: none; padding: 18px 40px; border-radius: 15px; color: white; font-size: 20px; font-weight: 700; cursor: pointer; margin: 10px; width: 85%; }
     h1 { font-size: 42px; margin: 30px 0 10px; color: #4a90e2; text-align: center; }
- .level-grid { 
-        display: grid; 
-        grid-template-columns: repeat(5, 1fr); 
-        gap: 8px; 
-        max-height: 60vh; 
-        overflow-y: auto; 
-        padding: 10px; 
-        margin: 20px 0;
-    }
- .level-btn { 
-        aspect-ratio: 1; 
-        background: #e0e0e0; 
-        border: 2px solid #ccc; 
-        border-radius: 10px; 
-        color: #666; 
-        font-weight: 700; 
-        cursor: pointer; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-        font-size: 14px; 
-    }
- .level-btn.unlocked { background: #4a90e2; border-color: #357abd; color: white; }
- .level-btn.current { background: #10b981; border-color: #059669; }
- .level-btn.locked { opacity: 0.4; cursor: not-allowed; }
+.level-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; max-height: 60vh; overflow-y: auto; padding: 10px; margin: 20px 0; }
+.level-btn { aspect-ratio: 1; background: #e0e0e0; border: 2px solid #ccc; border-radius: 10px; color: #666; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.level-btn.unlocked { background: #4a90e2; border-color: #357abd; color: white; }
+.level-btn.current { background: #10b981; border-color: #059669; }
+.level-btn.locked { opacity: 0.4; cursor: not-allowed; }
 </style>
 </head>
 <body>
 <div class="container">
     <div id="homeScreen" class="screen active">
-        <h1>MAZE PUZZLE</h1>
+        <h1>ONE LINE MAZE</h1>
         <p style="color:#666;margin-bottom:40px;text-align:center">100 Challenging Levels</p>
         <div style="text-align:center">
             <button class="btn" onclick="showLevelSelect()">▶ PLAY GAME</button>
@@ -222,11 +99,11 @@
         <div class="lives">❤️❤️❤️</div>
         
         <div class="maze-wrapper">
-            <div class="maze-grid" id="mazeGrid"></div>
+            <canvas id="mazeCanvas"></canvas>
         </div>
         
         <div class="bottom-bar">
-            <button class="circle-btn">#</button>
+            <button class="circle-btn" onclick="restartLevel()">🔄</button>
             <button class="circle-btn hint-btn" onclick="showHint()">💡</button>
         </div>
     </div>
@@ -241,112 +118,150 @@ try {
     tg = { HapticFeedback: { notificationOccurred: () => {} }, showAlert: (msg) => alert(msg), BackButton: { onClick: () => {} } };
 }
 
-let currentLevel = 1, maxUnlocked = 1, mazeData = [], playerPos = {x: 0, y: 0};
-let canShowAd = true;
-let mazeSize = 8;
+let currentLevel = 1, maxUnlocked = 1, canShowAd = true;
+let canvas, ctx, isDrawing = false, drawPath = [], mazePath = [];
 
-// Maze with walls + arrows - Image jaisa
-const MAZE_PATTERNS = {
-    // Format: {size: 8, walls: [[x,y,'top|bottom|left|right']], arrows: [[x,y,'up|down|left|right']], start: [x,y], end: [x,y]}
-    1: { size: 8, 
-        walls: [[0,0,'top'],[1,0,'top'],[2,0,'top'],[3,0,'top'],[4,0,'top'],[5,0,'top'],[6,0,'top'],[7,0,'top'],
-                [0,0,'left'],[0,1,'left'],[0,2,'left'],[0,3,'left'],[0,4,'left'],[0,5,'left'],[0,6,'left'],[0,7,'left'],
-                [7,0,'right'],[7,1,'right'],[7,2,'right'],[7,3,'right'],[7,4,'right'],[7,5,'right'],[7,6,'right'],[7,7,'right'],
-                [0,7,'bottom'],[1,7,'bottom'],[2,7,'bottom'],[3,7,'bottom'],[4,7,'bottom'],[5,7,'bottom'],[6,7,'bottom'],[7,7,'bottom'],
-                [2,1,'right'],[2,2,'right'],[4,3,'bottom'],[5,3,'left'],[3,5,'top']],
-        arrows: [[1,1,'right'],[2,1,'down'],[1,2,'right'],[3,1,'down'],[4,1,'left'],[5,1,'down']],
-        start: [0,0], end: [7,7]
+// Level 46 ka pattern video se
+const LEVELS = {
+    1: {
+        size: 400,
+        start: {x: 50, y: 350},
+        end: {x: 350, y: 50},
+        maze: [
+            {x: 50, y: 350}, {x: 50, y: 300}, {x: 100, y: 300}, {x: 100, y: 250},
+            {x: 150, y: 250}, {x: 150, y: 300}, {x: 200, y: 300}, {x: 200, y: 250},
+            {x: 250, y: 250}, {x: 250, y: 200}, {x: 300, y: 200}, {x: 300, y: 150},
+            {x: 350, y: 150}, {x: 350, y: 100}, {x: 300, y: 100}, {x: 300, y: 50},
+            {x: 350, y: 50}
+        ]
+    },
+    46: {
+        size: 400,
+        start: {x: 40, y: 300},
+        end: {x: 360, y: 80},
+        maze: [
+            {x: 40, y: 300}, {x: 40, y: 250}, {x: 80, y: 250}, {x: 80, y: 200},
+            {x: 120, y: 200}, {x: 120, y: 150}, {x: 160, y: 150}, {x: 160, y: 200},
+            {x: 200, y: 200}, {x: 200, y: 150}, {x: 240, y: 150}, {x: 240, y: 100},
+            {x: 280, y: 100}, {x: 280, y: 150}, {x: 320, y: 150}, {x: 320, y: 100},
+            {x: 360, y: 100}, {x: 360, y: 80}
+        ]
     }
 };
 
-function generateMaze(lvl) {
-    // Level 1 ka pattern use karo, baaki ke liye random
-    if(MAZE_PATTERNS[lvl]) {
-        const p = MAZE_PATTERNS[lvl];
-        mazeSize = p.size;
-        mazeData = Array(mazeSize).fill().map(() => Array(mazeSize).fill().map(() => ({walls: [], arrow: null})));
-        
-        p.walls.forEach(([x,y,dir]) => mazeData[y][x].walls.push(dir));
-        p.arrows.forEach(([x,y,dir]) => mazeData[y][x].arrow = dir);
-        playerPos = {x: p.start[0], y: p.start[1]};
-        mazeData[p.end[1]][p.end[0]].isEnd = true;
-    } else {
-        // Random maze for level 2-100
-        mazeSize = Math.min(8 + Math.floor(lvl/20), 12);
-        mazeData = Array(mazeSize).fill().map(() => Array(mazeSize).fill().map(() => ({walls: [], arrow: null})));
-        
-        // Border walls
-        for(let i=0; i<mazeSize; i++) {
-            mazeData[0][i].walls.push('top');
-            mazeData[mazeSize-1][i].walls.push('bottom');
-            mazeData[i][0].walls.push('left');
-            mazeData[i][mazeSize-1].walls.push('right');
-        }
-        
-        // Random inner walls + arrows
-        for(let y=1; y<mazeSize-1; y++) {
-            for(let x=1; x<mazeSize-1; x++) {
-                if(Math.random() > 0.6) {
-                    const dirs = ['up','down','left','right'];
-                    mazeData[y][x].arrow = dirs[Math.floor(Math.random()*4)];
-                }
-                if(Math.random() > 0.7) {
-                    const walls = ['top','bottom','left','right'];
-                    mazeData[y][x].walls.push(walls[Math.floor(Math.random()*4)]);
-                }
-            }
-        }
-        playerPos = {x: 0, y: 0};
-        mazeData[mazeSize-1][mazeSize-1].isEnd = true;
+function initCanvas() {
+    canvas = document.getElementById('mazeCanvas');
+    ctx = canvas.getContext('2d');
+    
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    
+    // Touch events
+    canvas.addEventListener('touchstart', startDraw);
+    canvas.addEventListener('touchmove', drawing);
+    canvas.addEventListener('touchend', endDraw);
+    
+    // Mouse events
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', drawing);
+    canvas.addEventListener('mouseup', endDraw);
+}
+
+function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches? e.touches[0].clientY : e.clientY;
+    return {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+    };
+}
+
+function startDraw(e) {
+    e.preventDefault();
+    const pos = getPos(e);
+    const start = getCurrentLevel().start;
+    
+    // Start point ke paas click kiya kya
+    if(Math.abs(pos.x - start.x) < 20 && Math.abs(pos.y - start.y) < 20) {
+        isDrawing = true;
+        drawPath = [start];
     }
 }
 
-function renderMaze() {
-    const mazeGrid = document.getElementById('mazeGrid');
-    mazeGrid.style.gridTemplateColumns = `repeat(${mazeSize}, 1fr)`;
-    mazeGrid.innerHTML = '';
-    
-    for(let y = 0; y < mazeSize; y++) {
-        for(let x = 0; x < mazeSize; x++) {
-            const cell = document.createElement('div'); 
-            cell.className = 'maze-cell';
-            const data = mazeData[y][x];
-            
-            // Walls add karo
-            data.walls.forEach(w => cell.classList.add('wall-' + w));
-            
-            // Arrow ya player
-            if(x === playerPos.x && y === playerPos.y) {
-                cell.classList.add('player');
-            } else if(data.arrow) {
-                cell.classList.add('arrow-' + data.arrow);
-            }
-            
-            cell.onclick = () => movePlayer(x, y);
-            mazeGrid.appendChild(cell);
-        }
-    }
-    document.getElementById('levelNum').textContent = currentLevel;
+function drawing(e) {
+    if(!isDrawing) return;
+    e.preventDefault();
+    const pos = getPos(e);
+    drawPath.push(pos);
+    render();
 }
 
-function movePlayer(x, y) {
-    const dx = x - playerPos.x, dy = y - playerPos.y;
-    if(Math.abs(dx) + Math.abs(dy)!== 1) return;
+function endDraw(e) {
+    if(!isDrawing) return;
+    isDrawing = false;
     
-    // Wall check
-    const current = mazeData[playerPos.y][playerPos.x];
-    if(dx === 1 && current.walls.includes('right')) return;
-    if(dx === -1 && current.walls.includes('left')) return;
-    if(dy === 1 && current.walls.includes('bottom')) return;
-    if(dy === -1 && current.walls.includes('top')) return;
-    
-    playerPos = {x, y};
-    
-    if(mazeData[y][x].isEnd) {
+    // Check if reached end
+    const last = drawPath[drawPath.length - 1];
+    const end = getCurrentLevel().end;
+    if(Math.abs(last.x - end.x) < 30 && Math.abs(last.y - end.y) < 30) {
         winLevel();
     } else {
-        renderMaze();
+        // Reset if not complete
+        drawPath = [];
+        render();
     }
+}
+
+function getCurrentLevel() {
+    return LEVELS[currentLevel] || LEVELS[46]; // Default level 46 ka pattern
+}
+
+function render() {
+    const level = getCurrentLevel();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw maze path - BLACK
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 8;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    
+    for(let i = 0; i < level.maze.length - 1; i++) {
+        const curr = level.maze[i];
+        const next = level.maze[i + 1];
+        ctx.moveTo(curr.x, curr.y);
+        ctx.lineTo(next.x, next.y);
+    }
+    ctx.stroke();
+    
+    // Draw user path - GRAY
+    if(drawPath.length > 1) {
+        ctx.strokeStyle = '#999';
+        ctx.lineWidth = 8;
+        ctx.beginPath();
+        ctx.moveTo(drawPath[0].x, drawPath[0].y);
+        for(let i = 1; i < drawPath.length; i++) {
+            ctx.lineTo(drawPath[i].x, drawPath[i].y);
+        }
+        ctx.stroke();
+    }
+    
+    // Start point - Green dot
+    ctx.fillStyle = '#10b981';
+    ctx.beginPath();
+    ctx.arc(level.start.x, level.start.y, 8, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // End point - Red dot 
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath();
+    ctx.arc(level.end.x, level.end.y, 8, 0, Math.PI * 2);
+    ctx.fill();
+    
+    document.getElementById('levelNum').textContent = currentLevel;
 }
 
 function winLevel() {
@@ -356,7 +271,6 @@ function winLevel() {
         maxUnlocked++; saveGame();
     }
 
-    // 2 Level pe ek Ad + 30 sec lock
     if(currentLevel % 2 === 0 && canShowAd) {
         canShowAd = false;
         setTimeout(() => { canShowAd = true; }, 30000);
@@ -378,8 +292,13 @@ function nextLevelLoad() {
     }
 }
 
+function restartLevel() {
+    drawPath = [];
+    render();
+}
+
 function showHint() {
-    tg.showAlert('Hint: Arrows follow karo aur end tak jao!');
+    tg.showAlert('Hint: Start se end tak line draw karo!');
 }
 
 function showHome() {
@@ -413,10 +332,13 @@ function renderLevelGrid() {
 
 function startLevel(lvl) {
     currentLevel = lvl; 
-    generateMaze(lvl);
+    drawPath = [];
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('gameScreen').classList.add('active'); 
-    renderMaze();
+    setTimeout(() => {
+        initCanvas();
+        render();
+    }, 100);
 }
 
 function saveGame() {
