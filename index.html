@@ -35,17 +35,36 @@
 .game-area { position: relative; width: 100%; height: 60vh; background: #f8f8f8; border: 3px solid #ddd; border-radius: 15px; overflow: hidden; }
 .arrow {
         position: absolute;
-        width: 50px;
-        height: 50px;
         background: #333;
-        clip-path: polygon(0% 40%, 60% 40%, 60% 20%, 100% 50%, 60% 80%, 60% 60%, 0% 60%);
         cursor: pointer;
         transition: transform 0.1s;
         z-index: 5;
+        transform-origin: left center;
     }
-.arrow:active { transform: scale(0.9); }
-.arrow.moving { transition: all 0.8s linear; z-index: 10; }
+.arrow:active { opacity: 0.7; }
+.arrow.moving { transition: all 1s linear; z-index: 10; }
 .arrow.removed { opacity: 0; pointer-events: none; }
+    
+    /* Arrow sizes */
+.arrow.small { height: 8px; }
+.arrow.medium { height: 12px; }
+.arrow.large { height: 16px; }
+    
+    /* Arrow head using ::after */
+.arrow::after {
+        content: '';
+        position: absolute;
+        right: -12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-left: 15px solid #333;
+        border-top: 12px solid transparent;
+        border-bottom: 12px solid transparent;
+    }
+.arrow.small::after { border-left-width: 10px; border-top-width: 8px; border-bottom-width: 8px; right: -8px; }
+.arrow.large::after { border-left-width: 20px; border-top-width: 16px; border-bottom-width: 16px; right: -16px; }
     
 .bottom-bar { display: flex; justify-content: space-between; margin-top: 25px; padding: 0 40px; }
 .circle-btn { width: 60px; height: 60px; border-radius: 50%; background: #e8e8e8; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #999; }
@@ -125,47 +144,58 @@ try {
 let currentLevel = 1, maxUnlocked = 1, canShowAd = true;
 let arrows = [], lives = 3, gameArea = null;
 
-// Level designs - teer ki position + direction
+// Level designs - bade chhote teer + zigzag
 const LEVELS = {
-    1: [ // Easy - 4 teer
-        {x: 150, y: 150, dir: 'right'},
-        {x: 200, y: 150, dir: 'down'},
-        {x: 200, y: 200, dir: 'left'},
-        {x: 150, y: 200, dir: 'up'}
+    1: [ // Chhote teer
+        {x: 100, y: 100, dir: 'right', size: 'small', length: 60},
+        {x: 200, y: 150, dir: 'down', size: 'small', length: 60},
+        {x: 150, y: 250, dir: 'left', size: 'small', length: 60}
     ],
-    2: [ // Medium - 6 teer uljhe hue
-        {x: 100, y: 100, dir: 'right'},
-        {x: 200, y: 100, dir: 'down'},
-        {x: 200, y: 200, dir: 'left'},
-        {x: 100, y: 200, dir: 'up'},
-        {x: 150, y: 150, dir: 'right'},
-        {x: 180, y: 180, dir: 'up'}
+    2: [ // Mixed size
+        {x: 80, y: 80, dir: 'right', size: 'medium', length: 80},
+        {x: 180, y: 120, dir: 'down', size: 'large', length: 120, zigzag: true},
+        {x: 120, y: 220, dir: 'left', size: 'small', length: 60},
+        {x: 220, y: 180, dir: 'up', size: 'medium', length: 80}
     ],
-    3: [ // Hard - 8 teer
-        {x: 80, y: 80, dir: 'right'}, {x: 160, y: 80, dir: 'down'},
-        {x: 240, y: 80, dir: 'left'}, {x: 80, y: 160, dir: 'down'},
-        {x: 160, y: 160, dir: 'up'}, {x: 240, y: 160, dir: 'right'},
-        {x: 120, y: 240, dir: 'up'}, {x: 200, y: 240, dir: 'left'}
+    3: [ // Bade zigzag teer
+        {x: 60, y: 60, dir: 'right', size: 'large', length: 140, zigzag: true},
+        {x: 200, y: 100, dir: 'down', size: 'large', length: 160, zigzag: true},
+        {x: 100, y: 240, dir: 'right', size: 'medium', length: 100},
+        {x: 240, y: 200, dir: 'left', size: 'large', length: 130, zigzag: true},
+        {x: 140, y: 180, dir: 'up', size: 'small', length: 60}
     ]
 };
 
 function generateLevel(lvl) {
-    // Level 1-3 hand made, baaki random
     if(LEVELS[lvl]) {
-        arrows = LEVELS[lvl].map((a, i) => ({...a, id: i, removed: false}));
+        arrows = LEVELS[lvl].map((a, i) => ({...a, id: i, removed: false, originalX: a.x, originalY: a.y}));
     } else {
-        // Random 5-12 teer
-        const count = Math.min(5 + Math.floor(lvl/10), 12);
+        // Random 4-10 teer, mixed sizes
+        const count = Math.min(4 + Math.floor(lvl/8), 10);
         arrows = [];
         const dirs = ['up','down','left','right'];
+        const sizes = ['small', 'medium', 'large'];
+        
         for(let i = 0; i < count; i++) {
+            const size = sizes[Math.floor(Math.random()*3)];
+            const length = size === 'small'? 50 + Math.random()*30 : 
+                          size === 'medium'? 80 + Math.random()*40 : 
+                          120 + Math.random()*60;
+            
             arrows.push({
                 id: i,
-                x: 60 + Math.random() * 240,
-                y: 60 + Math.random() * 240,
+                x: 50 + Math.random() * 250,
+                y: 50 + Math.random() * 250,
                 dir: dirs[Math.floor(Math.random()*4)],
-                removed: false
+                size: size,
+                length: length,
+                zigzag: size === 'large' && Math.random() > 0.5,
+                removed: false,
+                originalX: 0,
+                originalY: 0
             });
+            arrows[i].originalX = arrows[i].x;
+            arrows[i].originalY = arrows[i].y;
         }
     }
     lives = 3;
@@ -181,16 +211,23 @@ function renderArrows() {
         if(arrow.removed) return;
         
         const el = document.createElement('div');
-        el.className = 'arrow';
+        el.className = `arrow ${arrow.size}`;
         el.id = 'arrow-' + arrow.id;
         el.style.left = arrow.x + 'px';
         el.style.top = arrow.y + 'px';
+        el.style.width = arrow.length + 'px';
         
-        // Direction ke hisaab se rotate
-        if(arrow.dir === 'up') el.style.transform = 'rotate(-90deg)';
-        if(arrow.dir === 'down') el.style.transform = 'rotate(90deg)';
-        if(arrow.dir === 'left') el.style.transform = 'rotate(180deg)';
-        if(arrow.dir === 'right') el.style.transform = 'rotate(0deg)';
+        // Rotation
+        let rotation = 0;
+        if(arrow.dir === 'up') rotation = -90;
+        if(arrow.dir === 'down') rotation = 90;
+        if(arrow.dir === 'left') rotation = 180;
+        el.style.transform = `rotate(${rotation}deg)`;
+        
+        // Zigzag effect for large arrows
+        if(arrow.zigzag) {
+            el.style.background = `repeating-linear-gradient(90deg, #333 0px, #333 15px, #555 15px, #555 20px)`;
+        }
         
         el.onclick = () => shootArrow(arrow.id);
         gameArea.appendChild(el);
@@ -206,47 +243,74 @@ function shootArrow(id) {
     const el = document.getElementById('arrow-' + id);
     el.classList.add('moving');
     
-    // Move direction me
-    const speed = 400; // pixels
+    // Move distance
+    const moveDistance = 500;
     let newX = arrow.x, newY = arrow.y;
     
-    if(arrow.dir === 'right') newX += speed;
-    if(arrow.dir === 'left') newX -= speed;
-    if(arrow.dir === 'up') newY -= speed;
-    if(arrow.dir === 'down') newY += speed;
+    if(arrow.dir === 'right') newX += moveDistance;
+    if(arrow.dir === 'left') newX -= moveDistance;
+    if(arrow.dir === 'up') newY -= moveDistance;
+    if(arrow.dir === 'down') newY += moveDistance;
     
     el.style.left = newX + 'px';
     el.style.top = newY + 'px';
     
-    // Collision check - 400ms baad
-    setTimeout(() => {
-        const hit = checkCollision(arrow, newX, newY);
+    // Collision check during movement
+    let collisionInterval = setInterval(() => {
+        const rect = el.getBoundingClientRect();
+        const gameRect = gameArea.getBoundingClientRect();
+        const currentX = rect.left - gameRect.left + rect.width/2;
+        const currentY = rect.top - gameRect.top + rect.height/2;
+        
+        // Check body collision with other arrows
+        const hit = checkBodyCollision(arrow, currentX, currentY);
         
         if(hit) {
-            // Takra gaya - wapas jao + heart kam
-            el.style.left = arrow.x + 'px';
-            el.style.top = arrow.y + 'px';
+            clearInterval(collisionInterval);
+            // Wapas apni jagah
+            el.style.left = arrow.originalX + 'px';
+            el.style.top = arrow.originalY + 'px';
             el.classList.remove('moving');
             loseLife();
             tg.HapticFeedback.notificationOccurred('error');
-        } else {
-            // Bahar nikal gaya - gayab
+        }
+    }, 50);
+    
+    // Agar bahar nikal gaya
+    setTimeout(() => {
+        clearInterval(collisionInterval);
+        const rect = el.getBoundingClientRect();
+        const gameRect = gameArea.getBoundingClientRect();
+        
+        if(rect.right < gameRect.left || rect.left > gameRect.right || 
+           rect.bottom < gameRect.top || rect.top > gameRect.bottom) {
+            // Successfully escaped
             arrow.removed = true;
             el.classList.add('removed');
             tg.HapticFeedback.notificationOccurred('success');
             checkWin();
+        } else {
+            // Wapas aa gaya agar collision nahi hua
+            el.style.left = arrow.originalX + 'px';
+            el.style.top = arrow.originalY + 'px';
+            el.classList.remove('moving');
         }
-    }, 800);
+    }, 1000);
 }
 
-function checkCollision(movingArrow, newX, newY) {
-    // Check karo kisi dusre teer se takraya kya
+function checkBodyCollision(movingArrow, x, y) {
+    // Teer ki body se takraya kya
     return arrows.some(a => {
         if(a.id === movingArrow.id || a.removed) return false;
         
-        // Simple box collision
-        const dist = Math.hypot(newX - a.x, newY - a.y);
-        return dist < 50; // 50px ke andar to collision
+        // Arrow ka rectangle
+        const aLeft = a.x;
+        const aRight = a.x + a.length;
+        const aTop = a.y - 10;
+        const aBottom = a.y + 10;
+        
+        // Point collision check
+        return x >= aLeft && x <= aRight && y >= aTop && y <= aBottom;
     });
 }
 
@@ -309,7 +373,7 @@ function restartLevel() {
 }
 
 function showHint() {
-    tg.showAlert('Hint: Tap karo teer pe. Jo bahar nikal sake pehle use nikalo!');
+    tg.showHint('Hint: Jo teer bahar nikal sake pehle use nikalo! Bade teer ko raasta do.');
 }
 
 function showHome() {
