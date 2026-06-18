@@ -38,40 +38,39 @@
         position: absolute;
         background: #2c3e50;
         cursor: pointer;
-        transform-origin: left center;
+        transform-origin: 0 50%;
         z-index: 5;
-        border-radius: 2px;
+        border-radius: 3px;
     }
 .arrow::after {
         content: '';
         position: absolute;
-        right: -14px;
+        right: -15px;
         top: 50%;
         transform: translateY(-50%);
         width: 0;
         height: 0;
-        border-left: 16px solid #2c3e50;
-        border-top: 14px solid transparent;
-        border-bottom: 14px solid transparent;
+        border-left: 18px solid #2c3e50;
+        border-top: 15px solid transparent;
+        border-bottom: 15px solid transparent;
     }
-.arrow.small { height: 6px; }
-.arrow.small::after { border-left-width: 10px; border-top-width: 9px; border-bottom-width: 9px; right: -9px; }
-.arrow.medium { height: 10px; }
-.arrow.large { height: 14px; }
-.arrow.large::after { border-left-width: 20px; border-top-width: 18px; border-bottom-width: 18px; right: -18px; }
+.arrow.small { height: 8px; }
+.arrow.small::after { border-left-width: 12px; border-top-width: 10px; border-bottom-width: 10px; right: -11px; }
+.arrow.medium { height: 12px; }
+.arrow.large { height: 16px; }
+.arrow.large::after { border-left-width: 22px; border-top-width: 19px; border-bottom-width: 19px; right: -20px; }
     
-.arrow.moving { transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 10; }
-.arrow.removed { opacity: 0; pointer-events: none; transition: opacity 0.3s; }
-.arrow.returning { transition: all 0.4s ease-out; }
+.arrow.moving { transition: all 0.7s ease-out; z-index: 10; }
+.arrow.removed { opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.arrow.returning { transition: all 0.5s ease-in-out; }
     
-    /* Zigzag pattern */
 .arrow.zigzag {
         background: repeating-linear-gradient(
             90deg,
             #2c3e50 0px,
-            #2c3e50 12px,
-            #34495e 12px,
-            #34495e 16px
+            #2c3e50 10px,
+            #34495e 10px,
+            #34495e 15px
         );
     }
     
@@ -152,46 +151,36 @@ try {
 
 let currentLevel = 1, maxUnlocked = 1, canShowAd = true;
 let arrows = [], lives = 3, gameArea = null;
-let isProcessing = false;
 
-// Levels - CrazyGames style tangled arrows
+// Level 1 se hi tangled arrows - sab collide karenge
 const LEVELS = {
     1: [
-        {x: 100, y: 150, dir: 0, size: 'small', length: 60},
-        {x: 200, y: 150, dir: 90, size: 'small', length: 60},
-        {x: 200, y: 250, dir: 180, size: 'small', length: 60},
-        {x: 100, y: 250, dir: 270, size: 'small', length: 60}
+        {x: 80, y: 150, dir: 0, size: 'small', length: 70},
+        {x: 180, y: 130, dir: 90, size: 'small', length: 70},
+        {x: 200, y: 230, dir: 180, size: 'small', length: 70},
+        {x: 100, y: 250, dir: 270, size: 'small', length: 70}
     ],
     2: [
-        {x: 80, y: 120, dir: 0, size: 'medium', length: 90},
-        {x: 200, y: 100, dir: 90, size: 'large', length: 130, zigzag: true},
-        {x: 180, y: 220, dir: 180, size: 'small', length: 70},
-        {x: 100, y: 200, dir: 270, size: 'medium', length: 85},
-        {x: 140, y: 160, dir: 45, size: 'small', length: 60}
+        {x: 60, y: 120, dir: 0, size: 'medium', length: 100},
+        {x: 190, y: 90, dir: 90, size: 'large', length: 140, zigzag: true},
+        {x: 170, y: 240, dir: 180, size: 'small', length: 80},
+        {x: 90, y: 210, dir: 270, size: 'medium', length: 95},
+        {x: 130, y: 170, dir: 45, size: 'small', length: 65}
     ],
     3: [
-        {x: 60, y: 80, dir: 0, size: 'large', length: 150, zigzag: true},
-        {x: 220, y: 70, dir: 90, size: 'large', length: 160, zigzag: true},
-        {x: 180, y: 200, dir: 180, size: 'medium', length: 100},
-        {x: 80, y: 180, dir: 270, size: 'medium', length: 95},
-        {x: 120, y: 140, dir: 45, size: 'small', length: 65},
-        {x: 200, y: 240, dir: 315, size: 'large', length: 140, zigzag: true}
-    ],
-    4: [
-        {x: 70, y: 100, dir: 0, size: 'medium', length: 100},
-        {x: 180, y: 80, dir: 90, size: 'large', length: 170, zigzag: true},
-        {x: 160, y: 220, dir: 180, size: 'large', length: 145, zigzag: true},
-        {x: 60, y: 200, dir: 270, size: 'small', length: 70},
-        {x: 120, y: 160, dir: 30, size: 'medium', length: 90},
-        {x: 220, y: 180, dir: 120, size: 'small', length: 65},
-        {x: 100, y: 240, dir: 210, size: 'large', length: 135, zigzag: true}
+        {x: 50, y: 80, dir: 0, size: 'large', length: 160, zigzag: true},
+        {x: 230, y: 70, dir: 90, size: 'large', length: 170, zigzag: true},
+        {x: 190, y: 210, dir: 180, size: 'medium', length: 110},
+        {x: 70, y: 190, dir: 270, size: 'medium', length: 105},
+        {x: 110, y: 150, dir: 30, size: 'small', length: 70},
+        {x: 210, y: 250, dir: 315, size: 'large', length: 150, zigzag: true}
     ]
 };
 
 function generateLevel(lvl) {
     if(LEVELS[lvl]) {
         arrows = LEVELS[lvl].map((a, i) => ({
-           ...a, 
+          ...a, 
             id: i, 
             removed: false, 
             originalX: a.x, 
@@ -199,25 +188,24 @@ function generateLevel(lvl) {
             moving: false
         }));
     } else {
-        // Random levels 5-100
-        const count = Math.min(4 + Math.floor(lvl/6), 12);
+        const count = Math.min(4 + Math.floor(lvl/5), 12);
         arrows = [];
         const sizes = ['small', 'medium', 'large'];
         
         for(let i = 0; i < count; i++) {
             const size = sizes[Math.floor(Math.random()*3)];
-            const length = size === 'small'? 50 + Math.random()*30 : 
-                          size === 'medium'? 80 + Math.random()*50 : 
-                          120 + Math.random()*70;
+            const length = size === 'small'? 60 + Math.random()*30 : 
+                          size === 'medium'? 90 + Math.random()*40 : 
+                          130 + Math.random()*60;
             
             arrows.push({
                 id: i,
                 x: 40 + Math.random() * 260,
                 y: 40 + Math.random() * 260,
-                dir: Math.floor(Math.random() * 360),
+                dir: Math.floor(Math.random() * 8) * 45, // 0,45,90...315
                 size: size,
                 length: length,
-                zigzag: size === 'large' && Math.random() > 0.4,
+                zigzag: size === 'large' && Math.random() > 0.3,
                 removed: false,
                 originalX: 0,
                 originalY: 0,
@@ -228,7 +216,6 @@ function generateLevel(lvl) {
         }
     }
     lives = 3;
-    isProcessing = false;
     updateLives();
     renderArrows();
 }
@@ -256,111 +243,137 @@ function renderArrows() {
 }
 
 function shootArrow(id) {
-    if(isProcessing) return;
     const arrow = arrows.find(a => a.id === id);
     if(!arrow || arrow.removed || arrow.moving) return;
     
-    isProcessing = true;
     arrow.moving = true;
     const el = document.getElementById('arrow-' + id);
     el.classList.add('moving');
     
-    // Calculate end position
     const radians = arrow.dir * Math.PI / 180;
-    const moveDistance = 600;
+    const moveDistance = 700;
     const newX = arrow.x + Math.cos(radians) * moveDistance;
     const newY = arrow.y + Math.sin(radians) * moveDistance;
     
     el.style.left = newX + 'px';
     el.style.top = newY + 'px';
     
-    // Collision check every 30ms
-    let checkCount = 0;
+    let hasCollided = false;
     const collisionInterval = setInterval(() => {
-        checkCount++;
         const rect = el.getBoundingClientRect();
         const gameRect = gameArea.getBoundingClientRect();
         
-        // Get arrow body position
         const currentX = rect.left - gameRect.left;
-        const currentY = rect.top - gameRect.top;
-        const arrowEndX = currentX + Math.cos(radians) * arrow.length;
-        const arrowEndY = currentY + Math.sin(radians) * arrow.length;
+        const currentY = rect.top - gameRect.top + rect.height/2;
+        const tipX = currentX + Math.cos(radians) * arrow.length;
+        const tipY = currentY + Math.sin(radians) * arrow.length;
         
         // Check collision with other arrows
-        const hit = checkBodyCollision(arrow, currentX, currentY, arrowEndX, arrowEndY);
-        
-        if(hit && checkCount > 3) { // Skip first few checks
-            clearInterval(collisionInterval);
-            // Collision - return to start
-            el.classList.remove('moving');
-            el.classList.add('returning');
-            el.style.left = arrow.originalX + 'px';
-            el.style.top = arrow.originalY + 'px';
+        for(let other of arrows) {
+            if(other.id === arrow.id || other.removed || other.moving) continue;
             
-            setTimeout(() => {
-                el.classList.remove('returning');
+            const otherRad = other.dir * Math.PI / 180;
+            const ox1 = other.x;
+            const oy1 = other.y;
+            const ox2 = other.x + Math.cos(otherRad) * other.length;
+            const oy2 = other.y + Math.sin(otherRad) * other.length;
+            
+            // Check if arrow tip/body intersects other arrow
+            if(lineIntersects(currentX, currentY, tipX, tipY, ox1, oy1, ox2, oy2, 15)) {
+                hasCollided = true;
+                clearInterval(collisionInterval);
+                
+                el.classList.remove('moving');
+                el.classList.add('returning');
+                el.style.left = arrow.originalX + 'px';
+                el.style.top = arrow.originalY + 'px';
+                
+                setTimeout(() => {
+                    el.classList.remove('returning');
+                    arrow.moving = false;
+                }, 500);
+                
+                loseLife();
+                tg.HapticFeedback.notificationOccurred('error');
+                return;
+            }
+        }
+        
+        // Out of bounds check
+        if(rect.left > gameRect.right + 50 || rect.right < gameRect.left - 50 || 
+           rect.top > gameRect.bottom + 50 || rect.bottom < gameRect.top - 50) {
+            clearInterval(collisionInterval);
+            if(!hasCollided) {
+                arrow.removed = true;
+                el.classList.add('removed');
                 arrow.moving = false;
-                isProcessing = false;
-            }, 400);
-            
-            loseLife();
-            tg.HapticFeedback.notificationOccurred('error');
-            return;
+                tg.HapticFeedback.notificationOccurred('success');
+                checkWin();
+            }
         }
-        
-        // Check if out of bounds
-        if(rect.right < gameRect.left - 50 || rect.left > gameRect.right + 50 || 
-           rect.bottom < gameRect.top - 50 || rect.top > gameRect.bottom + 50) {
-            clearInterval(collisionInterval);
-            // Successfully escaped
-            arrow.removed = true;
-            el.classList.add('removed');
-            arrow.moving = false;
-            isProcessing = false;
-            tg.HapticFeedback.notificationOccurred('success');
-            checkWin();
-        }
-    }, 30);
+    }, 20);
     
     // Safety timeout
     setTimeout(() => {
         clearInterval(collisionInterval);
-        if(!arrow.removed && arrow.moving) {
+        if(arrow.moving &&!arrow.removed &&!hasCollided) {
             arrow.removed = true;
             el.classList.add('removed');
             arrow.moving = false;
-            isProcessing = false;
             checkWin();
         }
-    }, 800);
+    }, 900);
 }
 
-function checkBodyCollision(movingArrow, x1, y1, x2, y2) {
-    // Check if moving arrow body intersects with any other arrow
-    return arrows.some(a => {
-        if(a.id === movingArrow.id || a.removed || a.moving) return false;
-        
-        // Get other arrow's line segment
-        const rad = a.dir * Math.PI / 180;
-        const ax1 = a.x;
-        const ay1 = a.y;
-        const ax2 = a.x + Math.cos(rad) * a.length;
-        const ay2 = a.y + Math.sin(rad) * a.length;
-        
-        // Line segment intersection check
-        return lineIntersects(x1, y1, x2, y2, ax1, ay1, ax2, ay2);
-    });
+function lineIntersects(x1, y1, x2, y2, x3, y3, x4, y4, threshold = 0) {
+    // Line segment intersection with threshold
+    const dx1 = x2 - x1;
+    const dy1 = y2 - y1;
+    const dx2 = x4 - x3;
+    const dy2 = y4 - y3;
+    
+    const denominator = dy2 * dx1 - dx2 * dy1;
+    if(denominator === 0) return false;
+    
+    const ua = (dx2 * (y1 - y3) - dy2 * (x1 - x3)) / denominator;
+    const ub = (dx1 * (y1 - y3) - dy1 * (x1 - x3)) / denominator;
+    
+    if(ua >= -0.1 && ua <= 1.1 && ub >= -0.1 && ub <= 1.1) {
+        // Also check distance for thick lines
+        if(threshold > 0) {
+            const ix = x1 + ua * dx1;
+            const iy = y1 + ua * dy1;
+            const distToLine = pointToLineDistance(ix, iy, x3, y3, x4, y4);
+            return distToLine < threshold;
+        }
+        return true;
+    }
+    return false;
 }
 
-function lineIntersects(x1, y1, x2, y2, x3, y3, x4, y4) {
-    const den = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
-    if(den === 0) return false;
+function pointToLineDistance(px, py, x1, y1, x2, y2) {
+    const A = px - x1;
+    const B = py - y1;
+    const C = x2 - x1;
+    const D = y2 - y1;
+    const dot = A * C + B * D;
+    const lenSq = C * C + D * D;
+    let param = -1;
+    if(lenSq!== 0) param = dot / lenSq;
     
-    const ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / den;
-    const ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / den;
+    let xx, yy;
+    if(param < 0) {
+        xx = x1; yy = y1;
+    } else if(param > 1) {
+        xx = x2; yy = y2;
+    } else {
+        xx = x1 + param * C;
+        yy = y1 + param * D;
+    }
     
-    return ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1;
+    const dx = px - xx;
+    const dy = py - yy;
+    return Math.sqrt(dx * dx + dy * dy);
 }
 
 function loseLife() {
@@ -385,7 +398,7 @@ function updateLives() {
 function checkWin() {
     const remaining = arrows.filter(a =>!a.removed).length;
     if(remaining === 0) {
-        setTimeout(winLevel, 500);
+        setTimeout(winLevel, 400);
     }
 }
 
@@ -422,7 +435,7 @@ function restartLevel() {
 }
 
 function showHint() {
-    tg.showAlert('Hint: Pehle chhote teer nikalo, phir bade teer ke liye raasta banao!');
+    tg.showAlert('Hint: Jo teer dusre se nahi takrayega pehle use nikalo!');
 }
 
 function showHome() {
