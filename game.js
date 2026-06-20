@@ -9,281 +9,216 @@ try {
 }
 
 let currentLevel = 1, maxUnlocked = 1, canShowAd = true;
-let arrows = [], lives = 3, gameArea = null;
+let tubes = [], selectedTube = null, moves = 0, moveHistory = [];
+let extraTubeUsed = false;
 
-const LEVELS = {
-    1: [
-        {x: 90, y: 150, dir: 0, size: 'small', length: 75},
-        {x: 190, y: 130, dir: 90, size: 'small', length: 75},
-        {x: 210, y: 230, dir: 180, size: 'small', length: 75},
-        {x: 110, y: 250, dir: 270, size: 'small', length: 75}
-    ],
-    2: [
-        {x: 70, y: 120, dir: 0, size: 'medium', length: 110},
-        {x: 200, y: 90, dir: 90, size: 'large', length: 150, zigzag: true},
-        {x: 180, y: 240, dir: 180, size: 'small', length: 85},
-        {x: 100, y: 210, dir: 270, size: 'medium', length: 100},
-        {x: 140, y: 170, dir: 45, size: 'small', length: 70}
-    ],
-    3: [
-        {x: 50, y: 80, dir: 0, size: 'large', length: 170, zigzag: true},
-        {x: 240, y: 70, dir: 90, size: 'large', length: 180, zigzag: true},
-        {x: 200, y: 210, dir: 180, size: 'medium', length: 120},
-        {x: 80, y: 190, dir: 270, size: 'medium', length: 115},
-        {x: 120, y: 150, dir: 30, size: 'small', length: 75},
-        {x: 220, y: 250, dir: 315, size: 'large', length: 160, zigzag: true}
-    ],
-    4: [
-        {x: 60, y: 100, dir: 0, size: 'medium', length: 110},
-        {x: 190, y: 80, dir: 90, size: 'large', length: 185, zigzag: true},
-        {x: 170, y: 230, dir: 180, size: 'large', length: 155, zigzag: true},
-        {x: 70, y: 210, dir: 270, size: 'small', length: 80},
-        {x: 130, y: 165, dir: 35, size: 'medium', length: 100},
-        {x: 230, y: 185, dir: 125, size: 'small', length: 70},
-        {x: 110, y: 250, dir: 215, size: 'large', length: 145, zigzag: true}
-    ],
-    5: [
-        {x: 50, y: 90, dir: 0, size: 'large', length: 175, zigzag: true},
-        {x: 250, y: 80, dir: 90, size: 'large', length: 190, zigzag: true},
-        {x: 210, y: 240, dir: 180, size: 'large', length: 165, zigzag: true},
-        {x: 60, y: 220, dir: 270, size: 'medium', length: 125},
-        {x: 120, y: 140, dir: 15, size: 'small', length: 80},
-        {x: 200, y: 150, dir: 135, size: 'medium', length: 105},
-        {x: 100, y: 200, dir: 225, size: 'small', length: 75},
-        {x: 180, y: 100, dir: 300, size: 'large', length: 140, zigzag: true}
-    ]
+const COLORS = ['#ef4444', '#3b82f6', '#22c55e', '#eab308', '#a855f7', '#ec4899', '#f97316', '#06b6d4', '#84cc16', '#6366f1'];
+
+// Level configs: {tubes: total, colors: unique colors, ballsPerColor: 4}
+const LEVEL_CONFIG = {
+    1: { tubes: 4, colors: 2 },
+    2: { tubes: 4, colors: 2 },
+    3: { tubes: 5, colors: 3 },
+    4: { tubes: 5, colors: 3 },
+    5: { tubes: 6, colors: 4 },
+    10: { tubes: 7, colors: 5 },
+    15: { tubes: 8, colors: 6 },
+    20: { tubes: 9, colors: 7 },
 };
 
-function generateLevel(lvl) {
-    if(LEVELS[lvl]) {
-        arrows = LEVELS[lvl].map((a, i) => ({
-           ...a, 
-            id: i, 
-            removed: false, 
-            originalX: a.x, 
-            originalY: a.y,
-            moving: false
-        }));
-    } else {
-        const count = Math.min(5 + Math.floor(lvl/4), 15);
-        arrows = [];
-        const sizes = ['small', 'medium', 'large'];
-        
-        for(let i = 0; i < count; i++) {
-            const size = sizes[Math.floor(Math.random()*3)];
-            const length = size === 'small'? 65 + Math.random()*35 : 
-                          size === 'medium'? 100 + Math.random()*50 : 
-                          140 + Math.random()*70;
-            
-            arrows.push({
-                id: i,
-                x: 35 + Math.random() * 270,
-                y: 35 + Math.random() * 270,
-                dir: Math.floor(Math.random() * 12) * 30,
-                size: size,
-                length: length,
-                zigzag: size === 'large' && Math.random() > 0.25,
-                removed: false,
-                originalX: 0,
-                originalY: 0,
-                moving: false
-            });
-            arrows[i].originalX = arrows[i].x;
-            arrows[i].originalY = arrows[i].y;
-        }
-    }
-    lives = 3;
-    updateLives();
-    renderArrows();
+function getLevelConfig(lvl) {
+    if (LEVEL_CONFIG[lvl]) return LEVEL_CONFIG[lvl];
+    // Auto generate: har 5 level pe +1 color
+    const colors = Math.min(3 + Math.floor(lvl / 5), 8);
+    const tubes = colors + 2;
+    return { tubes, colors };
 }
 
-function renderArrows() {
-    gameArea = document.getElementById('gameArea');
-    gameArea.innerHTML = '';
+function generateLevel(lvl) {
+    const config = getLevelConfig(lvl);
+    const { tubes: tubeCount, colors: colorCount } = config;
     
-    arrows.forEach(arrow => {
-        if(arrow.removed) return;
+    // Balls create karo - har color ki 4 balls
+    let balls = [];
+    for (let i = 0; i < colorCount; i++) {
+        for (let j = 0; j < 4; j++) {
+            balls.push(COLORS[i]);
+        }
+    }
+    
+    // Shuffle balls
+    for (let i = balls.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [balls[i], balls[j]] = [balls[j], balls[i]];
+    }
+    
+    // Tubes me daal do
+    tubes = [];
+    let ballIndex = 0;
+    for (let i = 0; i < tubeCount; i++) {
+        const tube = [];
+        if (i < tubeCount - 2) { // Last 2 tubes khali
+            for (let j = 0; j < 4; j++) {
+                tube.push(balls[ballIndex++]);
+            }
+        }
+        tubes.push(tube);
+    }
+    
+    moves = 0;
+    moveHistory = [];
+    extraTubeUsed = false;
+    selectedTube = null;
+    updateMoves();
+    renderTubes();
+}
+
+function renderTubes() {
+    const container = document.getElementById('tubesContainer');
+    container.innerHTML = '';
+    
+    tubes.forEach((tube, index) => {
+        const tubeEl = document.createElement('div');
+        tubeEl.className = 'tube';
+        tubeEl.id = 'tube-' + index;
+        tubeEl.onclick = () => selectTube(index);
         
-        const el = document.createElement('div');
-        el.className = `arrow ${arrow.size}${arrow.zigzag?' zigzag':''}`;
-        el.id = 'arrow-' + arrow.id;
-        el.style.left = arrow.x + 'px';
-        el.style.top = arrow.y + 'px';
-        el.style.width = arrow.length + 'px';
-        el.style.transform = `rotate(${arrow.dir}deg)`;
+        // Check if complete
+        if (tube.length === 4 && tube.every(b => b === tube[0])) {
+            tubeEl.classList.add('complete');
+        }
         
-        el.onclick = () => shootArrow(arrow.id);
-        gameArea.appendChild(el);
+        tube.forEach(color => {
+            const ball = document.createElement('div');
+            ball.className = 'ball';
+            ball.style.background = color;
+            tubeEl.appendChild(ball);
+        });
+        
+        container.appendChild(tubeEl);
     });
     
     document.getElementById('levelNum').textContent = currentLevel;
 }
 
-function shootArrow(id) {
-    const arrow = arrows.find(a => a.id === id);
-    if(!arrow || arrow.removed || arrow.moving) return;
-    
-    arrow.moving = true;
-    const el = document.getElementById('arrow-' + id);
-    el.classList.add('moving');
-    
-    const radians = arrow.dir * Math.PI / 180;
-    const moveDistance = 800;
-    const newX = arrow.x + Math.cos(radians) * moveDistance;
-    const newY = arrow.y + Math.sin(radians) * moveDistance;
-    
-    el.style.left = newX + 'px';
-    el.style.top = newY + 'px';
-    
-    let collided = false;
-    const checkInterval = setInterval(() => {
-        if(!arrow.moving) {
-            clearInterval(checkInterval);
-            return;
-        }
-        
-        const rect = el.getBoundingClientRect();
-        const gameRect = gameArea.getBoundingClientRect();
-        
-        const baseX = rect.left - gameRect.left;
-        const baseY = rect.top - gameRect.top + rect.height/2;
-        const tipX = baseX + Math.cos(radians) * arrow.length;
-        const tipY = baseY + Math.sin(radians) * arrow.length;
-        
-        for(let other of arrows) {
-            if(other.id === arrow.id || other.removed || other.moving) continue;
-            
-            const oRad = other.dir * Math.PI / 180;
-            const ox1 = other.x;
-            const oy1 = other.y;
-            const ox2 = other.x + Math.cos(oRad) * other.length;
-            const oy2 = other.y + Math.sin(oRad) * other.length;
-            
-            if(linesIntersect(baseX, baseY, tipX, tipY, ox1, oy1, ox2, oy2, 18)) {
-                collided = true;
-                clearInterval(checkInterval);
-                
-                el.classList.remove('moving');
-                el.classList.add('returning');
-                el.style.left = arrow.originalX + 'px';
-                el.style.top = arrow.originalY + 'px';
-                
-                setTimeout(() => {
-                    el.classList.remove('returning');
-                    arrow.moving = false;
-                }, 450);
-                
-                loseLife();
-                try { tg.HapticFeedback.notificationOccurred('error'); } catch(e) {}
-                return;
-            }
-        }
-        
-        if(rect.left > gameRect.right + 60 || rect.right < gameRect.left - 60 || 
-           rect.top > gameRect.bottom + 60 || rect.bottom < gameRect.top - 60) {
-            clearInterval(checkInterval);
-            if(!collided) {
-                arrow.removed = true;
-                el.classList.add('removed');
-                arrow.moving = false;
-                try { tg.HapticFeedback.notificationOccurred('success'); } catch(e) {}
-                checkWin();
-            }
-        }
-    }, 16);
-    
-    setTimeout(() => {
-        clearInterval(checkInterval);
-        if(arrow.moving &&!arrow.removed &&!collided) {
-            arrow.removed = true;
-            el.classList.add('removed');
-            arrow.moving = false;
-            checkWin();
-        }
-    }, 850);
-}
-
-function linesIntersect(x1, y1, x2, y2, x3, y3, x4, y4, threshold) {
-    const dx1 = x2 - x1, dy1 = y2 - y1;
-    const dx2 = x4 - x3, dy2 = y4 - y3;
-    const denominator = dy2 * dx1 - dx2 * dy1;
-    
-    if(Math.abs(denominator) < 0.01) {
-        const dist = pointToSegmentDistance(x1, y1, x3, y3, x4, y4);
-        return dist < threshold;
-    }
-    
-    const ua = (dx2 * (y1 - y3) - dy2 * (x1 - x3)) / denominator;
-    const ub = (dx1 * (y1 - y3) - dy1 * (x1 - x3)) / denominator;
-    
-    if(ua >= -0.05 && ua <= 1.05 && ub >= -0.05 && ub <= 1.05) {
-        const ix = x1 + ua * dx1;
-        const iy = y1 + ua * dy1;
-        const dist = pointToSegmentDistance(ix, iy, x3, y3, x4, y4);
-        return dist < threshold;
-    }
-    return false;
-}
-
-function pointToSegmentDistance(px, py, x1, y1, x2, y2) {
-    const A = px - x1, B = py - y1, C = x2 - x1, D = y2 - y1;
-    const dot = A * C + B * D, lenSq = C * C + D * D;
-    let param = lenSq!== 0? dot / lenSq : -1;
-    let xx, yy;
-    if(param < 0) { xx = x1; yy = y1; }
-    else if(param > 1) { xx = x2; yy = y2; }
-    else { xx = x1 + param * C; yy = y1 + param * D; }
-    const dx = px - xx, dy = py - yy;
-    return Math.sqrt(dx * dx + dy * dy);
-}
-
-function loseLife() {
-    lives--;
-    updateLives();
-    const livesEl = document.getElementById('livesDisplay');
-    livesEl.classList.add('lost');
-    setTimeout(() => livesEl.classList.remove('lost'), 300);
-    
-    if(lives <= 0) {
-        setTimeout(() => {
-            tg.showAlert('Game Over! 💔 Try Again');
-            restartLevel();
-        }, 500);
+function selectTube(index) {
+    if (selectedTube === null) {
+        // Pehla selection
+        if (tubes[index].length === 0) return;
+        selectedTube = index;
+        document.getElementById('tube-' + index).classList.add('selected');
+    } else if (selectedTube === index) {
+        // Same tube deselect
+        document.getElementById('tube-' + selectedTube).classList.remove('selected');
+        selectedTube = null;
+    } else {
+        // Move ball
+        moveBall(selectedTube, index);
+        document.getElementById('tube-' + selectedTube).classList.remove('selected');
+        selectedTube = null;
     }
 }
 
-function updateLives() {
-    document.getElementById('livesDisplay').textContent = '❤️'.repeat(Math.max(0, lives));
+function moveBall(from, to) {
+    const fromTube = tubes[from];
+    const toTube = tubes[to];
+    
+    if (fromTube.length === 0) return;
+    if (toTube.length >= 4) return;
+    
+    const ball = fromTube[fromTube.length - 1];
+    
+    // Check valid move: empty tube ya same color
+    if (toTube.length > 0 && toTube[toTube.length - 1]!== ball) {
+        try { tg.HapticFeedback.notificationOccurred('error'); } catch(e) {}
+        return;
+    }
+    
+    // Save history for undo
+    moveHistory.push({ from, to, ball });
+    
+    // Move ball
+    fromTube.pop();
+    toTube.push(ball);
+    moves++;
+    updateMoves();
+    
+    renderTubes();
+    try { tg.HapticFeedback.notificationOccurred('success'); } catch(e) {}
+    
+    checkWin();
+}
+
+function undoMove() {
+    if (moveHistory.length === 0) return;
+    
+    const lastMove = moveHistory.pop();
+    tubes[lastMove.to].pop();
+    tubes[lastMove.from].push(lastMove.ball);
+    moves--;
+    updateMoves();
+    renderTubes();
+}
+
+function addTube() {
+    if (extraTubeUsed) {
+        tg.showAlert('Extra tube already used!');
+        return;
+    }
+    
+    // Rewarded ad for extra tube
+    try {
+        window.TelegramAdsController.triggerRewardedBanner().then(() => {
+            tubes.push([]);
+            extraTubeUsed = true;
+            renderTubes();
+            tg.showAlert('Extra tube added! 🎉');
+        }).catch(() => {
+            tg.showAlert('Ad failed to load. Try again!');
+        });
+    } catch(e) {
+        tubes.push([]);
+        extraTubeUsed = true;
+        renderTubes();
+    }
+}
+
+function updateMoves() {
+    document.getElementById('moveCount').textContent = moves;
 }
 
 function checkWin() {
-    const remaining = arrows.filter(a =>!a.removed).length;
-    if(remaining === 0) {
-        setTimeout(winLevel, 400);
+    const isWin = tubes.every(tube => 
+        tube.length === 0 || (tube.length === 4 && tube.every(b => b === tube[0]))
+    );
+    
+    if (isWin) {
+        setTimeout(winLevel, 500);
     }
 }
 
 function winLevel() {
     try { tg.HapticFeedback.notificationOccurred('success'); } catch(e) {}
     
-    if(currentLevel === maxUnlocked && currentLevel < 100) {
+    if (currentLevel === maxUnlocked && currentLevel < 100) {
         maxUnlocked++; 
         saveGame();
     }
 
-    if(currentLevel % 2 === 0 && canShowAd) {
+    // Interstitial ad har 2 level ke baad
+    if (currentLevel % 2 === 0 && canShowAd) {
         canShowAd = false;
         setTimeout(() => { canShowAd = true; }, 30000);
         try {
-            window.TelegramAdsController.triggerInterstitialBanner().then(nextLevelLoad).catch(nextLevelLoad);
-        } catch(e) { nextLevelLoad(); }
+            window.TelegramAdsController.triggerInterstitialBanner().then(nextLevel).catch(nextLevel);
+        } catch(e) { nextLevel(); }
     } else {
-        nextLevelLoad();
+        nextLevel();
     }
 }
 
-function nextLevelLoad() {
-    if(currentLevel < 100) { 
+function nextLevel() {
+    if (currentLevel < 100) { 
         currentLevel++; 
         startLevel(currentLevel); 
     } else { 
@@ -294,26 +229,6 @@ function nextLevelLoad() {
 
 function restartLevel() {
     generateLevel(currentLevel);
-}
-
-function showHint() {
-    const remaining = arrows.filter(a =>!a.removed);
-    if(remaining.length === 0) return;
-    
-    // Rewarded Ad for hint
-    try {
-        window.TelegramAdsController.triggerRewardedBanner().then(() => {
-            tg.showAlert(`Hint: ${remaining.length} arrows left! Find the one that won't collide.`);
-        }).catch(() => {
-            tg.showAlert(`Hint: ${remaining.length} arrows left! Find the one that won't collide.`);
-        });
-    } catch(e) {
-        tg.showAlert(`Hint: ${remaining.length} arrows left! Find the one that won't collide.`);
-    }
-}
-
-function showSettings() {
-    tg.showAlert('Settings coming soon!');
 }
 
 function showHome() {
@@ -332,13 +247,13 @@ function showLevelSelect() {
 function renderLevelGrid() {
     const grid = document.getElementById('levelGrid'); 
     grid.innerHTML = '';
-    for(let i = 1; i <= 100; i++) {
+    for (let i = 1; i <= 100; i++) {
         const btn = document.createElement('div'); 
         btn.className = 'level-btn'; 
         btn.textContent = i;
-        if(i <= maxUnlocked) { 
+        if (i <= maxUnlocked) { 
             btn.className += ' unlocked'; 
-            if(i === currentLevel) btn.className += ' current'; 
+            if (i === currentLevel) btn.className += ' current'; 
             btn.onclick = () => startLevel(i); 
         } else { 
             btn.className += ' locked'; 
@@ -357,18 +272,18 @@ function startLevel(lvl) {
 
 function saveGame() {
     try { 
-        localStorage.setItem('arrowEscape100', JSON.stringify({ maxUnlocked: maxUnlocked })); 
+        localStorage.setItem('ballSort100', JSON.stringify({ maxUnlocked })); 
         tg.CloudStorage.setItem('maxLevel', maxUnlocked.toString());
     } catch(e) {}
 }
 
 function loadGame() {
     try {
-        const saved = localStorage.getItem('arrowEscape100');
-        if(saved) maxUnlocked = JSON.parse(saved).maxUnlocked || 1;
+        const saved = localStorage.getItem('ballSort100');
+        if (saved) maxUnlocked = JSON.parse(saved).maxUnlocked || 1;
         
         tg.CloudStorage.getItem('maxLevel', (err, val) => {
-            if(!err && val) maxUnlocked = Math.max(maxUnlocked, parseInt(val));
+            if (!err && val) maxUnlocked = Math.max(maxUnlocked, parseInt(val));
         });
     } catch(e) {}
 }
@@ -376,15 +291,15 @@ function loadGame() {
 loadGame();
 try { 
     tg.BackButton.onClick(() => {
-        if(document.getElementById('gameScreen').classList.contains('active')) {
+        if (document.getElementById('gameScreen').classList.contains('active')) {
             showLevelSelect();
-        } else if(document.getElementById('levelScreen').classList.contains('active')) {
+        } else if (document.getElementById('levelScreen').classList.contains('active')) {
             showHome();
         }
     }); 
 } catch(e) {}
 
-// Show banner ad on start
+// Banner ad on start
 setTimeout(() => {
     try {
         window.TelegramAdsController.triggerBanner();
