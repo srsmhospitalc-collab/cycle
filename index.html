@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Arrow Escape Puzzle</title>
+<title>Ball Sort Puzzle</title>
 <link rel="stylesheet" href="style.css">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
@@ -21,10 +21,10 @@
 <body>
 <div class="container">
     <div id="homeScreen" class="screen active">
-        <h1>ARROW ESCAPE</h1>
-        <p style="color:#666;margin-bottom:40px;text-align:center;font-size:16px">100 Tangled Levels</p>
+        <h1>BALL SORT</h1>
+        <p style="color:#666;margin-bottom:40px;text-align:center;font-size:16px">Sort Balls by Color</p>
         <div style="text-align:center">
-            <button class="btn" onclick="showLevelSelect()">▶ PLAY GAME</button>
+            <button class="btn" onclick="showLevelSelect()">▶ PLAY</button>
         </div>
     </div>
 
@@ -40,16 +40,15 @@
         <div class="game-header">
             <button class="icon-btn" onclick="showLevelSelect()">←</button>
             <div class="level-badge">Level <span id="levelNum">1</span></div>
-            <div class="top-right-icons">
-                <button class="icon-btn" onclick="showSettings()">⚙️</button>
-                <div class="color-wheel"></div>
-            </div>
+            <button class="icon-btn" onclick="restartLevel()">🔄</button>
         </div>
-        <div class="lives" id="livesDisplay">❤️❤️❤️</div>
-        <div class="game-area" id="gameArea"></div>
+        
+        <div class="moves">Moves: <span id="moveCount">0</span></div>
+        <div class="tubes-container" id="tubesContainer"></div>
+        
         <div class="bottom-bar">
-            <button class="circle-btn" onclick="restartLevel()">🔄</button>
-            <button class="circle-btn hint-btn" onclick="showHint()">💡</button>
+            <button class="circle-btn" onclick="undoMove()">↶</button>
+            <button class="circle-btn hint-btn" onclick="addTube()">➕</button>
         </div>
     </div>
 </div>
