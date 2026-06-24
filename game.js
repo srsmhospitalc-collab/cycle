@@ -1,135 +1,3 @@
-const COLORS = ['#ff4757', '#2ed573', '#1e90ff', '#ffa502', '#be2edd', '#ff6b81', '#3742fa', '#ffa502'];
-let currentLevel = 1, moves = 0, selectedTube = null, tubes = [];
-let unlockedLevels = parseInt(localStorage.getItem('unlockedLevels') || '1');
-
-function init() {
-    Telegram.WebApp.ready();
-    Telegram.WebApp.expand();
-    showScreen('start-screen');
-
-    document.getElementById('play-btn').onclick = () => showLevelSelect();
-    document.getElementById('back-btn').onclick = () => showScreen('start-screen');
-    document.getElementById('home-btn').onclick = () => showLevelSelect();
-    document.getElementById('restart-btn').onclick = () => startLevel(currentLevel);
-}
-
-function showScreen(screenId) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(screenId).classList.add('active');
-}
-
-function showLevelSelect() {
-    showScreen('level-screen');
-    renderLevelGrid();
-}
-
-function renderLevelGrid() {
-    const grid = document.getElementById('levels-grid');
-    grid.innerHTML = '';
-    document.getElementById('unlocked-count').textContent = `${unlockedLevels}/100`;
-
-    for(let i = 1; i <= 100; i++) {
-        const card = document.createElement('div');
-        card.className = 'level-card';
-        card.textContent = i;
-
-        if(i <= unlockedLevels) {
-            card.classList.add('unlocked');
-            if(i === currentLevel) card.classList.add('current');
-            card.onclick = () => startLevel(i);
-        } else {
-            card.classList.add('locked');
-            card.textContent = '🔒';
-        }
-        grid.appendChild(card);
-    }
-}
-
-function startLevel(level) {
-    currentLevel = level;
-    moves = 0;
-    selectedTube = null;
-    showScreen('game-screen');
-    generateLevel(level);
-    renderTubes();
-    updateStats();
-}
-
-function generateLevel(level) {
-    tubes = [];
-    let numColors = Math.min(3 + Math.floor(level / 10), 8);
-    let ballsPerColor = 4;
-    let allBalls = [];
-
-    for(let i = 0; i < numColors; i++) {
-        for(let j = 0; j < ballsPerColor; j++) {
-            allBalls.push(COLORS[i % COLORS.length]);
-        }
-    }
-
-    allBalls.sort(() => Math.random() - 0.5);
-
-    for(let i = 0; i < numColors; i++) {
-        tubes.push(allBalls.slice(i * ballsPerColor, (i + 1) * ballsPerColor));
-    }
-
-    let emptyTubes = level < 10? 2 : 1;
-    for(let i = 0; i < emptyTubes; i++) tubes.push([]);
-}
-
-function renderTubes() {
-    const container = document.getElementById('tubes-container');
-    container.innerHTML = '';
-
-    tubes.forEach((tube, idx) => {
-        const tubeEl = document.createElement('div');
-        tubeEl.className = 'tube';
-        tubeEl.onclick = () => selectTube(idx);
-
-        tube.forEach(color => {
-            const ball = document.createElement('div');
-            ball.className = 'ball';
-            ball.style.backgroundColor = color;
-            tubeEl.appendChild(ball);
-        });
-        container.appendChild(tubeEl);
-    });
-}
-
-function selectTube(idx) {
-    const tubesEl = document.querySelectorAll('.tube');
-
-    if(selectedTube === null) {
-        if(tubes[idx].length === 0) return;
-        selectedTube = idx;
-        tubesEl[idx].classList.add('selected');
-    } else {
-        if(selectedTube === idx) {
-            tubesEl[selectedTube].classList.remove('selected');
-            selectedTube = null;
-            return;
-        }
-        moveBall(selectedTube, idx);
-        tubesEl[selectedTube].classList.remove('selected');
-        selectedTube = null;
-    }
-}
-
-function moveBall(from, to) {
-    if(tubes[from].length === 0) return;
-    if(tubes[to].length >= 4) return;
-
-    let ball = tubes[from][tubes[from].length - 1];
-    if(tubes[to].length > 0 && tubes[to][tubes[to].length - 1]!== ball) return;
-
-    tubes[from].pop();
-    tubes[to].push(ball);
-    moves++;
-    updateStats();
-    renderTubes();
-    checkWin();
-}
-
 function checkWin() {
     let won = tubes.every(tube =>
         tube.length === 0 || (tube.length === 4 && tube.every(b => b === tube[0]))
@@ -144,11 +12,32 @@ function checkWin() {
         setTimeout(() => {
             Telegram.WebApp.showAlert(`🎉 Level ${currentLevel} Complete!`);
 
-            // LIVE: Har 2 level ke baad Interstitial - BAN RISK
+            // HAR 2 LEVEL PE AD - SAB TYPE ROTATE HONGE
             if(currentLevel % 2 === 0) {
-                showInterstitialAd(); // Level 2,4,6,8... = Full Screen
+                let adType = currentLevel / 2; // Level 2=1, 4=2, 6=3, 8=4...
+                
+                switch(adType % 6) { // 6 ad type rotate karenge
+                    case 1:
+                        showInterstitialBanner(); // Level 2,14,26...
+                        break;
+                    case 2:
+                        showInterstitialVideo(); // Level 4,16,28...
+                        break;
+                    case 3:
+                        showEmbeddedBanner(); // Level 6,18,30...
+                        break;
+                    case 4:
+                        showPopsAd(); // Level 8,20,32...
+                        break;
+                    case 5:
+                        showInPageAd(); // Level 10,22,34...
+                        break;
+                    case 0:
+                        showPlayableAd(); // Level 12,24,36...
+                        break;
+                }
             } else {
-                showNativeAd(); // Level 1,3,5,7... = Chota Popup
+                showNativeAd(); // Level 1,3,5,7... = Safe wala
             }
 
             setTimeout(() => {
@@ -158,10 +47,3 @@ function checkWin() {
         }, 500);
     }
 }
-
-function updateStats() {
-    document.getElementById('current-level').textContent = currentLevel;
-    document.getElementById('moves').textContent = moves;
-}
-
-init();
