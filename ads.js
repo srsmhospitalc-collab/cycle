@@ -1,20 +1,13 @@
-window.TelegramAdsController = new TelegramAdsController();
-window.TelegramAdsController.initialize({
-    pubId: "1013423",
-    appId: "7744",
-    debug: false // LIVE MODE - Real paisa
-});
-
-// 1. Push-style = Native Notification - SAFE FOR TELEGRAM ✅
+// Native Ad - Level 1,3,5,7... ke liye - SAFE ✅
 function showNativeAd() {
     window.TelegramAdsController.triggerNativeNotification().then((result) => {
-        console.log('Native/Push-style ad shown:', result);
+        console.log('Live Native ad shown:', result);
     }).catch((err) => {
-        console.log('Native ad fail:', err);
+        console.log('Live Native ad fail:', err);
     });
 }
 
-// 2. Interstitial Banner - BANNABLE IN TELEGRAM ❌
+// Interstitial Banner - Level 2,14... ke liye - BAN RISK ❌
 function showInterstitialBanner() {
     window.TelegramAdsController.triggerInterstitialBanner().then((result) => {
         console.log('Interstitial Banner shown:', result);
@@ -23,7 +16,7 @@ function showInterstitialBanner() {
     });
 }
 
-// 3. Interstitial Video - BANNABLE IN TELEGRAM ❌
+// Interstitial Video - Level 4,16... ke liye - BAN RISK ❌
 function showInterstitialVideo() {
     window.TelegramAdsController.triggerInterstitialVideo().then((result) => {
         console.log('Interstitial Video shown:', result);
@@ -32,9 +25,8 @@ function showInterstitialVideo() {
     });
 }
 
-// 4. Embedded Banner - BANNABLE IN TELEGRAM ❌
+// Embedded Banner - Level 6,18... ke liye - BAN RISK ❌
 function showEmbeddedBanner() {
-    // Iske liye HTML me div chahiye: <div id="ad-container"></div>
     window.TelegramAdsController.triggerEmbeddedBanner('ad-container').then((result) => {
         console.log('Embedded Banner shown:', result);
     }).catch((result) => {
@@ -42,7 +34,7 @@ function showEmbeddedBanner() {
     });
 }
 
-// 5. Pops - BANNABLE IN TELEGRAM ❌
+// Pops - Level 8,20... ke liye - BAN RISK ❌
 function showPopsAd() {
     window.TelegramAdsController.triggerPops().then((result) => {
         console.log('Pops ad triggered:', result);
@@ -51,7 +43,7 @@ function showPopsAd() {
     });
 }
 
-// 6. In-page - BANNABLE IN TELEGRAM ❌
+// In-page - Level 10,22... ke liye - BAN RISK ❌
 function showInPageAd() {
     window.TelegramAdsController.triggerInPage().then((result) => {
         console.log('In-page ad shown:', result);
@@ -60,7 +52,7 @@ function showInPageAd() {
     });
 }
 
-// 7. Playable Ads - BANNABLE IN TELEGRAM ❌
+// Playable Ads - Level 12,24... ke liye - BAN RISK ❌
 function showPlayableAd() {
     window.TelegramAdsController.triggerPlayableAd().then((result) => {
         console.log('Playable ad shown:', result);
@@ -69,7 +61,7 @@ function showPlayableAd() {
     });
 }
 
-// Rewarded ke liye Native use karo - Safe hai
+// Rewarded Ads - Hint/Tube ke liye - SAFE ✅
 function showRewardedAd(type) {
     Telegram.WebApp.showConfirm(`Watch ad for ${type}?`, (confirmed) => {
         if(confirmed) {
