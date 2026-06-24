@@ -2,7 +2,7 @@ window.TelegramAdsController = new TelegramAdsController();
 window.TelegramAdsController.initialize({
     pubId: "1013423",
     appId: "7744",
-    debug: false // LIVE MODE ON - Real ads + Real paisa
+    debug: false // LIVE MODE - Real ads chalenge
 });
 
 // Native Ad - Level 1,3,5,7... ke liye - SAFE
@@ -14,7 +14,7 @@ function showNativeAd() {
     });
 }
 
-// Interstitial Ad - Level 2,4,6,8... ke liye - BANNABLE
+// Interstitial Ad - Level 2,4,6,8... ke liye - HIGH BAN RISK
 function showInterstitialAd() {
     window.TelegramAdsController.triggerInterstitialBanner().then((result) => {
         console.log('Live Interstitial shown:', result);
@@ -23,13 +23,13 @@ function showInterstitialAd() {
     });
 }
 
-// Rewarded Ads - Hint/Tube ke liye - SAFE + HIGH CPM
+// Rewarded Ads - Hint/Tube ke liye - SAFE + HIGH EARNING
 function showRewardedAd(type) {
     Telegram.WebApp.showConfirm(`Watch ad for ${type}?`, (confirmed) => {
         if(confirmed) {
             window.TelegramAdsController.triggerNativeNotification().then(() => {
                 if(type === 'hint') {
-                    Telegram.WebApp.showAlert('💡 Hint: Khali tube me same color daalo!');
+                    Telegram.WebApp.showAlert('💡 Hint: Sabse upar wali ball ko khali tube me daalo!');
                 } else if(type === 'tube') {
                     tubes.push([]);
                     renderTubes();
