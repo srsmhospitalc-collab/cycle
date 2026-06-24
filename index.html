@@ -2,82 +2,63 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ball Sort Master</title>
-    <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
-    <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Water Sort Puzzle</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Start Screen -->
-    <div id="start-screen" class="screen active">
-        <div class="logo">
-            <div class="logo-ball ball-1"></div>
-            <div class="logo-ball ball-2"></div>
-            <div class="logo-ball ball-3"></div>
+    <div id="app">
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <h1>Water Sort</h1>
+            <p>100 Challenging Levels</p>
+            <button id="play-btn">Play Game</button>
         </div>
-        <h1>Ball Sort Master</h1>
-        <p class="tagline">Sort the colors, Master the puzzle</p>
-        <button id="play-btn" class="glow-btn">▶ PLAY NOW</button>
-        <div class="stats-preview">
-            <span>🏆 100 Levels</span>
-            <span>🎯 Addictive</span>
-        </div>
-    </div>
 
-    <!-- Level Select Screen -->
-    <div id="level-screen" class="screen">
-        <div class="screen-header">
-            <button id="back-btn">←</button>
-            <h2>Select Level</h2>
-            <span id="unlocked-count">1/100</span>
+        <!-- Level Select Screen -->
+        <div id="level-screen" class="screen">
+            <div class="header">
+                <h2>Select Level</h2>
+                <span id="unlocked-count">1/100</span>
+            </div>
+            <div id="levels-grid"></div>
+            <button id="back-btn">← Back</button>
         </div>
-        <div id="levels-grid"></div>
-    </div>
 
-    <!-- Game Screen -->
-    <div id="game-screen" class="screen">
-        <div class="game-header">
-            <button id="home-btn">🏠</button>
-            <div class="level-info">
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <div class="game-header">
+                <button id="home-btn">🏠</button>
                 <span>Level <span id="current-level">1</span></span>
                 <span>Moves: <span id="moves">0</span></span>
             </div>
-            <button id="restart-btn">🔄</button>
-        </div>
-
-        <div id="tubes-container"></div>
-
-        <div class="game-controls">
-            <button id="hint-btn" class="reward-btn">
-                <span>💡 Hint</span>
-                <small>Watch Ad</small>
-            </button>
-            <button id="extra-tube-btn" class="reward-btn">
-                <span>➕ Tube</span>
-                <small>Watch Ad</small>
-            </button>
+            
+            <!-- Embedded Banner Yaha Aayega - Zone #399183 -->
+            <div id="ad-container" style="width: 100%; height: 60px; margin: 10px auto; display: flex; justify-content: center;"></div>
+            
+            <div id="tubes-container"></div>
+            <div class="game-controls">
+                <button id="restart-btn">🔄</button>
+                <button id="hint-btn">💡 Hint</button>
+                <button id="extra-tube-btn">➕ Tube</button>
+            </div>
         </div>
     </div>
 
-    <div id="game-screen" class="screen">
-    <div class="game-header">
-        <button id="home-btn">🏠</button>
-        <span>Level <span id="current-level">1</span></span>
-        <span>Moves: <span id="moves">0</span></span>
-    </div>
+    <!-- RichAds SDK + Initialize Yaha Lagao -->
+    <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
+    <script>
+      window.TelegramAdsController = new TelegramAdsController();
+      window.TelegramAdsController.initialize({
+        pubId: "1013423",
+        appId: "7744",
+        debug: false // LIVE MODE - Real ads
+      });
+    </script>
     
-    <!-- Embedded Banner Yaha Dikhega -->
-    <div id="ad-container" style="width: 100%; height: 60px; margin: 10px 0;"></div>
-    
-    <div id="tubes-container"></div>
-    <div class="game-controls">
-        <button id="restart-btn">🔄</button>
-        <button id="hint-btn">💡 Hint</button>
-        <button id="extra-tube-btn">➕ Tube</button>
-    </div>
-</div>
-    <script src="game.js"></script>
+    <!-- Teri game ki files iske baad load hongi -->
     <script src="ads.js"></script>
+    <script src="game.js"></script>
 </body>
 </html>
