@@ -73,8 +73,7 @@ function generateLevel(level) {
         tubes.push(allBalls.slice(i * ballsPerColor, (i + 1) * ballsPerColor));
     }
 
-    // Extra empty tubes based on level
-    let emptyTubes = level < 10 ? 2 : 1;
+    let emptyTubes = level < 10? 2 : 1;
     for(let i = 0; i < emptyTubes; i++) tubes.push([]);
 }
 
@@ -144,8 +143,18 @@ function checkWin() {
 
         setTimeout(() => {
             Telegram.WebApp.showAlert(`🎉 Level ${currentLevel} Complete!`);
-            showNativeAd(); // Ad dikhao
-            showLevelSelect();
+
+            // LIVE: Har 2 level ke baad Interstitial - BAN RISK
+            if(currentLevel % 2 === 0) {
+                showInterstitialAd(); // Level 2,4,6,8... = Full Screen
+            } else {
+                showNativeAd(); // Level 1,3,5,7... = Chota Popup
+            }
+
+            setTimeout(() => {
+                showLevelSelect();
+            }, 1000);
+
         }, 500);
     }
 }
