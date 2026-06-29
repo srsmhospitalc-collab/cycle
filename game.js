@@ -201,13 +201,8 @@ function checkWin() {
 }
 
 function winLevel() {
-    try { tg.HapticFeedback.notificationOccurred('success'); } catch(e) {}
-
-    if (currentLevel === maxUnlocked && currentLevel < 100) {
-        maxUnlocked++;
-        saveGame();
-    }
-
+    saveGame();
+    
     // Har 2 level pe ad dikhao
     if (currentLevel % 2 === 0 && canShowAd) {
         canShowAd = false;
@@ -216,35 +211,48 @@ function winLevel() {
         // 1. Pehle RichAds try karo
         try {
             window.TelegramAdsController.triggerInterstitialBanner()
-                .then(() => {
-                    console.log('RichAds dikh gaya');
-                    showLevelSelect();
-                })
-                .catch(() => {
-                    // 2. RichAds fail → Monetag chalao
-                    console.log('RichAds fail, Monetag try kar raha...');
-                    try {
-                        window.MonetagAds.showInAppInterstitial()
-                            .then(() => {
-                                console.log('Monetag dikh gaya');
-                                showLevelSelect();
-                            })
-                            .catch(showLevelSelect);
-                    } catch(e) {
+            .then(() => {
+                console.log('RichAds dikh gaya');
+                showLevelSelect();
+            })
+            .catch(() => {
+                // 2. RichAds fail = Monetag chalao
+                console.log('RichAds fail, Monetag try kar raha...');
+                try {
+                    show_11215599({
+                        type: 'inApp',
+                        inAppSettings: {
+                            frequency: 2,
+                            capping: 0.1,
+                        }
+                    }).then(() => {
+                        console.log('Monetag dikh gaya');
                         showLevelSelect();
-                    }
-                });
+                    }).catch((e) => {
+                        console.log('Monetag Error:', e);
+                        showLevelSelect();
+                    });
+                } catch(e) {
+                    console.log('Monetag SDK Error:', e);
+                    showLevelSelect();
+                }
+            });
         } catch(e) {
-            // RichAds error → Seedha Monetag
+            // RichAds error = Seedha Monetag
+            console.log('RichAds SDK Error:', e);
             try {
-                window.MonetagAds.showInAppInterstitial()
-                    .then(showLevelSelect)
-                    .catch(showLevelSelect);
+                show_11215599({
+                    type: 'inApp',
+                    inAppSettings: {
+                        frequency: 2,
+                        capping: 0.1,
+                    }
+                }).then(showLevelSelect)
+                .catch(showLevelSelect);
             } catch(e) {
                 showLevelSelect();
             }
         }
-        
     } else {
         showLevelSelect();
     }
