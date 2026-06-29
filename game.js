@@ -166,20 +166,23 @@ function addTube() {
         return;
     }
 
-    // Sirf Monetag ka Rewarded Popup
+    // Monetag ka naya SDK - Rewarded Popup
     try {
-        window.TelegramAdsController.showRewardedPopup().then(() => {
-            // Ad poora dekha = Tube de do
+        show_11215599('pop').then(() => {
+            // User ne ad poora dekha = Reward de do
             tubes.push([]);
             extraTubeUsed = true;
             renderTubes();
             tg.showAlert('Extra tube added! 🎉');
-        }).catch(() => {
-            // Skip kiya ya fail hua
+        }).catch((e) => {
+            // User ne skip kiya ya ad fail hua
+            console.log('Monetag Error:', e);
             tg.showAlert('Ad poora dekho tabhi tube milegi!');
         });
     } catch(e) {
-        tg.showAlert('Ads load nahi hue. 5 sec baad try karo!');
+        // Agar show_11215599 function hi nahi mila
+        console.log('SDK Load Error:', e);
+        tg.showAlert('Ads load nahi hue. Page refresh karke try karo!');
     }
 }
 
