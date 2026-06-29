@@ -210,10 +210,10 @@ function winLevel() {
         canShowAd = false;
         setTimeout(() => { canShowAd = true; }, 30000);
         try {
-            window.TelegramAdsController.triggerInterstitialBanner().then(nextLevel).catch(nextLevel);
-        } catch(e) { nextLevel(); }
+            window.TelegramAdsController.triggerInterstitialBanner().then(showLevelSelect).catch(showLevelSelect);
+        } catch(e) { showLevelSelect(); }
     } else {
-        nextLevel();
+        showLevelSelect();
     }
 }
 
