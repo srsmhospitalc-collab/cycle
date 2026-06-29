@@ -165,21 +165,21 @@ function addTube() {
         tg.showAlert('Extra tube already used!');
         return;
     }
-    
-    // Rewarded ad for extra tube
+
+    // Sirf Monetag ka Rewarded Popup
     try {
-        window.TelegramAdsController.triggerRewardedBanner().then(() => {
+        window.TelegramAdsController.showRewardedPopup().then(() => {
+            // Ad poora dekha = Tube de do
             tubes.push([]);
             extraTubeUsed = true;
             renderTubes();
             tg.showAlert('Extra tube added! 🎉');
         }).catch(() => {
-            tg.showAlert('Ad failed to load. Try again!');
+            // Skip kiya ya fail hua
+            tg.showAlert('Ad poora dekho tabhi tube milegi!');
         });
     } catch(e) {
-        tubes.push([]);
-        extraTubeUsed = true;
-        renderTubes();
+        tg.showAlert('Ads load nahi hue. 5 sec baad try karo!');
     }
 }
 
