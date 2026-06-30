@@ -168,7 +168,7 @@ function addTube() {
 
     // Monetag ka naya SDK - Rewarded Popup
     try {
-        show_11215599('pop').then(() => {
+        show_11215599().then(() => {
             // User ne ad poora dekha = Reward de do
             tubes.push([]);
             extraTubeUsed = true;
