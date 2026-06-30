@@ -167,20 +167,24 @@ function addTube() {
         return;
     }
 
-    const addTubeBtn = document.getElementById('addTubeBtn');
-    if (addTubeBtn) addTubeBtn.disabled = true;
-
-    window.TelegramAdsController.triggerNativeNotification(true).then(() => {
-        tubes.push([]);
-        extraTubeUsed = true;
-        renderTubes();
-        tg.showAlert('Extra tube added! 🎉');
-    }).catch((e) => {
-        console.log('RichAds Error:', e);
-        tg.showAlert('Ad nahi mila. Thodi der baad try karo');
-    }).finally(() => {
-        if (addTubeBtn) addTubeBtn.disabled = false;
-    });
+    // Monetag ka naya SDK - Rewarded Popup
+    try {
+        show_11215599().then(() => {
+            // User ne ad poora dekha = Reward de do
+            tubes.push([]);
+            extraTubeUsed = true;
+            renderTubes();
+            tg.showAlert('Extra tube added! 🎉');
+        }).catch((e) => {
+            // User ne skip kiya ya ad fail hua
+            console.log('Monetag Error:', e);
+            tg.showAlert('Ad poora dekho tabhi tube milegi!');
+        });
+    } catch(e) {
+        // Agar show_11215599 function hi nahi mila
+        console.log('SDK Load Error:', e);
+        tg.showAlert('Ads load nahi hue. Page refresh karke try karo!');
+    }
 }
 
 function updateMoves() {
@@ -343,21 +347,3 @@ setTimeout(() => {
         window.TelegramAdsController.triggerBanner();
     } catch(e) {}
 }, 1000);
-// ===== RICHADS - SABSE LAST ME =====
-window.addEventListener('load', function() {
-    setTimeout(() => {
-        try {
-            if (typeof window.TelegramAdsController !== 'undefined') {
-                window.TelegramAdsController = new window.TelegramAdsController();
-                window.TelegramAdsController.initialize({
-                    pubId: '1013423',
-                    appId: '7744', 
-                    debug: false
-                });
-                console.log('RichAds Ready ✅');
-            }
-        } catch(e) {
-            console.log('RichAds Skip:', e);
-        }
-    }, 2000);
-});
