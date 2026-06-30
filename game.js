@@ -8,6 +8,21 @@ try {
     tg = { HapticFeedback: { notificationOccurred: () => {} }, showAlert: (msg) => alert(msg), BackButton: { onClick: () => {}, show: () => {}, hide: () => {} } };
 }
 
+} catch(e) {
+    tg = { HapticFeedback: { notificationOccurred: () => {} }, showAlert: (msg) => alert(msg), BackButton
+}
+
+// === YAHAN SE NAYA CODE DAAL ===
+// RichAds Telegram Ads Initialize
+window.TelegramAdsController = new TelegramAdsController();
+window.TelegramAdsController.initialize({
+    pubId: '1013423',  // Tera PubID
+    appId: '7744',     // Tera AppID
+    debug: false       // Real Ads Ke Liye
+});
+// === NAYA CODE KHATAM ===
+
+let currentLevel = 1, maxUnlocked = 1, canShowAd = true;
 let currentLevel = 1, maxUnlocked = 1, canShowAd = true;
 let tubes = [], selectedTube = null, moves = 0, moveHistory = [];
 let extraTubeUsed = false;
@@ -166,24 +181,20 @@ function addTube() {
         return;
     }
 
-    // Monetag ka naya SDK - Rewarded Popup
-    try {
-        show_11215599().then(() => {
-            // User ne ad poora dekha = Reward de do
-            tubes.push([]);
-            extraTubeUsed = true;
-            renderTubes();
-            tg.showAlert('Extra tube added! 🎉');
-        }).catch((e) => {
-            // User ne skip kiya ya ad fail hua
-            console.log('Monetag Error:', e);
-            tg.showAlert('Ad poora dekho tabhi tube milegi!');
-        });
-    } catch(e) {
-        // Agar show_11215599 function hi nahi mila
-        console.log('SDK Load Error:', e);
-        tg.showAlert('Ads load nahi hue. Page refresh karke try karo!');
-    }
+    const addTubeBtn = document.getElementById('addTubeBtn');
+    if (addTubeBtn) addTubeBtn.disabled = true;
+
+    window.TelegramAdsController.triggerNativeNotification(true).then(() => {
+        tubes.push([]);
+        extraTubeUsed = true;
+        renderTubes();
+        tg.showAlert('Extra tube added! 🎉');
+    }).catch((e) => {
+        console.log('RichAds Error:', e);
+        tg.showAlert('Ad nahi mila. Thodi der baad try karo');
+    }).finally(() => {
+        if (addTubeBtn) addTubeBtn.disabled = false;
+    });
 }
 
 function updateMoves() {
