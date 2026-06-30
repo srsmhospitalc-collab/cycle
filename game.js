@@ -8,21 +8,7 @@ try {
     tg = { HapticFeedback: { notificationOccurred: () => {} }, showAlert: (msg) => alert(msg), BackButton: { onClick: () => {}, show: () => {}, hide: () => {} } };
 }
 
-} catch(e) {
-    tg = { HapticFeedback: { notificationOccurred: () => {} }, showAlert: (msg) => alert(msg), BackButton
-}
 
-// === YAHAN SE NAYA CODE DAAL ===
-// RichAds Telegram Ads Initialize
-window.TelegramAdsController = new TelegramAdsController();
-window.TelegramAdsController.initialize({
-    pubId: '1013423',  // Tera PubID
-    appId: '7744',     // Tera AppID
-    debug: false       // Real Ads Ke Liye
-});
-// === NAYA CODE KHATAM ===
-
-let currentLevel = 1, maxUnlocked = 1, canShowAd = true;
 let currentLevel = 1, maxUnlocked = 1, canShowAd = true;
 let tubes = [], selectedTube = null, moves = 0, moveHistory = [];
 let extraTubeUsed = false;
@@ -357,3 +343,21 @@ setTimeout(() => {
         window.TelegramAdsController.triggerBanner();
     } catch(e) {}
 }, 1000);
+// ===== RICHADS - SABSE LAST ME =====
+window.addEventListener('load', function() {
+    setTimeout(() => {
+        try {
+            if (typeof window.TelegramAdsController !== 'undefined') {
+                window.TelegramAdsController = new window.TelegramAdsController();
+                window.TelegramAdsController.initialize({
+                    pubId: '1013423',
+                    appId: '7744', 
+                    debug: false
+                });
+                console.log('RichAds Ready ✅');
+            }
+        } catch(e) {
+            console.log('RichAds Skip:', e);
+        }
+    }, 2000);
+});
