@@ -202,69 +202,49 @@ function checkWin() {
 }
 
  function winLevel() {
-     saveGame();
+    saveGame();
+    
+    // 1. maxUnlocked UPDATE KARO - YE SABSE IMPORTANT HAI
+    if(currentLevel >= maxUnlocked) {
+        maxUnlocked = currentLevel + 1; // Global variable update karo
+        saveGame(); // Fir save karo
+        console.log('New Max Unlocked:', maxUnlocked);
+    }
 
-     // LEVEL UNLOCK KARO - YE ADD KIYA HAI
-     let unlockedLevel = parseInt(localStorage.getItem('unlockedLevel') || 1);
-     if(currentLevel >= unlockedLevel) {
-         localStorage.setItem('unlockedLevel', currentLevel + 1);
-         console.log('Level Unlocked:', currentLevel + 1);
-     }
- 
-     // Har 2 level pe ad dikhao
-     if (currentLevel % 2 === 0 && canShowAd) {
-         canShowAd = false;
-         setTimeout(() => { canShowAd = true; }, 30000); // 30 sec cooldown
- 
-        // 1. Pehle RichAds try karo
-         try {
-             window.TelegramAdsController.triggerInterstitialBanner()
-             .then(() => {
-                 console.log('RichAds dikh gaya');
-                 showLevelSelect();
-             })
-             .catch(() => {
-                 // 2. RichAds fail = Monetag chalao
-                 console.log('RichAds fail, Monetag try kar raha...');
-                 try {
-                     show_11215599({
-                         type: 'inApp', 
-                         inAppSettings: {
-                             frequency: 2,
-                             capping: 0.1,
-                         }
-                     }).then(() => {
-                         console.log('Monetag dikh gaya');
-                         showLevelSelect();
-                     }).catch((e) => {
-                         console.log('Monetag Error:', e);
-                         showLevelSelect();
-                     });
-                 } catch(e) {
-                     console.log('Monetag SDK Error:', e);
-                            showLevelSelect();
-                 }
-             });
-         } catch(e) {
-             // RichAds error = Seedha Monetag
-             console.log('RichAds SDK Error:', e);
-             try {
-                 show_11215599({
-                     type: 'inApp',
-                     inAppSettings: {
-                         frequency: 2,
-                         capping: 0.1,
-                     }
-                 }).then(showLevelSelect)
-                 .catch(showLevelSelect);
-             } catch(e) {
-                 showLevelSelect();
-             }
-         }
-     } else {
-         showLevelSelect();
-     }
- }
+    // 2. Ab ad wala code
+    if (currentLevel % 2 === 0 && canShowAd) {
+        canShowAd = false;
+        setTimeout(() => { canShowAd = true; }, 30000);
+        
+        try {
+            window.TelegramAdsController.triggerInterstitialBanner()
+            .then(() => {
+                console.log('RichAds dikh gaya');
+                showLevelSelect();
+            })
+            .catch(() => {
+                console.log('RichAds fail, Monetag try kar raha...');
+                try {
+                    show_11215599({
+                        type: 'inApp',
+                        inAppSettings: { frequency: 2, capping: 0.1 }
+                    }).then(() => {
+                        showLevelSelect();
+                    }).catch((e) => {
+                        console.log('Monetag Error:', e);
+                        showLevelSelect();
+                    });
+                } catch(e) {
+                    showLevelSelect();
+                }
+            });
+        } catch(e) {
+            showLevelSelect();
+        }
+    } else {
+        showLevelSelect();
+    }
+}
 
 function nextLevel() {
     if (currentLevel < 100) { 
