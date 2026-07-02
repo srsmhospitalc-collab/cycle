@@ -161,32 +161,34 @@ function undoMove() {
     renderTubes();
 }
 
-function addTube() {
+async function addTube() {
     if (extraTubeUsed) {
         tg.showAlert('Extra tube already used!');
         return;
     }
 
-    // Monetag ka naya SDK - Rewarded Popup
+    // OnClickA Rewarded Ad
     try {
-        show_11215599().then(() => {
+        const result = await onclicka.showRewarded({ 
+            zoneId: 446854  // Tera Zone ID
+        });
+
+        if (result === true) {
             // User ne ad poora dekha = Reward de do
             tubes.push([]);
             extraTubeUsed = true;
             renderTubes();
             tg.showAlert('Extra tube added! 🎉');
-        }).catch((e) => {
-            // User ne skip kiya ya ad fail hua
-            console.log('Monetag Error:', e);
+        } else {
+            // User ne ad skip kar diya ya close kar diya
             tg.showAlert('Ad poora dekho tabhi tube milegi!');
-        });
+        }
     } catch(e) {
-        // Agar show_11215599 function hi nahi mila
-        console.log('SDK Load Error:', e);
-        tg.showAlert('Ads load nahi hue. Page refresh karke try karo!');
+        // Ad load nahi hua ya error aaya
+        console.log('OnClickA Error:', e);
+        tg.showAlert('Ads load nahi hue. AdBlock off karke try karo!');
     }
 }
-
 function updateMoves() {
     document.getElementById('moveCount').textContent = moves;
 }
