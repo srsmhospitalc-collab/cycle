@@ -1,26 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Ball Sort Puzzle</title>
-<link rel="stylesheet" href="style.css">
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
-<script>
-  try {
-    window.TelegramAdsController = new TelegramAdsController();
-    window.TelegramAdsController.initialize({
-      pubId: "1013423",
-      appId: "7744",
-      debug: false
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Ball Sort Puzzle</title>
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Telegram SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  
+  <!-- 1. RichAds SDK - Pehle ye try hoga -->
+  <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
+  <script>
+    try {
+      window.TelegramAdsController = new TelegramAdsController();
+      window.TelegramAdsController.initialize({
+        pubId: "1013423",
+        appId: "7744",
+        debug: false
+      });
+    } catch(e) {console.log('RichAds init fail:', e)}
+  </script>
+  
+  <!-- 2. Monetag SDK - RichAds fail hua to ye chalega -->
+  <script src="https://js.onclckvd.com/in-stream-ad-adapter.js"></script>
+  <script>
+    window.inStreamAds = window.initInStreamAds({
+      zoneId: '11215599',
+      sdk: 'telegram'
     });
-  } catch(e) {console.log('Ads init error:', e)}
-</script>
-  <!-- 2. Monetag SDK - Iske liye alag variable use karenge -->
-    <script src='//libtl.com/sdk.js' data-zone='11215599' data-sdk='show_11215599'></script>
-    
-    <!-- 3. Monetag ko alag naam de do taki conflict na ho -->
+  </script>
 </head>
 <body>
 <div class="container">
