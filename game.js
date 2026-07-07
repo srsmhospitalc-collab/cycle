@@ -27,41 +27,7 @@ const LEVEL_CONFIG = {
     20: { tubes: 9, colors: 7 },
 };
 
-// Monetag Auto Interstitial - 1min + har 6min
-let monetagTimer;
 
-function startAutoAds() {
-  console.log("Auto Ads Started");
-
-  // Pehla ad 1 min = 60000ms baad
-  setTimeout(() => {
-    showMonetagAd();
-
-    // Uske baad har 6 min = 360000ms baad ad
-    monetagTimer = setInterval(() => {
-      showMonetagAd();
-    }, 360000);
-
-  }, 60000);
-}
-
-function showMonetagAd() {
-  if(typeof show_11215599 !== 'undefined'){
-    show_11215599({
-      type: 'inApp',
-      inAppSettings: {
-        frequency: 1,      // 1 hi ad chalega
-        capping: 24,       // 24 ghante ka capping
-        interval: 360,     // 360 sec = 6 min gap
-        timeout: 5,        // 5 sec delay
-        everyPage: false
-      }
-    });
-    console.log("Monetag Ad Shown at: " + new Date().toLocaleTimeString());
-  } else {
-    console.log("Monetag SDK load nahi hua");
-  }
-}
 
 // Game load hote hi chalu kar do
 window.addEventListener('load', startAutoAds);
