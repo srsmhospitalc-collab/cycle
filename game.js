@@ -248,6 +248,40 @@ function checkWin() {
         showLevelSelect();
     }
 }
+let level = 1;
+let canGoNext = true; // level unlock hai ya nahi
+
+function completeLevel() {
+    level++;
+
+    // Har 3, 6, 9... level pe ad lock
+    if (level % 3 === 0) {
+        canGoNext = false; // aage jana band
+        document.getElementById('unlockBtn').style.display = 'block'; // button dikhao
+    } else {
+        goToNextLevel(); // normal level seedha khul jaye
+    }
+}
+
+// User button dabayega tab ad aayega
+document.getElementById('unlockBtn').onclick = function() {
+    show_11215599().then(() => {
+        // Ad pura dekha = level unlock
+        canGoNext = true;
+        this.style.display = 'none'; // button chupao
+        goToNextLevel(); // aage bhejo
+    }).catch(() => {
+        alert('Level unlock karne ke liye ad dekhna zaruri hai');
+    });
+}
+
+// Aage level me jane ka function
+function goToNextLevel() {
+    if(canGoNext){
+        // Yaha next level load karo
+        loadLevel(level + 1);
+    }
+}
 
 function nextLevel() {
     if (currentLevel < 100) { 
