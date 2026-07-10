@@ -156,15 +156,26 @@ function moveBall(from, to) {
 
 function undoMove() {
     if (moveHistory.length === 0) return;
-    
-    const lastMove = moveHistory.pop();
-    tubes[lastMove.to].pop();
-    tubes[lastMove.from].push(lastMove.ball);
-    moves--;
-    updateMoves();
-    renderTubes();
-}
 
+    // Monetag Rewarded Ad - Ad dekhne ke baad hi undo
+    show_11215599('pop').then(() => {
+        // 1. Ad complete hui tabhi undo karo
+        const lastMove = moveHistory.pop();
+        tubes[lastMove.to].pop();
+        tubes[lastMove.from].push(lastMove.ball);
+        moves--;
+        updateMoves();
+        renderTubes();
+        
+        tg.HapticFeedback.notificationOccurred('success'); // Vibration
+        tg.showAlert('Undo ho gaya!');
+
+    }).catch(e => {
+        // 2. User ne ad skip ki ya error aaya
+        tg.showAlert('Ad puri dekho tabhi Undo milega');
+        console.log("Monetag Ad Error:", e);
+    });
+}
 function addTube() {
     if (extraTubeUsed) {
         tg.showAlert('Extra tube already used!');
