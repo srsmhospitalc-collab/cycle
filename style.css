@@ -198,4 +198,4 @@ h1 {
     transform: scale(1.05); 
     box-shadow: 0 0 20px rgba(74,222,128,0.5);
 }
-.level-btn.locked { opacity: 0.3; cursor: not-allowed; }
+.level-btn.locked { opacity: 0.3; cursor: not-allowed; } 
