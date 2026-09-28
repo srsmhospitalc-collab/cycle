@@ -22,15 +22,11 @@ function renderLevelGrid(){
     let isCleared = i < unlockedLevel;
     btn.className="level-btn" + (isLocked?" locked":"") + (isCleared?" cleared":"") + (i==unlockedLevel?" active":"");
     btn.style.position = "relative";
-
-    // HAR 5 BUTTON PE AD TAG
     let adTag = (i % 5 === 0)? `<span style="font-size:8px;background:#ff5722;color:#fff;padding:2px 4px;border-radius:4px;position:absolute;top:-6px;right:-6px;">AD</span>` : "";
     btn.innerHTML=`${isLocked?"🔒":i}${adTag}<small>${i*200}</small>`;
-
     if(!isLocked){
       btn.onclick=()=>startLevel(i);
     } else {
-      // LOCKED PE CLICK
       btn.onclick=()=>{
         if(i % 5 === 0){
           levelToUnlock = i;
@@ -46,12 +42,12 @@ function renderLevelGrid(){
   }
 }
 
-// HAR 5 LEVEL UNLOCK PE MONETAG REWARDED - FAIL HUA TO DIRECT UNLOCK
+// ========= COMPULSORY 5TH LEVEL UNLOCK - SMART (Option 2) =========
 if(unlockBtnEl){
   unlockBtnEl.onclick = function(){
     let btn = this;
-    btn.innerText = "Ad Loading...";
-    let doUnlock = () => {
+    let tried = 0;
+    const doUnlock = () => {
       if(levelToUnlock > unlockedLevel){
         unlockedLevel = levelToUnlock;
         localStorage.setItem("unlockedLevel", unlockedLevel);
@@ -60,13 +56,35 @@ if(unlockBtnEl){
       startLevel(levelToUnlock);
     };
 
-    if(typeof show_11215599!== 'function'){
-      // SDK load nahi hua to direct
-      doUnlock(); return;
-    }
-    try{
-      show_11215599().then(doUnlock).catch(()=>{ doUnlock(); });
-    }catch(e){ doUnlock(); }
+    const tryAd = () => {
+      tried++;
+      btn.innerText = tried==1? "Ad Loading..." : "Retry Kar Raha Hu...";
+      if(typeof show_11215599!== 'function'){
+        if(tried < 2){
+          btn.innerText = "SDK Not Ready, 3 sec me retry...";
+          setTimeout(tryAd, 3000);
+        } else {
+          alert("Ad SDK Load Nahi Hua. Telegram me dobara try karo.");
+          btn.innerText = "🔄 RETRY AD TO UNLOCK";
+        }
+        return;
+      }
+      try{
+        show_11215599().then(doUnlock).catch(()=>{
+          if(tried < 2){
+            btn.innerText = "Ad Load Nahi Hua, 3 sec me retry...";
+            setTimeout(tryAd, 3000);
+          } else {
+            alert("Ad Not Ready hai. Please UNLOCK button dubara dabao.");
+            btn.innerText = "🔄 RETRY AD TO UNLOCK";
+          }
+        });
+      }catch(e){
+        if(tried < 2) setTimeout(tryAd, 3000);
+        else btn.innerText = "🔄 RETRY AD TO UNLOCK";
+      }
+    };
+    tryAd();
   };
 }
 
@@ -102,6 +120,7 @@ function render(){
   if(score>=target) levelComplete();
 }
 
+// ========= COMPULSORY INTERSTITIAL - SMART (Option 2) =========
 function levelComplete(){
   if(level==100){ alert("🏆 FINAL LEGEND! 100 LEVELS COMPLETE!"); showLevelScreen(); return; }
   if(level >= unlockedLevel){
@@ -109,7 +128,6 @@ function levelComplete(){
     localStorage.setItem("unlockedLevel", unlockedLevel);
   }
 
-  // HAR 2 LEVEL KE BAAD RICHADS INTERSTITIAL
   if(level % 2 === 0 && canShowAd){
     canShowAd = false;
     setTimeout(()=>{ canShowAd = true; }, 30000);
@@ -121,20 +139,45 @@ function levelComplete(){
       }, 100);
     };
 
-    if(window.TelegramAdsController){
-      try{
-        window.TelegramAdsController.triggerInterstitialBanner().then(goNext).catch(()=>{ tryMonetag(); });
-        return;
-      }catch(e){ tryMonetag(); }
-    } else { tryMonetag(); }
-
-    function tryMonetag(){
-      if(typeof show_11215599 === 'function'){
+    let interstitialTried = 0;
+    const tryInterstitial = () => {
+      interstitialTried++;
+      // Pehle RichAds
+      if(window.TelegramAdsController && interstitialTried == 1){
         try{
-          show_11215599({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1 } }).then(goNext).catch(goNext);
-        }catch(e){ goNext(); }
-      } else { goNext(); }
-    }
+          window.TelegramAdsController.triggerInterstitialBanner().then(goNext).catch(()=>{
+            // Fail -> Monetag try
+            tryMonetag();
+          });
+          return;
+        }catch(e){ tryMonetag(); return; }
+      } else {
+        tryMonetag();
+      }
+
+      function tryMonetag(){
+        if(typeof show_11215599 === 'function'){
+          try{
+            show_11215599({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1 } }).then(goNext).catch(()=>{
+              if(interstitialTried < 2){
+                console.log("Interstitial retry in 3 sec");
+                setTimeout(tryInterstitial, 3000);
+              } else {
+                alert("Ad Not Available - 5 sec me next level khul raha hai");
+                setTimeout(goNext, 5000);
+              }
+            });
+          }catch(e){
+            if(interstitialTried < 2) setTimeout(tryInterstitial, 3000);
+            else { alert("Ad Not Available - 5 sec me next level"); setTimeout(goNext, 5000); }
+          }
+        } else {
+          if(interstitialTried < 2) setTimeout(tryInterstitial, 3000);
+          else { alert("Ad Not Available - 5 sec me next level"); setTimeout(goNext, 5000); }
+        }
+      }
+    };
+    tryInterstitial();
 
   } else {
     setTimeout(()=>{
