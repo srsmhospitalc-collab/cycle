@@ -259,20 +259,7 @@ function checkWin() {
         showLevelSelect();
     }
 }
-let level = 1;
-let canGoNext = true; // level unlock hai ya nahi
 
-function completeLevel() {
-    level++;
-
-    // Har 3, 6, 9... level pe ad lock
-    if (level % 3 === 0) {
-        canGoNext = false; // aage jana band
-        document.getElementById('unlockBtn').style.display = 'block'; // button dikhao
-    } else {
-        goToNextLevel(); // normal level seedha khul jaye
-    }
-}
 
 // User button dabayega tab ad aayega
 document.getElementById('unlockBtn').onclick = function() {
