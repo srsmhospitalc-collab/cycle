@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;800&display=swap');
+*{box-sizing:border-box;font-family:'Outfit',sans-serif}
+body{margin:0;min-height:100vh;background:#0a0a18;display:flex;justify-content:center;align-items:center;color:white}
+.bg-blur{position:fixed;width:700px;height:700px;background:radial-gradient(circle at 30% 30%, #7c3aed, transparent 50%), radial-gradient(circle at 80% 80%, #06b6d4, transparent 50%);filter:blur(90px);z-index:-1}
+.main{width:380px;padding:16px}
+.hidden{display:none!important}
+h1{margin:0;font-size:36px;line-height:0.9;letter-spacing:-1px}
+h1 span{display:block;font-size:14px;letter-spacing:5px;color:#a5b4fc;margin-top:4px}
+.subtitle{color:#94a3b8;font-size:12px;letter-spacing:2px;margin-top:10px}
+#levelGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:16px;max-height:75vh;overflow-y:auto;padding-right:4px}
+.level-btn{aspect-ratio:1/1;border-radius:16px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);backdrop-filter:blur(10px);color:white;font-weight:800;font-size:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:0.2s; position:relative;}
+.level-btn small{font-size:9px;color:#a5b4fc;letter-spacing:1px;margin-top:2px}
+.level-btn.locked{opacity:0.4;background:rgba(255,255,255,0.03)} /* FIX 1: pointer-events:none hataya */
+.level-btn.active{background:linear-gradient(135deg,#7c3aed,#4f46e5);box-shadow:0 0 15px #7c3aed88;transform:scale(1.05)}
+.level-btn.cleared{background:linear-gradient(135deg,#10b981,#06b6d4);border-color:#10b981}
+.top{display:flex;justify-content:space-between;align-items:center}
+.back-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:white;padding:8px 14px;border-radius:10px;font-weight:700}
+.score-box{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);padding:8px 14px;border-radius:12px;text-align:center;font-size:14px;font-weight:800}
+.label{font-size:9px;color:#a5b4fc;letter-spacing:1px}
+.level-info-bar{text-align:center;margin-top:12px;background:rgba(124,58,237,0.2);border:1px solid rgba(124,58,237,0.3);padding:6px;border-radius:20px;font-size:12px;color:#c4b5fd}
+.progress-bar{height:8px;background:rgba(0,0,0,0.4);border-radius:10px;margin-top:8px;overflow:hidden}
+#progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#7c3aed,#06b6d4);transition:0.4s}
+#board{position:relative;background:rgba(255,255,255,0.07);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:10px;display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:12px;overflow:hidden}
+.cell{aspect-ratio:1/1;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;background:rgba(255,255,255,0.05);cursor:pointer;animation:spawn 0.2s}
+.cell.bottom-row{outline:2px solid #7c3aed;box-shadow:0 0 14px #7c3aed88;background:rgba(124,58,237,0.18)}
+@keyframes spawn{0%{transform:scale(0)}100%{transform:scale(1)}}
+.c-2{background:#1e293b}.c-4{background:#334155}.c-8{background:linear-gradient(135deg,#f59e0b,#f97316)}.c-16{background:linear-gradient(135deg,#f97316,#ef4444)}.c-32{background:linear-gradient(135deg,#ef4444,#dc2626)}.c-64{background:linear-gradient(135deg,#ec4899,#8b5cf6)}.c-128{background:linear-gradient(135deg,#8b5cf6,#6366f1)}.c-256{background:linear-gradient(135deg,#6366f1,#06b6d4)}.c-512{background:linear-gradient(135deg,#06b6d4,#22d3ee);color:#000}.c-1024{background:linear-gradient(135deg,#22d3ee,#a5f3fc);color:#000}.c-2048{background:linear-gradient(135deg,#fde047,#facc15);color:#422006}
+.next-card{margin-top:12px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:16px;text-align:center}
+#next{width:80px;height:80px;margin:12px auto;border-radius:16px;font-size:36px;display:flex;align-items:center;justify-content:center}
+.next-card button{width:100%;border:none;padding:12px;border-radius:12px;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;font-weight:800;margin-top:8px}
+.flying-tile{position:absolute;width:calc((100% - 58px)/5);aspect-ratio:1/1;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;z-index:10;pointer-events:none}
+.merge-pop{animation:mergePop 0.25s ease}
+@keyframes mergePop{0%{transform:scale(1)}50%{transform:scale(1.4)}100%{transform:scale(0)}}
+
+/* FIX 2: AD UNLOCK BUTTON STYLE */
+#unlockBtn{display:none; width:100%; margin-top:18px; padding:14px; background:linear-gradient(135deg,#ff9800,#ff5722); color:#fff; border:none; border-radius:14px; font-weight:800; font-size:14px; letter-spacing:1px; cursor:pointer; box-shadow:0 0 20px #ff980088;}
