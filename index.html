@@ -34,7 +34,7 @@
         <div style="text-align:center">
             <button class="btn" onclick="showLevelSelect()">Ball Sort</button>
           <br><br>
-    <button class="btn" onclick="window.location.href='2048.html'">2048 GAME</button>
+    <button class="btn" onclick="(function(){let w=document.getElementById('g2048W');if(!w){w=document.createElement('div');w.id='g2048W';w.style='position:fixed;inset:0;z-index:99999;background:#121212';w.innerHTML='<button onclick=&quot;this.parentElement.style.display=\'none\';document.getElementById(\'g2048F\').src=\'\'&quot; style=&quot;position:absolute;top:10px;right:10px;width:40px;height:40px;border-radius:50%;border:0;background:#fff;font-size:20px;z-index:100000&quot;>✕</button><iframe id=\'g2048F\' style=\'width:100%;height:100%;border:0\'></iframe>';document.body.appendChild(w);}document.getElementById('g2048F').src='2048.html';w.style.display='block';})()">2048 GAME</button>
         </div>
     </div>
 
