@@ -5,39 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>2048 TOWER 5x5</title>
 <link rel="stylesheet" href="2048.css">
-
-<!-- Telegram SDK -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-<!-- RichAds SDK - PubId: 1013423 / AppId: 7744 -->
-<script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
-<script>
-  try {
-    window.TelegramAdsController = new TelegramAdsController();
-    window.TelegramAdsController.initialize({
-      pubId: "1013423",
-      appId: "7744"
-    });
-  } catch(e){ console.log("RichAds fail", e); }
-</script>
-
-<!-- Monetag SDK - Zone: 11215599 -->
-<script src='//libtl.com/sdk.js' data-zone='11215599' data-sdk='show_11215599'></script>
-
+<!-- SDK HATA DIYA - AB INDEX.HTML WALA SDK USE HOGA -->
 </head>
 <body>
 <div class="bg-blur"></div>
 
-<!-- LEVEL MAP SCREEN -->
 <div id="levelScreen" class="main">
   <h1>2048<span>TOWER 5x5</span></h1>
   <p class="subtitle">Select Level</p>
   <div id="levelGrid"></div>
-  <!-- Unlock Button for Every 5th Level -->
   <button id="unlockBtn" style="display:none; margin:20px auto; width:90%; max-width:340px; padding:14px; background:#ff9800; color:#fff; border:none; border-radius:14px; font-weight:bold; font-size:15px;">🔓 AD Dekho - Level Unlock Karo</button>
 </div>
 
-<!-- GAME SCREEN -->
 <div id="gameScreen" class="main hidden">
   <div class="top">
     <button class="back-btn" onclick="showLevelScreen()">← LEVELS</button>
