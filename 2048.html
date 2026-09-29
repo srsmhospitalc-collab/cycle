@@ -6,65 +6,46 @@
 <title>2048 TOWER 5x5</title>
 <link rel="stylesheet" href="2048.css">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://adsbitvex.com/sdk.js"></script>
+<script src="https://sdk.adsbitvex.com/functions/v1/ad-script?appid=000468"></script>
 </head>
 <body>
 <div class="bg-blur"></div>
-
 <div id="levelScreen" class="main">
   <h1>2048<span>TOWER 5x5</span></h1>
   <p class="subtitle">Select Level</p>
   <div id="levelGrid"></div>
-  <button id="unlockBtn" style="display:none; margin:20px auto; width:90%; max-width:340px; padding:14px; background:#ff9800; color:#fff; border:none; border-radius:14px; font-weight:bold; font-size:15px;">🔓 AD Dekho - Level Unlock Karo</button>
+  <button id="unlockBtn" style="display:none; margin:20px auto; width:90%; max-width:340px; padding:14px; background:#ff9800; color:#fff; border:none; border-radius:14px; font-weight:bold;">🔓 AD Dekho - Level Unlock Karo</button>
 </div>
-
 <div id="gameScreen" class="main hidden">
   <div class="top">
     <button class="back-btn" onclick="showLevelScreen()">← LEVELS</button>
-    <div class="score-box">
-      <div class="label">SCORE / TARGET</div>
-      <div><span id="score">0</span> / <span id="target">200</span></div>
-    </div>
+    <div class="score-box"><div class="label">SCORE / TARGET</div><div><span id="score">0</span> / <span id="target">200</span></div></div>
   </div>
   <div class="level-info-bar">LEVEL <b id="level">1</b> - TARGET <b id="target2">200</b></div>
   <div class="progress-bar"><div id="progress-fill"></div></div>
   <div id="board"></div>
-  <div class="next-card">
-    <div class="next-label">NEXT</div>
-    <div id="next" class="tile c-2">2</div>
-    <button onclick="handleRestartWithAd()">RESTART LEVEL</button>
-  </div>
+  <div class="next-card"><div class="next-label">NEXT</div><div id="next" class="tile c-2">2</div><button onclick="handleRestartWithAd()">RESTART LEVEL</button></div>
 </div>
-
 <script src="2048.js"></script>
 <script>
-const ADS_APP_ID = "000468";
+// ADS LOGIC - Screenshot ke hisab se
 let adCounter = 0;
-
 document.getElementById('unlockBtn').onclick = function() {
-  if (typeof AdsBitvex !== 'undefined') {
-    AdsBitvex.showRewarded({
-      appId: ADS_APP_ID,
-      onReward: () => {
-        if(typeof unlockNextLevel === 'function') unlockNextLevel();
-        else {
-          localStorage.setItem('maxUnlockedLevel', parseInt(localStorage.getItem('maxUnlockedLevel')||1)+1);
-          location.reload();
-        }
-      },
-      onError: () => { alert("Ad load nahi hua, dobara try karo"); }
-    });
-  } else { alert("Ad loading... 2 sec me try karo"); }
+  let btn = this; btn.innerText = "Ad Loading...";
+  if (typeof window.showadsbitvex === 'function') {
+    window.showadsbitvex().then(() => {
+      if(typeof unlockNextLevel === 'function') unlockNextLevel();
+      else { localStorage.setItem('maxUnlockedLevel', parseInt(localStorage.getItem('maxUnlockedLevel')||1)+1); location.reload(); }
+      console.log("Reward earned!");
+    }).catch(e => { console.error(e); btn.innerText = "Retry Karo"; alert("Ad load nahi hua"); });
+  } else { alert("SDK load nahi hua, 2 sec me try karo"); btn.innerText="🔓 AD Dekho - Level Unlock Karo"; }
 };
-
 function handleRestartWithAd(){
   adCounter++;
-  if(adCounter % 2 === 0 && typeof AdsBitvex !== 'undefined'){
-    AdsBitvex.showInterstitial({
-      appId: ADS_APP_ID,
-      onClose: () => { restartLevel(); },
-      onError: () => { restartLevel(); }
-    });
+  if(adCounter % 2 === 0 && typeof window.showadsbitvex_init === 'function'){
+    window.showadsbitvex_init().then(() => restartLevel()).catch(() => restartLevel());
+  } else if(adCounter % 2 === 0 && typeof window.showadsbitvex === 'function'){
+    window.showadsbitvex().then(() => restartLevel()).catch(() => restartLevel());
   } else { restartLevel(); }
 }
 </script>
