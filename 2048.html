@@ -6,7 +6,7 @@
 <title>2048 TOWER 5x5</title>
 <link rel="stylesheet" href="2048.css">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<!-- SDK HATA DIYA - AB INDEX.HTML WALA SDK USE HOGA -->
+<script src="https://adsbitvex.com/sdk.js"></script>
 </head>
 <body>
 <div class="bg-blur"></div>
@@ -32,10 +32,41 @@
   <div class="next-card">
     <div class="next-label">NEXT</div>
     <div id="next" class="tile c-2">2</div>
-    <button onclick="restartLevel()">RESTART LEVEL</button>
+    <button onclick="handleRestartWithAd()">RESTART LEVEL</button>
   </div>
 </div>
 
 <script src="2048.js"></script>
+<script>
+const ADS_APP_ID = "000468";
+let adCounter = 0;
+
+document.getElementById('unlockBtn').onclick = function() {
+  if (typeof AdsBitvex !== 'undefined') {
+    AdsBitvex.showRewarded({
+      appId: ADS_APP_ID,
+      onReward: () => {
+        if(typeof unlockNextLevel === 'function') unlockNextLevel();
+        else {
+          localStorage.setItem('maxUnlockedLevel', parseInt(localStorage.getItem('maxUnlockedLevel')||1)+1);
+          location.reload();
+        }
+      },
+      onError: () => { alert("Ad load nahi hua, dobara try karo"); }
+    });
+  } else { alert("Ad loading... 2 sec me try karo"); }
+};
+
+function handleRestartWithAd(){
+  adCounter++;
+  if(adCounter % 2 === 0 && typeof AdsBitvex !== 'undefined'){
+    AdsBitvex.showInterstitial({
+      appId: ADS_APP_ID,
+      onClose: () => { restartLevel(); },
+      onError: () => { restartLevel(); }
+    });
+  } else { restartLevel(); }
+}
+</script>
 </body>
 </html>
