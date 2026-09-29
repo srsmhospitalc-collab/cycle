@@ -4,18 +4,9 @@ let board,score,next,level,target,animating=false;
 let unlockedLevel = parseInt(localStorage.getItem("unlockedLevel") || "1");
 let levelToUnlock = 0;
 let canShowAd = true;
+let adCounter = 0;
+const ADS_APP_ID = "000468";
 let tg = window.Telegram?.WebApp; try{ tg.ready(); tg.expand(); }catch(e){}
-
-function getMonetag(){
-  if(typeof show_11215599 === 'function') return show_11215599;
-  try{ if(window.parent && typeof window.parent.show_11215599 === 'function') return window.parent.show_11215599; }catch(e){}
-  return null;
-}
-function getRichAds(){
-  if(window.TelegramAdsController) return window.TelegramAdsController;
-  try{ if(window.parent && window.parent.TelegramAdsController) return window.parent.TelegramAdsController; }catch(e){}
-  return null;
-}
 
 function showLevelScreen(){
   gameScreenEl.classList.add("hidden");
@@ -46,54 +37,64 @@ function renderLevelGrid(){
     levelGridEl.appendChild(btn);
   }
 }
+
+// ===== NAYA ADS BITVEX REWARDED LOGIC =====
 if(unlockBtnEl){
   unlockBtnEl.onclick = function(){
-    let btn = this; let tried = 0;
-    const doUnlock = () => {
-      if(levelToUnlock > unlockedLevel){ unlockedLevel = levelToUnlock; localStorage.setItem("unlockedLevel", unlockedLevel); }
-      btn.style.display = 'none'; startLevel(levelToUnlock);
-    };
-    const tryAd = () => {
-      tried++; btn.innerText = tried==1? "Ad Loading..." : "Retry Kar Raha Hu...";
-      let monetag = getMonetag();
-      if(!monetag){
-        if(tried < 2){ btn.innerText = "SDK Not Ready, 3 sec me retry..."; setTimeout(tryAd, 3000); }
-        else { alert("Ad SDK Load Nahi Hua. Telegram me dobara try karo."); btn.innerText = "🔄 RETRY AD TO UNLOCK"; }
-        return;
-      }
-      try{ monetag().then(doUnlock).catch(()=>{ if(tried < 2){ btn.innerText = "Ad Load Nahi Hua, 3 sec me retry..."; setTimeout(tryAd, 3000); } else { alert("Ad Not Ready hai. Please UNLOCK button dubara dabao."); btn.innerText = "🔄 RETRY AD TO UNLOCK"; } }); }catch(e){ if(tried < 2) setTimeout(tryAd, 3000); else btn.innerText = "🔄 RETRY AD TO UNLOCK"; }
-    };
-    tryAd();
+    let btn = this;
+    btn.innerText = "Ad Loading...";
+    if(typeof AdsBitvex!== 'undefined'){
+      AdsBitvex.showRewarded({
+        appId: ADS_APP_ID,
+        onReward: () => {
+          if(levelToUnlock > unlockedLevel){ unlockedLevel = levelToUnlock; localStorage.setItem("unlockedLevel", unlockedLevel); }
+          btn.style.display = 'none';
+          startLevel(levelToUnlock);
+        },
+        onError: () => { btn.innerText = "🔄 Ad Fail - Retry Karo"; },
+        onClose: () => { if(btn.innerText.includes("Loading")) btn.innerText = "🔓 AD Dekho - Level Unlock Karo"; }
+      });
+    } else {
+      btn.innerText = "SDK Load Ho Raha Hai... 2 sec me dabao";
+      setTimeout(()=>{ btn.innerText = "🔓 AD Dekho - Level Unlock Karo"; }, 2000);
+    }
   };
 }
+
 function startLevel(lv){ level=lv; target=level*200; score=0; animating=false; board=Array.from({length:5},()=>Array(5).fill(0)); levelScreenEl.classList.add("hidden"); gameScreenEl.classList.remove("hidden"); randomNext(); render(); }
 function restartLevel(){ startLevel(level); }
+function handleRestartWithAd(){
+  adCounter++;
+  if(adCounter % 2 === 0 && typeof AdsBitvex!== 'undefined'){
+    AdsBitvex.showInterstitial({
+      appId: ADS_APP_ID,
+      onClose: () => { restartLevel(); },
+      onError: () => { restartLevel(); }
+    });
+  } else { restartLevel(); }
+}
 function randomNext(){ const vals=[2,2,2,2,4,4,8,16]; next=vals[Math.floor(Math.random()*vals.length)]; nextEl.textContent=next; nextEl.className=`tile c-${next}`; }
 function render(){
   boardEl.innerHTML=""; for(let r=0;r<5;r++){ for(let c=0;c<5;c++){ let d=document.createElement("div"); let v=board[r][c]; d.className=v?`cell c-${v}`:"cell"; d.id=`cell-${r}-${c}`; if(r==4) d.className+=" bottom-row"; d.textContent=v||""; d.onclick=()=>{ if(r==4 &&!animating) handleTap(c); }; boardEl.appendChild(d); } }
   scoreEl.innerText=score; targetEl.innerText=target; target2El.innerText=target; levelEl.innerText=level; progressFillEl.style.width=Math.min(100, (score/target)*100)+"%"; if(score>=target) levelComplete();
 }
+
+// ===== NAYA ADS BITVEX INTERSTITIAL LOGIC =====
 function levelComplete(){
   if(level==100){ alert("🏆 FINAL LEGEND! 100 LEVELS COMPLETE!"); showLevelScreen(); return; }
   if(level >= unlockedLevel){ unlockedLevel = level+1; localStorage.setItem("unlockedLevel", unlockedLevel); }
   if(level % 2 === 0 && canShowAd){
     canShowAd = false; setTimeout(()=>{ canShowAd = true; }, 30000);
     const goNext = () => { setTimeout(()=>{ alert(`🎉 LEVEL ${level} CLEAR! Target ${target} Done!`); showLevelScreen(); }, 100); };
-    let interstitialTried = 0;
-    const tryInterstitial = () => {
-      interstitialTried++;
-      let rich = getRichAds();
-      if(rich && interstitialTried == 1){
-        try{ rich.triggerInterstitialBanner().then(goNext).catch(()=>{ tryMonetag(); }); return; }catch(e){ tryMonetag(); return; }
-      } else { tryMonetag(); }
-      function tryMonetag(){
-        let monetag = getMonetag();
-        if(monetag){
-          try{ monetag({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1 } }).then(goNext).catch(()=>{ if(interstitialTried < 2){ setTimeout(tryInterstitial, 3000); } else { alert("Ad Not Available - 5 sec me next level"); setTimeout(goNext, 5000); } }); }catch(e){ if(interstitialTried < 2) setTimeout(tryInterstitial, 3000); else { alert("Ad Not Available - 5 sec me next level"); setTimeout(goNext, 5000); } }
-        } else { if(interstitialTried < 2) setTimeout(tryInterstitial, 3000); else { alert("Ad Not Available - 5 sec me next level"); setTimeout(goNext, 5000); } }
-      }
-    };
-    tryInterstitial();
+    if(typeof AdsBitvex!== 'undefined'){
+      AdsBitvex.showInterstitial({
+        appId: ADS_APP_ID,
+        onClose: goNext,
+        onError: goNext
+      });
+    } else {
+      goNext();
+    }
   } else { setTimeout(()=>{ alert(`🎉 LEVEL ${level} CLEAR! Target ${target} Done!`); showLevelScreen(); },300); }
 }
 async function handleTap(col){
