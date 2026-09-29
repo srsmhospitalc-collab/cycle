@@ -221,43 +221,55 @@ h1::after{
     font-weight: 900;
 }
 
+/* --- DARK UNIQUE STANDARD LEVEL GRID --- */
 .level-grid { 
     display: grid; 
     grid-template-columns: repeat(5, 1fr); 
-    gap: 10px; 
+    gap: 11px; 
     max-height: 62vh; 
     overflow-y: auto; 
-    padding: 14px; 
-    margin: 20px 0;
-    background: #ffffff06;
-    border: 1px solid #ffffff08;
-    border-radius: 24px;
+    padding: 16px; 
+    margin: 22px 0;
+    background: linear-gradient(180deg, #11111A 0%, #0B0B11 100%);
+    border: 1px solid #ffffff0a;
+    border-radius: 26px;
+    box-shadow: inset 0 1px 0 #ffffff0d, 0 24px 50px #00000070;
 }
 .level-grid::-webkit-scrollbar{ display:none; }
 .level-btn { 
     aspect-ratio: 1; 
-    background: #15151D; 
-    border: 1px solid #ffffff0d; 
+    background: #15151F; 
+    border: 1px solid #ffffff0e; 
     border-radius: 18px; 
-    color: #ffffff30; 
+    color: #ffffff28; 
     font-weight: 800; 
     cursor: pointer; 
     display: flex; 
     align-items: center; 
     justify-content: center; 
     font-size: 15px;
-    transition: .2s;
+    position: relative;
+    box-shadow: inset 0 1px 0 #ffffff06;
+    transition: all .22s cubic-bezier(.2,.8,.2,1);
 }
 .level-btn.unlocked { 
-    background: #1E1E2A; 
+    background: radial-gradient(120% 120% at 30% 20%, #232336, #171722);
     border-color: #ffffff18; 
-    color: white; 
+    color: #fff; 
 }
+.level-btn.unlocked:hover{ transform: translateY(-1px); border-color:#ffffff2a; }
 .level-btn.current { 
-    background: #fff; 
+    background: linear-gradient(180deg, #fff, #E9E9F0); 
     border-color: #fff; 
     color: #000;
-    transform: scale(1.05); 
-    box-shadow: 0 0 0 5px #ffffff18, 0 12px 30px #ffffff30;
+    transform: scale(1.06); 
+    box-shadow: 0 0 0 5px #ffffff14, 0 14px 32px #ffffff2a;
 }
-.level-btn.locked { opacity: 1; background: transparent; border-style: dashed; border-color: #ffffff12; color: #ffffff20; cursor: not-allowed; } 
+.level-btn.locked { 
+    opacity: 1; 
+    background: #0E0E16; 
+    border-style: dashed; 
+    border-color: #ffffff10; 
+    color: #ffffff1E; 
+    cursor: not-allowed; 
+}
