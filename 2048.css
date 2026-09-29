@@ -4,13 +4,41 @@ body{margin:0;min-height:100vh;background:#0a0a18;display:flex;justify-content:c
 .bg-blur{position:fixed;width:700px;height:700px;background:radial-gradient(circle at 30% 30%, #7c3aed, transparent 50%), radial-gradient(circle at 80% 80%, #06b6d4, transparent 50%);filter:blur(90px);z-index:-1}
 .main{width:380px;padding:16px}
 .hidden{display:none!important}
-h1{margin:0;font-size:36px;line-height:0.9;letter-spacing:-1px}
+h1{margin:0;font-size:36px;line-height:0.9;letter-spacing:-1px; text-align:center;}
 h1 span{display:block;font-size:14px;letter-spacing:5px;color:#a5b4fc;margin-top:4px}
-.subtitle{color:#94a3b8;font-size:12px;letter-spacing:2px;margin-top:10px}
+.subtitle{color:#94a3b8;font-size:12px;letter-spacing:2px;margin-top:10px; text-align:center;}
+
+/* --- MIDDLE BACK BUTTON - PROFESSIONAL --- */
+.back-wrapper-middle{
+  display:flex;
+  justify-content:center;
+  margin: 14px 0 20px 0;
+}
+.back-btn-pro-middle{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 26px;
+  background: rgba(255,255,255,0.10);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border:1px solid rgba(255,255,255,0.22);
+  border-radius:100px;
+  color:white;
+  font-size:13px;
+  font-weight:800;
+  letter-spacing:0.8px;
+  cursor:pointer;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.2);
+  transition: all 0.2s ease;
+}
+.back-btn-pro-middle:active{transform:scale(0.96); background: rgba(255,255,255,0.16);}
+.back-btn-pro-middle svg{width:16px; height:16px;}
+
 #levelGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:16px;max-height:75vh;overflow-y:auto;padding-right:4px}
 .level-btn{aspect-ratio:1/1;border-radius:16px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);backdrop-filter:blur(10px);color:white;font-weight:800;font-size:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:0.2s; position:relative;}
 .level-btn small{font-size:9px;color:#a5b4fc;letter-spacing:1px;margin-top:2px}
-.level-btn.locked{opacity:0.4;background:rgba(255,255,255,0.03)} /* FIX 1: pointer-events:none hataya */
+.level-btn.locked{opacity:0.4;background:rgba(255,255,255,0.03)}
 .level-btn.active{background:linear-gradient(135deg,#7c3aed,#4f46e5);box-shadow:0 0 15px #7c3aed88;transform:scale(1.05)}
 .level-btn.cleared{background:linear-gradient(135deg,#10b981,#06b6d4);border-color:#10b981}
 .top{display:flex;justify-content:space-between;align-items:center}
@@ -31,6 +59,4 @@ h1 span{display:block;font-size:14px;letter-spacing:5px;color:#a5b4fc;margin-top
 .flying-tile{position:absolute;width:calc((100% - 58px)/5);aspect-ratio:1/1;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;z-index:10;pointer-events:none}
 .merge-pop{animation:mergePop 0.25s ease}
 @keyframes mergePop{0%{transform:scale(1)}50%{transform:scale(1.4)}100%{transform:scale(0)}}
-
-/* FIX 2: AD UNLOCK BUTTON STYLE */
 #unlockBtn{display:none; width:100%; margin-top:18px; padding:14px; background:linear-gradient(135deg,#ff9800,#ff5722); color:#fff; border:none; border-radius:14px; font-weight:800; font-size:14px; letter-spacing:1px; cursor:pointer; box-shadow:0 0 20px #ff980088;}
