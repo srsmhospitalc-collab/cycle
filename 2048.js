@@ -5,59 +5,33 @@ let unlockedLevel = parseInt(localStorage.getItem("unlockedLevel") || "1");
 let levelToUnlock = 0;
 let canShowAd = true;
 let adCounter = 0;
-const ADS_APP_ID = "000468";
 let tg = window.Telegram?.WebApp; try{ tg.ready(); tg.expand(); }catch(e){}
 
-function showLevelScreen(){
-  gameScreenEl.classList.add("hidden");
-  levelScreenEl.classList.remove("hidden");
-  renderLevelGrid();
-}
+function showLevelScreen(){ gameScreenEl.classList.add("hidden"); levelScreenEl.classList.remove("hidden"); renderLevelGrid(); }
 function renderLevelGrid(){
-  levelGridEl.innerHTML="";
-  if(unlockBtnEl) unlockBtnEl.style.display="none";
+  levelGridEl.innerHTML=""; if(unlockBtnEl) unlockBtnEl.style.display="none";
   for(let i=1;i<=100;i++){
-    let btn=document.createElement("div");
-    let isLocked = i > unlockedLevel;
-    let isCleared = i < unlockedLevel;
-    btn.className="level-btn" + (isLocked?" locked":"") + (isCleared?" cleared":"") + (i==unlockedLevel?" active":"");
-    btn.style.position = "relative";
-    let adTag = (i % 5 === 0)? `<span style="font-size:8px;background:#ff5722;color:#fff;padding:2px 4px;border-radius:4px;position:absolute;top:-6px;right:-6px;">AD</span>` : "";
+    let btn=document.createElement("div"); let isLocked = i > unlockedLevel;
+    btn.className="level-btn" + (isLocked?" locked":"") + (i<unlockedLevel?" cleared":"") + (i==unlockedLevel?" active":"");
+    btn.style.position="relative";
+    let adTag = (i%5==0)? `<span style="font-size:8px;background:#ff5722;color:#fff;padding:2px 4px;border-radius:4px;position:absolute;top:-6px;right:-6px;">AD</span>` : "";
     btn.innerHTML=`${isLocked?"🔒":i}${adTag}<small>${i*200}</small>`;
     if(!isLocked){ btn.onclick=()=>startLevel(i); }
-    else {
-      btn.onclick=()=>{
-        if(i % 5 === 0){
-          levelToUnlock = i;
-          if(unlockBtnEl){ unlockBtnEl.style.display="block"; unlockBtnEl.innerHTML=`🔓 Level ${i} Unlock - Ad Dekho`; }
-          try{ tg.HapticFeedback.notificationOccurred('warning'); }catch(e){}
-        }
-      };
-    }
+    else { btn.onclick=()=>{ if(i%5==0){ levelToUnlock=i; if(unlockBtnEl){ unlockBtnEl.style.display="block"; unlockBtnEl.innerHTML=`🔓 Level ${i} Unlock - Ad Dekho`; } } }; }
     levelGridEl.appendChild(btn);
   }
 }
 
-// ===== NAYA ADS BITVEX REWARDED LOGIC =====
+// CORRECTED - Screenshot wala function
 if(unlockBtnEl){
   unlockBtnEl.onclick = function(){
-    let btn = this;
-    btn.innerText = "Ad Loading...";
-    if(typeof AdsBitvex!== 'undefined'){
-      AdsBitvex.showRewarded({
-        appId: ADS_APP_ID,
-        onReward: () => {
-          if(levelToUnlock > unlockedLevel){ unlockedLevel = levelToUnlock; localStorage.setItem("unlockedLevel", unlockedLevel); }
-          btn.style.display = 'none';
-          startLevel(levelToUnlock);
-        },
-        onError: () => { btn.innerText = "🔄 Ad Fail - Retry Karo"; },
-        onClose: () => { if(btn.innerText.includes("Loading")) btn.innerText = "🔓 AD Dekho - Level Unlock Karo"; }
-      });
-    } else {
-      btn.innerText = "SDK Load Ho Raha Hai... 2 sec me dabao";
-      setTimeout(()=>{ btn.innerText = "🔓 AD Dekho - Level Unlock Karo"; }, 2000);
-    }
+    let btn=this; btn.innerText="Ad Loading...";
+    if(typeof window.showadsbitvex==='function'){
+      window.showadsbitvex().then(()=>{
+        if(levelToUnlock>unlockedLevel){ unlockedLevel=levelToUnlock; localStorage.setItem("unlockedLevel", unlockedLevel); }
+        btn.style.display='none'; startLevel(levelToUnlock);
+      }).catch(()=>{ btn.innerText="🔄 Ad Fail - Retry Karo"; });
+    } else { alert("SDK load nahi hua, 2 sec me try karo"); btn.innerText="🔓 AD Dekho - Level Unlock Karo"; }
   };
 }
 
@@ -65,37 +39,27 @@ function startLevel(lv){ level=lv; target=level*200; score=0; animating=false; b
 function restartLevel(){ startLevel(level); }
 function handleRestartWithAd(){
   adCounter++;
-  if(adCounter % 2 === 0 && typeof AdsBitvex!== 'undefined'){
-    AdsBitvex.showInterstitial({
-      appId: ADS_APP_ID,
-      onClose: () => { restartLevel(); },
-      onError: () => { restartLevel(); }
-    });
-  } else { restartLevel(); }
+  if(adCounter%2==0){
+    if(typeof window.showadsbitvex_init==='function'){ window.showadsbitvex_init().then(()=>restartLevel()).catch(()=>restartLevel()); }
+    else if(typeof window.showadsbitvex==='function'){ window.showadsbitvex().then(()=>restartLevel()).catch(()=>restartLevel()); }
+    else restartLevel();
+  } else restartLevel();
 }
 function randomNext(){ const vals=[2,2,2,2,4,4,8,16]; next=vals[Math.floor(Math.random()*vals.length)]; nextEl.textContent=next; nextEl.className=`tile c-${next}`; }
 function render(){
-  boardEl.innerHTML=""; for(let r=0;r<5;r++){ for(let c=0;c<5;c++){ let d=document.createElement("div"); let v=board[r][c]; d.className=v?`cell c-${v}`:"cell"; d.id=`cell-${r}-${c}`; if(r==4) d.className+=" bottom-row"; d.textContent=v||""; d.onclick=()=>{ if(r==4 &&!animating) handleTap(c); }; boardEl.appendChild(d); } }
-  scoreEl.innerText=score; targetEl.innerText=target; target2El.innerText=target; levelEl.innerText=level; progressFillEl.style.width=Math.min(100, (score/target)*100)+"%"; if(score>=target) levelComplete();
+  boardEl.innerHTML=""; for(let r=0;r<5;r++){ for(let c=0;c<5;c++){ let d=document.createElement("div"); let v=board[r][c]; d.className=v?`cell c-${v}`:"cell"; d.id=`cell-${r}-${c}`; if(r==4) d.className+=" bottom-row"; d.textContent=v||""; d.onclick=()=>{ if(r==4&&!animating) handleTap(c); }; boardEl.appendChild(d); } }
+  scoreEl.innerText=score; targetEl.innerText=target; target2El.innerText=target; levelEl.innerText=level; progressFillEl.style.width=Math.min(100,(score/target)*100)+"%"; if(score>=target) levelComplete();
 }
-
-// ===== NAYA ADS BITVEX INTERSTITIAL LOGIC =====
 function levelComplete(){
   if(level==100){ alert("🏆 FINAL LEGEND! 100 LEVELS COMPLETE!"); showLevelScreen(); return; }
-  if(level >= unlockedLevel){ unlockedLevel = level+1; localStorage.setItem("unlockedLevel", unlockedLevel); }
-  if(level % 2 === 0 && canShowAd){
-    canShowAd = false; setTimeout(()=>{ canShowAd = true; }, 30000);
-    const goNext = () => { setTimeout(()=>{ alert(`🎉 LEVEL ${level} CLEAR! Target ${target} Done!`); showLevelScreen(); }, 100); };
-    if(typeof AdsBitvex!== 'undefined'){
-      AdsBitvex.showInterstitial({
-        appId: ADS_APP_ID,
-        onClose: goNext,
-        onError: goNext
-      });
-    } else {
-      goNext();
-    }
-  } else { setTimeout(()=>{ alert(`🎉 LEVEL ${level} CLEAR! Target ${target} Done!`); showLevelScreen(); },300); }
+  if(level>=unlockedLevel){ unlockedLevel=level+1; localStorage.setItem("unlockedLevel", unlockedLevel); }
+  if(level%2==0 && canShowAd){
+    canShowAd=false; setTimeout(()=>{ canShowAd=true; }, 30000);
+    const goNext=()=>{ alert(`🎉 LEVEL ${level} CLEAR!`); showLevelScreen(); };
+    if(typeof window.showadsbitvex_init==='function'){ window.showadsbitvex_init().then(goNext).catch(goNext); }
+    else if(typeof window.showadsbitvex==='function'){ window.showadsbitvex().then(goNext).catch(goNext); }
+    else goNext();
+  } else { setTimeout(()=>{ alert(`🎉 LEVEL ${level} CLEAR!`); showLevelScreen(); },300); }
 }
 async function handleTap(col){
   if(animating) return; animating=true; let rowToPlace=-1; for(let r=0;r<5;r++){ if(board[r][col]==0){ rowToPlace=r; break; } }
