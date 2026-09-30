@@ -7,34 +7,10 @@ body{margin:0;min-height:100vh;background:#0a0a18;display:flex;justify-content:c
 h1{margin:0;font-size:36px;line-height:0.9;letter-spacing:-1px; text-align:center;}
 h1 span{display:block;font-size:14px;letter-spacing:5px;color:#a5b4fc;margin-top:4px}
 .subtitle{color:#94a3b8;font-size:12px;letter-spacing:2px;margin-top:10px; text-align:center;}
-
-/* --- MIDDLE BACK BUTTON - PROFESSIONAL --- */
-.back-wrapper-middle{
-  display:flex;
-  justify-content:center;
-  margin: 14px 0 20px 0;
-}
-.back-btn-pro-middle{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:10px 26px;
-  background: rgba(255,255,255,0.10);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border:1px solid rgba(255,255,255,0.22);
-  border-radius:100px;
-  color:white;
-  font-size:13px;
-  font-weight:800;
-  letter-spacing:0.8px;
-  cursor:pointer;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.2);
-  transition: all 0.2s ease;
-}
+.back-wrapper-middle{display:flex;justify-content:center;margin:14px 0 20px 0;}
+.back-btn-pro-middle{display:flex;align-items:center;gap:8px;padding:10px 26px;background: rgba(255,255,255,0.10);backdrop-filter: blur(12px);-webkit-backdrop-filter: blur(12px);border:1px solid rgba(255,255,255,0.22);border-radius:100px;color:white;font-size:13px;font-weight:800;letter-spacing:0.8px;cursor:pointer;box-shadow: 0 4px 20px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.2);transition: all 0.2s ease;}
 .back-btn-pro-middle:active{transform:scale(0.96); background: rgba(255,255,255,0.16);}
 .back-btn-pro-middle svg{width:16px; height:16px;}
-
 #levelGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:16px;max-height:75vh;overflow-y:auto;padding-right:4px}
 .level-btn{aspect-ratio:1/1;border-radius:16px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);backdrop-filter:blur(10px);color:white;font-weight:800;font-size:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:0.2s; position:relative;}
 .level-btn small{font-size:9px;color:#a5b4fc;letter-spacing:1px;margin-top:2px}
@@ -56,7 +32,17 @@ h1 span{display:block;font-size:14px;letter-spacing:5px;color:#a5b4fc;margin-top
 .next-card{margin-top:12px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:16px;text-align:center}
 #next{width:80px;height:80px;margin:12px auto;border-radius:16px;font-size:36px;display:flex;align-items:center;justify-content:center}
 .next-card button{width:100%;border:none;padding:12px;border-radius:12px;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;font-weight:800;margin-top:8px}
+
+/* CENTER MODAL - TERI 3rd DEMAND */
+.center-modal{position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:center;}
+.center-modal.hidden{display:none!important}
+.center-modal-box{width:300px; background:linear-gradient(135deg,#1e1e32,#151525); border:1px solid rgba(255,255,255,0.15); border-radius:22px; padding:24px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.6); animation:popIn 0.3s ease;}
+@keyframes popIn{0%{transform:scale(0.8); opacity:0}100%{transform:scale(1); opacity:1}}
+.center-modal-icon{font-size:42px; margin-bottom:10px}
+.center-modal-box h3{margin:0 0 6px 0; font-size:18px}
+.center-modal-box p{margin:0 0 18px 0; font-size:13px; color:#a5b4fc}
+#centerWatchBtn{width:100%; padding:13px; border:none; border-radius:12px; background:linear-gradient(135deg,#ff9800,#ff5722); color:white; font-weight:800; font-size:14px; letter-spacing:1px; cursor:pointer; box-shadow:0 0 20px #ff572288;}
+#centerCancelBtn{width:100%; padding:10px; margin-top:10px; border:none; background:rgba(255,255,255,0.08); color:#94a3b8; border-radius:12px; font-weight:700; cursor:pointer;}
 .flying-tile{position:absolute;width:calc((100% - 58px)/5);aspect-ratio:1/1;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;z-index:10;pointer-events:none}
 .merge-pop{animation:mergePop 0.25s ease}
 @keyframes mergePop{0%{transform:scale(1)}50%{transform:scale(1.4)}100%{transform:scale(0)}}
-#unlockBtn{display:none; width:100%; margin-top:18px; padding:14px; background:linear-gradient(135deg,#ff9800,#ff5722); color:#fff; border:none; border-radius:14px; font-weight:800; font-size:14px; letter-spacing:1px; cursor:pointer; box-shadow:0 0 20px #ff980088;}
