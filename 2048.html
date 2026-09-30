@@ -6,25 +6,52 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>2048 TOWER 5x5</title>
 <link rel="stylesheet" href="2048.css">
+<!-- Telegram SDK -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<!-- 1. RichAds SDK - Pehle ye try hoga -->
+<script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
+<script>
+  try {
+    window.TelegramAdsController = new TelegramAdsController();
+    window.TelegramAdsController.initialize({
+      pubId: "1013423",
+      appId: "7744",
+      debug: false
+    });
+  } catch(e) { console.log('RichAds init fail:', e) }
+</script>
+
+<!-- 2. Adsbitvex SDK -->
 <script src="https://sdk.adsbitvex.com/functions/v1/ad-script?appid=000468"></script>
+
+<!-- 3. Monetag SDK - RichAds fail hua to ye chalega -->
+<script src="//libtl.com/sdk.js" data-zone="11215599" data-sdk="show_11215599"></script>
 </head>
 <body>
 <div class="bg-blur"></div>
+
 <div id="levelScreen" class="main">
   <h1>2048<span>TOWER 5x5</span></h1>
   <p class="subtitle">Select Level</p>
-
-  <!-- MIDDLE ME PROFESSIONAL BACK BUTTON -->
-<div class="back-wrapper-middle">
-  <button class="back-btn-pro-middle" onclick="window.location.href='index.html'">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-    Back
-  </button>
+  <div class="back-wrapper-middle">
+    <button class="back-btn-pro-middle" onclick="window.location.href='index.html'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back
+    </button>
+  </div>
+  <div id="levelGrid"></div>
 </div>
 
-  <div id="levelGrid"></div>
-  <button id="unlockBtn">🔓 AD Dekho - Level Unlock Karo</button>
+<!-- CENTER ME WATCH ADS MODAL -->
+<div id="centerAdModal" class="center-modal hidden">
+  <div class="center-modal-box">
+    <div class="center-modal-icon">🔓</div>
+    <h3 id="centerAdTitle">Level Locked</h3>
+    <p id="centerAdDesc">Watch Ad to Unlock</p>
+    <button id="centerWatchBtn">▶ WATCH AD</button>
+    <button id="centerCancelBtn">Cancel</button>
+  </div>
 </div>
 
 <div id="gameScreen" class="main hidden">
@@ -35,26 +62,9 @@
   <div class="level-info-bar">LEVEL <b id="level">1</b> - TARGET <b id="target2">200</b></div>
   <div class="progress-bar"><div id="progress-fill"></div></div>
   <div id="board"></div>
-  <div class="next-card"><div class="next-label">NEXT</div><div id="next" class="tile c-2">2</div><button onclick="handleRestartWithAd()">RESTART LEVEL</button></div>
+  <div class="next-card"><div class="next-label">NEXT</div><div id="next" class="tile c-2">2</div><button onclick="restartLevel()">RESTART LEVEL</button></div>
 </div>
+
 <script src="2048.js"></script>
-<script>
-let adCounter = 0;
-document.getElementById('unlockBtn').onclick = function() {
-  let btn = this; btn.innerText = "Ad Loading...";
-  if (typeof window.showadsbitvex === 'function') {
-    window.showadsbitvex().then(() => {
-      if(typeof unlockNextLevel === 'function') unlockNextLevel();
-      else { localStorage.setItem('maxUnlockedLevel', parseInt(localStorage.getItem('maxUnlockedLevel')||1)+1); location.reload(); }
-    }).catch(e => { btn.innerText = "Retry Karo"; });
-  } else { btn.innerText="🔓 AD Dekho - Level Unlock Karo"; }
-};
-function handleRestartWithAd(){
-  adCounter++;
-  if(adCounter % 2 === 0 && typeof window.showadsbitvex === 'function'){
-    window.showadsbitvex().then(() => restartLevel()).catch(() => restartLevel());
-  } else { restartLevel(); }
-}
-</script>
 </body>
 </html>
