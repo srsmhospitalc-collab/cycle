@@ -87,7 +87,7 @@ function moveBall(from,to){
 function undoMove(){
     if(moveHistory.length===0) return;
     // UNDO = Only Monetag
-    show_11215599('pop').then(()=>{
+    show_11215599().then(()=>{
         const lastMove=moveHistory.pop(); tubes[lastMove.to].pop(); tubes[lastMove.from].push(lastMove.ball);
         moves--; updateMoves(); renderTubes(); tg.showAlert('Undo ho gaya!');
     }).catch(()=>{ tg.showAlert('Ad puri dekho tabhi Undo milega'); });
