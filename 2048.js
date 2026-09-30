@@ -61,14 +61,11 @@ if(centerWatchBtn){
       if(!adUnlockedLevels.includes(levelToUnlock)){ adUnlockedLevels.push(levelToUnlock); localStorage.setItem("adUnlockedLevels", JSON.stringify(adUnlockedLevels)); }
       hideCenterModal(); startLevel(levelToUnlock);
     };
-
     const onSuccessMonetag=()=>{
       if(!adUnlockedLevels.includes(levelToUnlock)){ adUnlockedLevels.push(levelToUnlock); localStorage.setItem("adUnlockedLevels", JSON.stringify(adUnlockedLevels)); }
       hideCenterModal(); startLevel(levelToUnlock);
     };
-
     const onFail=()=>{ btn.innerText="🔄 Retry Karo"; };
-
     const showMonetag = () => {
       if(typeof show_11215599 === 'function'){
         show_11215599().then(onSuccessMonetag).catch(onFail);
@@ -76,10 +73,8 @@ if(centerWatchBtn){
         window.TelegramAdsController.triggerRewardedAd().then(onSuccessMonetag).catch(onFail);
       } else onFail();
     };
-
     let count = parseInt(localStorage.getItem('adsv_count')||'0');
     let blockTill = parseInt(localStorage.getItem('adsv_block_till')||'0');
-
     if(blockTill && Date.now() < blockTill){
       showMonetag();
       return;
@@ -88,11 +83,8 @@ if(centerWatchBtn){
       localStorage.setItem('adsv_count','0');
       localStorage.setItem('adsv_block_till','0');
     }
-
     if(typeof window.showadsbitvex==='function'){
-      window.showadsbitvex().then(onSuccessAdsbitvex).catch(()=>{
-        showMonetag();
-      });
+      window.showadsbitvex().then(onSuccessAdsbitvex).catch(()=>{ showMonetag(); });
     } else {
       showMonetag();
     }
@@ -100,7 +92,11 @@ if(centerWatchBtn){
 }
 if(centerCancelBtn) centerCancelBtn.onclick=hideCenterModal;
 
-function shouldShowInterstitial(lv){ if(lv<=10) return lv%2===0; else return true; }
+function shouldShowInterstitial(lv){
+  if(lv === 3) return true;
+  if(lv<=10) return lv%2===0;
+  else return true;
+}
 
 function showInterstitialCascade(cb){
   if(isAdShowing){ cb(); return; }
@@ -115,6 +111,25 @@ function showInterstitialCascade(cb){
       window.showadsbitvex_init().then(safeFinish).catch(safeFinish);
     } else safeFinish();
   }catch(e){ safeFinish(); }
+}
+
+function showLevel3MonetagInterstitial(cb){
+  // Screenshot wala - ONLY LEVEL 3
+  if(typeof show_11215599 === 'function'){
+    try{
+      show_11215599({
+        type: 'inApp',
+        inAppSettings: {
+          frequency: 2,
+          capping: 0.1,
+          interval: 30,
+          timeout: 5,
+          everyPage: false
+        }
+      });
+    }catch(e){}
+  }
+  setTimeout(cb, 2500);
 }
 
 function startLevel(lv){ level=lv; target=level*200; score=0; animating=false; levelFinished=false; isAdShowing=false; board=Array.from({length:5},()=>Array(5).fill(0)); levelScreenEl.classList.add("hidden"); gameScreenEl.classList.remove("hidden"); randomNext(); render(); }
@@ -133,7 +148,15 @@ function levelComplete(){
   if(level>lastCompleted){ lastCompleted=level; localStorage.setItem("lastCompleted", lastCompleted); }
   if(level==100){ showLevelScreen(); return; }
   const goNext=()=>{ isAdShowing=false; showLevelScreen(); };
-  if(shouldShowInterstitial(level)){ showInterstitialCascade(goNext); } else { setTimeout(goNext, 200); }
+
+  if(level === 3){
+    // Level 3 pe SIRF wahi In-App Interstitial
+    showLevel3MonetagInterstitial(goNext);
+  } else if(shouldShowInterstitial(level)){
+    showInterstitialCascade(goNext);
+  } else {
+    setTimeout(goNext, 200);
+  }
 }
 
 async function handleTap(col){
