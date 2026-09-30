@@ -1,13 +1,12 @@
 let tg = null;
 try {
     tg = window.Telegram.WebApp;
-    tg.ready(); 
+    tg.ready();
     tg.expand();
     tg.enableClosingConfirmation();
 } catch(e) {
     tg = { HapticFeedback: { notificationOccurred: () => {} }, showAlert: (msg) => alert(msg), BackButton: { onClick: () => {}, show: () => {}, hide: () => {} } };
 }
-
 
 let currentLevel = 1, maxUnlocked = 1, canShowAd = true;
 let tubes = [], selectedTube = null, moves = 0, moveHistory = [];
@@ -15,7 +14,6 @@ let extraTubeUsed = false;
 
 const COLORS = ['#ef4444', '#3b82f6', '#22c55e', '#eab308', '#a855f7', '#ec4899', '#f97316', '#06b6d4', '#84cc16', '#6366f1'];
 
-// Level configs: {tubes: total, colors: unique colors, ballsPerColor: 4}
 const LEVEL_CONFIG = {
     1: { tubes: 4, colors: 2 },
     2: { tubes: 4, colors: 2 },
@@ -27,13 +25,62 @@ const LEVEL_CONFIG = {
     20: { tubes: 9, colors: 7 },
 };
 
+// === AD FALLBACK HELPERS - FINAL ===
+function showInterstitialFallback(onDone) {
+    try {
+        if (window.TelegramAdsController && typeof window.TelegramAdsController.triggerInterstitialBanner === 'function') {
+            window.TelegramAdsController.triggerInterstitialBanner().then(() => {
+                console.log('RichAds Interstitial OK');
+                onDone();
+            }).catch(() => {
+                console.log('RichAds fail, Adsbitvex Interstitial try');
+                try {
+                    // Adsbitvex ka SDK appid=000468 auto handle karta hai
+                    // Agar uska koi show function hai to yaha call hoga, warna direct continue
+                    if (typeof window.showAdsbitvexInterstitial === 'function') {
+                        window.showAdsbitvexInterstitial().then(onDone).catch(onDone);
+                    } else {
+                        onDone();
+                    }
+                } catch(e) { onDone(); }
+            });
+        } else {
+            throw new Error("RichAds not ready");
+        }
+    } catch(e) {
+        console.log('RichAds not available:', e);
+        onDone();
+    }
+}
 
+function showRewardedWithFallback(onReward) {
+    try {
+        // Pehle Adsbitvex Rewarded try karo
+        if (typeof window.showAdsbitvexRewarded === 'function') {
+            window.showAdsbitvexRewarded().then(() => {
+                console.log('Adsbitvex Rewarded OK');
+                onReward();
+            }).catch(() => {
+                console.log('Adsbitvex fail, Monetag Rewarded try');
+                show_11215599().then(onReward).catch(()=>{ tg.showAlert('Ad pura dekho tabhi reward milega'); });
+            });
+            return;
+        }
+    } catch(e) { console.log('Adsbitvex check error', e); }
 
-// Game load hote hi chalu kar do
-window.addEventListener('load', startAutoAds);
+    // Fallback Monetag
+    try {
+        show_11215599().then(onReward).catch((e)=>{
+            console.log('Monetag Error:', e);
+            tg.showAlert('Ad pura dekho tabhi reward milega!');
+        });
+    } catch(e) {
+        tg.showAlert('Ads load nahi hue. Refresh karo!');
+    }
+}
+
 function getLevelConfig(lvl) {
     if (LEVEL_CONFIG[lvl]) return LEVEL_CONFIG[lvl];
-    // Auto generate: har 5 level pe +1 color
     const colors = Math.min(3 + Math.floor(lvl / 5), 8);
     const tubes = colors + 2;
     return { tubes, colors };
@@ -42,34 +89,31 @@ function getLevelConfig(lvl) {
 function generateLevel(lvl) {
     const config = getLevelConfig(lvl);
     const { tubes: tubeCount, colors: colorCount } = config;
-    
-    // Balls create karo - har color ki 4 balls
+
     let balls = [];
     for (let i = 0; i < colorCount; i++) {
         for (let j = 0; j < 4; j++) {
             balls.push(COLORS[i]);
         }
     }
-    
-    // Shuffle balls
+
     for (let i = balls.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [balls[i], balls[j]] = [balls[j], balls[i]];
     }
-    
-    // Tubes me daal do
+
     tubes = [];
     let ballIndex = 0;
     for (let i = 0; i < tubeCount; i++) {
         const tube = [];
-        if (i < tubeCount - 2) { // Last 2 tubes khali
+        if (i < tubeCount - 2) {
             for (let j = 0; j < 4; j++) {
                 tube.push(balls[ballIndex++]);
             }
         }
         tubes.push(tube);
     }
-    
+
     moves = 0;
     moveHistory = [];
     extraTubeUsed = false;
@@ -81,43 +125,39 @@ function generateLevel(lvl) {
 function renderTubes() {
     const container = document.getElementById('tubesContainer');
     container.innerHTML = '';
-    
+
     tubes.forEach((tube, index) => {
         const tubeEl = document.createElement('div');
         tubeEl.className = 'tube';
         tubeEl.id = 'tube-' + index;
         tubeEl.onclick = () => selectTube(index);
-        
-        // Check if complete
+
         if (tube.length === 4 && tube.every(b => b === tube[0])) {
             tubeEl.classList.add('complete');
         }
-        
+
         tube.forEach(color => {
             const ball = document.createElement('div');
             ball.className = 'ball';
             ball.style.background = color;
             tubeEl.appendChild(ball);
         });
-        
+
         container.appendChild(tubeEl);
     });
-    
+
     document.getElementById('levelNum').textContent = currentLevel;
 }
 
 function selectTube(index) {
     if (selectedTube === null) {
-        // Pehla selection
         if (tubes[index].length === 0) return;
         selectedTube = index;
         document.getElementById('tube-' + index).classList.add('selected');
     } else if (selectedTube === index) {
-        // Same tube deselect
         document.getElementById('tube-' + selectedTube).classList.remove('selected');
         selectedTube = null;
     } else {
-        // Move ball
         moveBall(selectedTube, index);
         document.getElementById('tube-' + selectedTube).classList.remove('selected');
         selectedTube = null;
@@ -127,167 +167,118 @@ function selectTube(index) {
 function moveBall(from, to) {
     const fromTube = tubes[from];
     const toTube = tubes[to];
-    
+
     if (fromTube.length === 0) return;
     if (toTube.length >= 4) return;
-    
+
     const ball = fromTube[fromTube.length - 1];
-    
-    // Check valid move: empty tube ya same color
+
     if (toTube.length > 0 && toTube[toTube.length - 1]!== ball) {
         try { tg.HapticFeedback.notificationOccurred('error'); } catch(e) {}
         return;
     }
-    
-    // Save history for undo
+
     moveHistory.push({ from, to, ball });
-    
-    // Move ball
+
     fromTube.pop();
     toTube.push(ball);
     moves++;
     updateMoves();
-    
+
     renderTubes();
     try { tg.HapticFeedback.notificationOccurred('success'); } catch(e) {}
-    
+
     checkWin();
 }
 
 function undoMove() {
     if (moveHistory.length === 0) return;
-
-    // Monetag Rewarded Ad - Ad dekhne ke baad hi undo
+    // UNDO = Sirf Monetag (No fallback)
     show_11215599('pop').then(() => {
-        // 1. Ad complete hui tabhi undo karo
         const lastMove = moveHistory.pop();
         tubes[lastMove.to].pop();
         tubes[lastMove.from].push(lastMove.ball);
         moves--;
         updateMoves();
         renderTubes();
-        
-        tg.HapticFeedback.notificationOccurred('success'); // Vibration
+        try{ tg.HapticFeedback.notificationOccurred('success'); }catch(e){}
         tg.showAlert('Undo ho gaya!');
-
     }).catch(e => {
-        // 2. User ne ad skip ki ya error aaya
         tg.showAlert('Ad puri dekho tabhi Undo milega');
         console.log("Monetag Ad Error:", e);
     });
 }
+
 function addTube() {
     if (extraTubeUsed) {
         tg.showAlert('Extra tube already used!');
         return;
     }
-
-    // Monetag ka naya SDK - Rewarded Popup
-    try {
-        show_11215599().then(() => {
-            // User ne ad poora dekha = Reward de do
-            tubes.push([]);
-            extraTubeUsed = true;
-            renderTubes();
-            tg.showAlert('Extra tube added! 🎉');
-        }).catch((e) => {
-            // User ne skip kiya ya ad fail hua
-            console.log('Monetag Error:', e);
-            tg.showAlert('Ad poora dekho tabhi tube milegi!');
-        });
-    } catch(e) {
-        // Agar show_11215599 function hi nahi mila
-        console.log('SDK Load Error:', e);
-        tg.showAlert('Ads load nahi hue. Page refresh karke try karo!');
-    }
+    // REWARDED = Adsbitvex -> Monetag fallback
+    showRewardedWithFallback(() => {
+        tubes.push([]);
+        extraTubeUsed = true;
+        renderTubes();
+        tg.showAlert('Extra tube added! 🎉');
+    });
 }
+
 function updateMoves() {
     document.getElementById('moveCount').textContent = moves;
 }
 
 function checkWin() {
-    const isWin = tubes.every(tube => 
+    const isWin = tubes.every(tube =>
         tube.length === 0 || (tube.length === 4 && tube.every(b => b === tube[0]))
     );
-    
     if (isWin) {
         setTimeout(winLevel, 500);
     }
 }
 
- function winLevel() {
+function winLevel() {
     saveGame();
-    
-    // 1. maxUnlocked UPDATE KARO - YE SABSE IMPORTANT HAI
     if(currentLevel >= maxUnlocked) {
-        maxUnlocked = currentLevel + 1; // Global variable update karo
-        saveGame(); // Fir save karo
+        maxUnlocked = currentLevel + 1;
+        saveGame();
         console.log('New Max Unlocked:', maxUnlocked);
     }
 
-    // 2. Ab ad wala code
     if (currentLevel % 2 === 0 && canShowAd) {
         canShowAd = false;
         setTimeout(() => { canShowAd = true; }, 30000);
-        
-        try {
-            window.TelegramAdsController.triggerInterstitialBanner()
-            .then(() => {
-                console.log('RichAds dikh gaya');
-                showLevelSelect();
-            })
-            .catch(() => {
-                console.log('RichAds fail, Monetag try kar raha...');
-                try {
-                    show_11215599({
-                        type: 'inApp',
-                        inAppSettings: { frequency: 2, capping: 0.1 }
-                    }).then(() => {
-                        showLevelSelect();
-                    }).catch((e) => {
-                        console.log('Monetag Error:', e);
-                        showLevelSelect();
-                    });
-                } catch(e) {
-                    showLevelSelect();
-                }
-            });
-        } catch(e) {
+        // INTERSTITIAL = RichAds -> Adsbitvex
+        showInterstitialFallback(() => {
             showLevelSelect();
-        }
+        });
     } else {
         showLevelSelect();
     }
 }
 
-
-// User button dabayega tab ad aayega
 document.getElementById('unlockBtn').onclick = function() {
     show_11215599().then(() => {
-        // Ad pura dekha = level unlock
         canGoNext = true;
-        this.style.display = 'none'; // button chupao
-        goToNextLevel(); // aage bhejo
+        this.style.display = 'none';
+        goToNextLevel();
     }).catch(() => {
         alert('Level unlock karne ke liye ad dekhna zaruri hai');
     });
 }
 
-// Aage level me jane ka function
 function goToNextLevel() {
     if(canGoNext){
-        // Yaha next level load karo
         loadLevel(level + 1);
     }
 }
 
 function nextLevel() {
-    if (currentLevel < 100) { 
-        currentLevel++; 
-        startLevel(currentLevel); 
-    } else { 
-        tg.showAlert('🏆 All 100 Levels Complete! You Are A Master!'); 
-        showHome(); 
+    if (currentLevel < 100) {
+        currentLevel++;
+        startLevel(currentLevel);
+    } else {
+        tg.showAlert('🏆 All 100 Levels Complete! You Are A Master!');
+        showHome();
     }
 }
 
@@ -303,40 +294,40 @@ function showHome() {
 
 function showLevelSelect() {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('levelScreen').classList.add('active'); 
+    document.getElementById('levelScreen').classList.add('active');
     renderLevelGrid();
     try { tg.BackButton.show(); } catch(e) {}
 }
 
 function renderLevelGrid() {
-    const grid = document.getElementById('levelGrid'); 
+    const grid = document.getElementById('levelGrid');
     grid.innerHTML = '';
     for (let i = 1; i <= 100; i++) {
-        const btn = document.createElement('div'); 
-        btn.className = 'level-btn'; 
+        const btn = document.createElement('div');
+        btn.className = 'level-btn';
         btn.textContent = i;
-        if (i <= maxUnlocked) { 
-            btn.className += ' unlocked'; 
-            if (i === currentLevel) btn.className += ' current'; 
-            btn.onclick = () => startLevel(i); 
-        } else { 
-            btn.className += ' locked'; 
+        if (i <= maxUnlocked) {
+            btn.className += ' unlocked';
+            if (i === currentLevel) btn.className += ' current';
+            btn.onclick = () => startLevel(i);
+        } else {
+            btn.className += ' locked';
         }
         grid.appendChild(btn);
     }
 }
 
 function startLevel(lvl) {
-    currentLevel = lvl; 
+    currentLevel = lvl;
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('gameScreen').classList.add('active'); 
+    document.getElementById('gameScreen').classList.add('active');
     try { tg.BackButton.show(); } catch(e) {}
     setTimeout(() => generateLevel(lvl), 100);
 }
 
 function saveGame() {
-    try { 
-        localStorage.setItem('ballSort100', JSON.stringify({ maxUnlocked })); 
+    try {
+        localStorage.setItem('ballSort100', JSON.stringify({ maxUnlocked }));
         tg.CloudStorage.setItem('maxLevel', maxUnlocked.toString());
     } catch(e) {}
 }
@@ -345,7 +336,7 @@ function loadGame() {
     try {
         const saved = localStorage.getItem('ballSort100');
         if (saved) maxUnlocked = JSON.parse(saved).maxUnlocked || 1;
-        
+
         tg.CloudStorage.getItem('maxLevel', (err, val) => {
             if (!err && val) maxUnlocked = Math.max(maxUnlocked, parseInt(val));
         });
@@ -353,17 +344,16 @@ function loadGame() {
 }
 
 loadGame();
-try { 
+try {
     tg.BackButton.onClick(() => {
         if (document.getElementById('gameScreen').classList.contains('active')) {
             showLevelSelect();
         } else if (document.getElementById('levelScreen').classList.contains('active')) {
             showHome();
         }
-    }); 
+    });
 } catch(e) {}
 
-// Banner ad on start
 setTimeout(() => {
     try {
         window.TelegramAdsController.triggerBanner();
