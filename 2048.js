@@ -9,11 +9,17 @@ let board,score,next,level,target,animating=false;
 let lastCompleted = parseInt(localStorage.getItem("lastCompleted")||"0");
 let adUnlockedLevels = JSON.parse(localStorage.getItem("adUnlockedLevels")||"[]");
 let levelToUnlock = 0;
-let levelFinished = false; // FIX 1
-let isAdShowing = false; // FIX 2
+let levelFinished = false;
+let isAdShowing = false;
 let tg = window.Telegram?.WebApp; try{ tg.ready(); tg.expand(); }catch(e){}
 
-function showLevelScreen(){ gameScreenEl.classList.add("hidden"); levelScreenEl.classList.remove("hidden"); renderLevelGrid(); }
+function showLevelScreen(){
+  levelFinished = false;
+  isAdShowing = false;
+  gameScreenEl.classList.add("hidden");
+  levelScreenEl.classList.remove("hidden");
+  renderLevelGrid();
+}
 function hideCenterModal(){ centerModal.classList.add("hidden"); if(centerWatchBtn) centerWatchBtn.innerText="▶ WATCH AD"; }
 
 function isLevelUnlocked(i){
@@ -80,20 +86,16 @@ function shouldShowInterstitial(lv){
   else return true; // 11 ke baad har level pe 1 ad
 }
 
-// --- YEH MAIN FIX HAI - AB 1 HI AD AAYEGA ---
 function showInterstitialCascade(cb){
-  if(isAdShowing){ cb(); return; } // agar ad chal raha hai to block
+  if(isAdShowing){ cb(); return; }
   isAdShowing = true;
-
   let called = false;
   const safeCb = () => {
     if(called) return;
     called = true;
-    setTimeout(()=>{ isAdShowing = false; }, 2000);
+    isAdShowing = false;
     cb();
   };
-
-  // Pehle RichAds -> fail hua to Adsbitvex -> sirf 1 hi ayega
   if(window.TelegramAdsController){
     window.TelegramAdsController.triggerInterstitial().then(safeCb).catch(()=>{
       if(typeof window.showadsbitvex_init==='function'){
@@ -107,21 +109,21 @@ function showInterstitialCascade(cb){
   }
 }
 
-function startLevel(lv){ level=lv; target=level*200; score=0; animating=false; levelFinished=false; board=Array.from({length:5},()=>Array(5).fill(0)); levelScreenEl.classList.add("hidden"); gameScreenEl.classList.remove("hidden"); randomNext(); render(); }
+function startLevel(lv){ level=lv; target=level*200; score=0; animating=false; levelFinished=false; isAdShowing=false; board=Array.from({length:5},()=>Array(5).fill(0)); levelScreenEl.classList.add("hidden"); gameScreenEl.classList.remove("hidden"); randomNext(); render(); }
 function restartLevel(){ startLevel(level); }
 function randomNext(){ const vals=[2,2,2,2,4,4,8,16]; next=vals[Math.floor(Math.random()*vals.length)]; nextEl.textContent=next; nextEl.className=`tile c-${next}`; }
 function render(){
   boardEl.innerHTML=""; for(let r=0;r<5;r++){ for(let c=0;c<5;c++){ let d=document.createElement("div"); let v=board[r][c]; d.className=v?`cell c-${v}`:"cell"; d.id=`cell-${r}-${c}`; if(r==4) d.className+=" bottom-row"; d.textContent=v||""; d.onclick=()=>{ if(r==4&&!animating) handleTap(c); }; boardEl.appendChild(d); } }
   scoreEl.innerText=score; targetEl.innerText=target; target2El.innerText=target; levelEl.innerText=level; progressFillEl.style.width=Math.min(100,(score/target)*100)+"%";
-  if(score>=target &&!levelFinished) levelComplete(); // FIX:!levelFinished check
+  if(score>=target &&!levelFinished) levelComplete();
 }
 function levelComplete(){
-  if(levelFinished) return; // FIX: Ek level pe ek hi baar
+  if(levelFinished) return;
   levelFinished = true;
   if(level>lastCompleted){ lastCompleted=level; localStorage.setItem("lastCompleted", lastCompleted); }
-  if(level==100){ alert("🏆 FINAL LEGEND!"); showLevelScreen(); return; }
-  const goNext = ()=>{ alert(`🎉 LEVEL ${level} CLEAR!`); showLevelScreen(); };
-  if(shouldShowInterstitial(level)){ showInterstitialCascade(goNext); } else { setTimeout(goNext, 300); }
+  if(level==100){ showLevelScreen(); return; }
+  const goNext = ()=>{ showLevelScreen(); };
+  if(shouldShowInterstitial(level)){ showInterstitialCascade(goNext); } else { setTimeout(goNext, 200); }
 }
 async function handleTap(col){
   if(animating || levelFinished) return; animating=true; let rowToPlace=-1; for(let r=0;r<5;r++){ if(board[r][col]==0){ rowToPlace=r; break; } }
