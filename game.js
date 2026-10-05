@@ -32,11 +32,11 @@ function showInterstitialFallback(onDone){
 }
 
 function showRewardedWithFallback(onReward){
-    // 1. Pehle OnClicka Rewarded
-    if(typeof window.showRewardedOnClicka === 'function'){
-        console.log('Trying OnClicka Rewarded 6152853');
-        window.showRewardedOnClicka().then(()=>{ console.log('OnClicka Rewarded OK'); onReward(); }).catch(()=>{
-            console.log('OnClicka Rewarded fail -> Adsbitvex');
+    // 1. Pehle Monetag Rewarded 11215599
+    if(typeof show_11215599 === 'function'){
+        console.log('Trying Monetag Rewarded 11215599');
+        show_11215599().then(onReward).catch(()=>{
+            console.log('Monetag Rewarded fail -> Adsbitvex');
             tryFallbackRewarded(onReward);
         });
         return;
@@ -45,19 +45,20 @@ function showRewardedWithFallback(onReward){
 }
 
 function tryFallbackRewarded(onReward){
-    // 2. Adsbitvex Rewarded
+    // 2. Second Adsbitvex Rewarded
     if(typeof window.showadsbitvex === 'function'){
+        console.log('Trying Adsbitvex Rewarded');
         window.showadsbitvex().then(()=>{ console.log('Adsbitvex OK'); onReward(); }).catch(()=>{
-            console.log('Adsbitvex fail -> Monetag');
-            tryMonetag(onReward);
+            console.log('Adsbitvex fail');
+            tg.showAlert('Ad pura dekho tabhi reward milega');
         });
         return;
     }
-    tryMonetag(onReward);
+    tg.showAlert('No Ad Available');
 }
 
 function tryMonetag(onReward){
-    // 3. Last Monetag
+    // 3. Ab ye backup hai, kaam ka nahi
     if(typeof show_11215599 === 'function'){
         show_11215599().then(onReward).catch(()=>tg.showAlert('Ad pura dekho tabhi reward milega'));
     } else { tg.showAlert('No Ad Available'); }
