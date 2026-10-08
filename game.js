@@ -12,9 +12,8 @@ let extraTubeUsed = false;
 const COLORS = ['#ef4444', '#3b82f6', '#22c55e', '#eab308', '#a855f7', '#ec4899', '#f97316', '#06b6d4', '#84cc16', '#6366f1'];
 const LEVEL_CONFIG = { 1:{tubes:4,colors:2},2:{tubes:4,colors:2},3:{tubes:5,colors:3},4:{tubes:5,colors:3},5:{tubes:6,colors:4},10:{tubes:7,colors:5},15:{tubes:8,colors:6},20:{tubes:9,colors:7} };
 
-// === NEW AD LOGIC: OnClicka -> Adsbitvex -> Monetag ===
+// === AD LOGIC: OnClicka -> Adsbitvex -> Monetag ===
 function showInterstitialFallback(onDone){
-    // 1. Pehle OnClicka Inpage
     if(typeof window.showInpageOnClicka === 'function'){
         console.log('Trying OnClicka Inpage 6152854');
         window.showInpageOnClicka().then(()=>{ console.log('OnClicka Inpage OK'); onDone(); }).catch(()=>{
@@ -32,7 +31,6 @@ function showInterstitialFallback(onDone){
 }
 
 function showRewardedWithFallback(onReward){
-    // 1. Pehle Monetag Rewarded 11215599
     if(typeof show_11215599 === 'function'){
         console.log('Trying Monetag Rewarded 11215599');
         show_11215599().then(onReward).catch(()=>{
@@ -45,7 +43,6 @@ function showRewardedWithFallback(onReward){
 }
 
 function tryFallbackRewarded(onReward){
-    // 2. Second Adsbitvex Rewarded
     if(typeof window.showadsbitvex === 'function'){
         console.log('Trying Adsbitvex Rewarded');
         window.showadsbitvex().then(()=>{ console.log('Adsbitvex OK'); onReward(); }).catch(()=>{
@@ -57,14 +54,6 @@ function tryFallbackRewarded(onReward){
     tg.showAlert('No Ad Available');
 }
 
-function tryMonetag(onReward){
-    // 3. Ab ye backup hai, kaam ka nahi
-    if(typeof show_11215599 === 'function'){
-        show_11215599().then(onReward).catch(()=>tg.showAlert('Ad pura dekho tabhi reward milega'));
-    } else { tg.showAlert('No Ad Available'); }
-}
-
-// --- BAKI GAME CODE SAME ---
 function getLevelConfig(lvl){ if(LEVEL_CONFIG[lvl]) return LEVEL_CONFIG[lvl]; const colors=Math.min(3+Math.floor(lvl/5),8); return {tubes:colors+2, colors}; }
 function generateLevel(lvl){
     const config=getLevelConfig(lvl); const {tubes:tubeCount,colors:colorCount}=config;
@@ -112,13 +101,36 @@ function addTube(){
 }
 function updateMoves(){ document.getElementById('moveCount').textContent=moves; }
 function checkWin(){ const isWin=tubes.every(tube=> tube.length===0 || (tube.length===4 && tube.every(b=>b===tube[0]))); if(isWin) setTimeout(winLevel,500); }
+
 function winLevel(){
-    saveGame(); if(currentLevel>=maxUnlocked){ maxUnlocked=currentLevel+1; saveGame(); }
-    if(currentLevel%2===0 && canShowAd){
-        canShowAd=false; setTimeout(()=>{canShowAd=true;},30000);
-        showInterstitialFallback(()=>{ showLevelSelect(); });
-    } else { showLevelSelect(); }
+    saveGame();
+    if(currentLevel>=maxUnlocked){ maxUnlocked=currentLevel+1; saveGame(); }
+
+    // === NEW: VIGNETTE ON 1,3,5,7 ===
+    if(currentLevel % 2!== 0){ // 1,3,5,7 odd levels
+        console.log('Odd Level Win - ' + currentLevel);
+        if(canShowAd){
+            canShowAd=false;
+            setTimeout(()=>{canShowAd=true;},30000);
+            showInterstitialFallback(()=>{
+                // After OnClicka, show Monetag Vignette 11984504
+                if(typeof window.showMonetagVignette === 'function'){
+                    window.showMonetagVignette(()=>{
+                        showLevelSelect();
+                    });
+                } else {
+                    showLevelSelect();
+                }
+            });
+        } else {
+            showLevelSelect();
+        }
+    } else {
+        // Even levels - no ad, direct
+        showLevelSelect();
+    }
 }
+
 function showHome(){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById('homeScreen').classList.add('active'); try{tg.BackButton.hide();}catch(e){} }
 function showLevelSelect(){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById('levelScreen').classList.add('active'); renderLevelGrid(); try{tg.BackButton.show();}catch(e){} }
 function renderLevelGrid(){ const grid=document.getElementById('levelGrid'); grid.innerHTML=''; for(let i=1;i<=100;i++){ const btn=document.createElement('div'); btn.className='level-btn'; btn.textContent=i; if(i<=maxUnlocked){ btn.className+=' unlocked'; if(i===currentLevel) btn.className+=' current'; btn.onclick=()=>startLevel(i); } else { btn.className+=' locked'; } grid.appendChild(btn); } }
