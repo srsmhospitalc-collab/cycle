@@ -8,6 +8,9 @@
   <link rel="stylesheet" href="style.css">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
+  <!-- Monetag Banner - ID 11984500 - Har Jagah -->
+  <script>(function(s){s.dataset.zone='11984500',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+
   <!-- OnClicka Anti-Adblock Master Scripts -->
   <script async src="https://js.onclckmn.com/static/oneclicka.js" data-admpid="466688"></script>
   <script async src="https://js.onclckmn.com/static/oneclicka.js" data-admpid="466689"></script>
@@ -15,15 +18,44 @@
   <!-- OnClicka TMA SDK -->
   <script src="https://js.onclckvd.com/in-stream-ad-admanager/tma.js"></script>
   <script>
-    // Rewarded for Unlock
     window.initCdTma?.({ id: 6152853 }).then(show => { window.showRewardedOnClicka = show; console.log('OnClicka Rewarded Ready'); });
-    // Inpage Interstitial for Level Win
     window.initCdTma?.({ id: 6152854 }).then(show => { window.showInpageOnClicka = show; console.log('OnClicka Inpage Ready'); });
+
+    // Monetag Vignette - ID 11984504 - For 1,3,5,7
+    let lastVignetteTime = 0;
+    window.showMonetagVignette = function(onDone){
+      let now = Date.now();
+      if(now - lastVignetteTime < 120000){
+        console.log('Vignette Cooldown - Skipped');
+        if(onDone) onDone();
+        return;
+      }
+      lastVignetteTime = now;
+      console.log('Showing Monetag Vignette 11984504');
+      var s = document.createElement('script');
+      s.dataset.zone='11984504';
+      s.src='https://n6wxm.com/vignette.min.js';
+      document.body.appendChild(s);
+      setTimeout(()=>{
+        try{s.remove();}catch(e){}
+        if(onDone) onDone();
+      }, 2500);
+    }
   </script>
 
   <!-- Adsbitvex + Monetag as Fallback -->
   <script src="https://sdk.adsbitvex.com/functions/v1/ad-script?appid=000468"></script>
   <script src='//libtl.com/sdk.js' data-zone='11215599' data-sdk='show_11215599'></script>
+
+  <style>
+    /* SCROLL FIX FOR BALL SORT */
+    body { overflow-y: auto!important; height: auto!important; padding-bottom: 90px!important; }
+   .container { height: auto!important; min-height: 100vh; overflow-y: auto!important; }
+    #gameScreen { overflow-y: auto!important; height: auto!important; }
+   .tubes-container { max-height: 55vh; overflow-y: auto; padding: 10px; padding-bottom: 30px; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+   .tubes-container::-webkit-scrollbar { width: 4px; }
+   .tubes-container::-webkit-scrollbar-thumb { background: #4a90e2; border-radius: 10px; }
+  </style>
 </head>
 <body>
 <div class="container">
@@ -60,7 +92,6 @@
       <button id="unlockBtn" style="display:none;">🔓 Level Unlock karne ke liye Ad Dekho</button>
     </div>
 </div>
-  <script async src="https://sdk.adsbitvex.com/functions/v1/vignette-serve?zone=vign_b897828zgt"></script>
 <script src="game.js"></script>
 </body>
 </html>
