@@ -5,10 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Block Puzzle</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-<!-- MONETAG 11215599 SDK - OnClicka hat gaya -->
-<script src='//libtl.com/sdk.js' data-zone='11215599' data-sdk='show_11215599'></script>
-
+<script src="https://st.on-clicka.com/in-stream-ad-admanager/tma.js"></script>
+<script>
+  window.showRewarded = null;
+  window.showInterstitial = null;
+  // 6152853 = Rewarded - +500 & 5th level unlock
+  window.initCdTma?.({ id: '6152853' }).then(show => window.showRewarded = show).catch(e=>console.log(e));
+  // 6152854 = Interstitial - har 2 level pe
+  window.initCdTma?.({ id: '6152854' }).then(show => window.showInterstitial = show).catch(e=>console.log(e));
+</script>
 <link rel="stylesheet" href="block.css">
 </head>
 <body>
@@ -30,8 +35,8 @@
     <div class="scores">Lv <b id="level">1</b> | Score <b id="score">0</b></div>
   </div>
   <div class="stats">
-    <span>Target: <b id="targetTxt">0/200</b></span>
-    <span>Next Unlock: <b id="nextTxt">200</b></span>
+    <span>Target: <b id="targetTxt">0/500</b></span>
+    <span>Next Unlock: <b id="nextTxt">500</b></span>
   </div>
   <div class="progress-bg"><div id="progress" class="progress"></div></div>
 
