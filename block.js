@@ -5,6 +5,32 @@ let isCompleting = false;
 
 function getTarget(l){ return l*500; }
 
+// ===== MONETAG FUNCTIONS =====
+function showMonetagRewarded(){
+  return new Promise((resolve, reject)=>{
+    if(typeof show_11215599 === 'function'){
+      show_11215599('pop').then(()=>{ resolve(); }).catch(e=>{ reject(e); });
+    } else {
+      reject('sdk not loaded');
+    }
+  });
+}
+
+function showMonetagInterstitial(){
+  if(typeof show_11215599 === 'function'){
+    show_11215599({
+      type: 'inApp',
+      inAppSettings: {
+        frequency: 2,
+        capping: 0.1,
+        interval: 30,
+        timeout: 1,
+        everyPage: false
+      }
+    });
+  }
+}
+
 function buildLevelScreen(){
   document.getElementById('highTxt').innerText=maxUnlock;
   document.getElementById('totalTxt').innerText=localStorage.getItem('block_total_score')||0;
@@ -32,21 +58,17 @@ function showLevels(){
 }
 
 function startLevel(l){
-  // --- 5TH LEVEL UNLOCK PE REWARDED LOGIC ---
+  // --- 5TH LEVEL UNLOCK PE REWARDED (same jagah) ---
   if(l%5===0 && l>1 && l===maxUnlock){
     let unlockedFlag = localStorage.getItem('unlocked_'+l);
     if(!unlockedFlag){
-      if(window.showRewarded){
-        window.showRewarded().then(()=>{
-          localStorage.setItem('unlocked_'+l, '1');
-          tg.HapticFeedback.notificationOccurred('success');
-          actuallyStartLevel(l);
-        }).catch(e=>{
-          tg.showAlert('Ad pura dekho level '+l+' unlock karne ke liye!');
-        });
-      } else {
-        tg.showAlert('Ad loading hai, 2 sec baad try karo');
-      }
+      showMonetagRewarded().then(()=>{
+        localStorage.setItem('unlocked_'+l, '1');
+        tg.HapticFeedback.notificationOccurred('success');
+        actuallyStartLevel(l);
+      }).catch(e=>{
+        tg.showAlert('Ad pura dekho level '+l+' unlock karne ke liye!');
+      });
       return;
     }
   }
@@ -123,20 +145,13 @@ function levelComplete(){
   }
   if(navigator.vibrate) navigator.vibrate([200,100,200]);
 
-  // --- HAR 2 LEVEL PE INTERSTITIAL ---
+  // --- HAR 2 LEVEL PE INTERSTITIAL (same jagah) ---
   let completedLevel = level;
   let goToLevels = ()=>{ showLevels(); };
 
   if(completedLevel % 2 === 0){
-    if(window.showInterstitial){
-      window.showInterstitial().then(()=>{
-        setTimeout(goToLevels, 300);
-      }).catch(()=>{
-        setTimeout(goToLevels, 300);
-      });
-    } else {
-      setTimeout(goToLevels, 300);
-    }
+    showMonetagInterstitial();
+    setTimeout(goToLevels, 800);
   } else {
     setTimeout(goToLevels, 300);
   }
@@ -145,17 +160,15 @@ function levelComplete(){
 function checkGameOver(){ let shapes=[...trayEl.children].map(e=>e._shape), can=false; for(let s of shapes) for(let r=0;r<10;r++) for(let c=0;c<10;c++) if(canPlace(r,c,s)) can=true; if(!can&&trayEl.children.length>0){ setTimeout(()=>{ if(!isCompleting) tg.showAlert('Game Over! Restart karo'); },200); } }
 function resetLevel(){ board=Array(10).fill().map(()=>Array(10).fill(0)); score=0; levelScore=0; isCompleting=false; createBoard(); randomShapes(); updateUI(); }
 
-// --- +500 WALA REWARDED ONCLICK ---
+// --- +500 WALA REWARDED (same jagah) ---
 function watchAd(){
-  if(window.showRewarded){
-    window.showRewarded().then(()=>{
-      score+=500; levelScore+=500; updateUI();
-      tg.HapticFeedback.notificationOccurred('success');
-    }).catch(e=>{ console.log('Ad error', e); });
-  } else {
-    // Fallback agar ad ready nahi
-    tg.showAlert('Ad loading hai, 2 sec baad try karo');
-  }
+  showMonetagRewarded().then(()=>{
+    score+=500; levelScore+=500; updateUI();
+    tg.HapticFeedback.notificationOccurred('success');
+  }).catch(e=>{
+    console.log('Ad error', e);
+    tg.showAlert('Ad load nahi hua, dobara try karo');
+  });
 }
 
 buildLevelScreen();
