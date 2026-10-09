@@ -3,13 +3,12 @@ const boardEl=document.getElementById('board'), trayEl=document.getElementById('
 let board=[], score=0, levelScore=0, level=1, maxUnlock=parseInt(localStorage.getItem('block_level')||1);
 let isCompleting = false;
 
-function getTarget(l){ return l*200; }
+function getTarget(l){ return l*200; } // 200,400,600...
 
-// ===== MONETAG FUNCTIONS =====
 function showMonetagRewarded(){
   return new Promise((resolve, reject)=>{
     if(typeof show_11215599 === 'function'){
-      show_11215599('pop').then(()=>{ resolve(); }).catch(e=>{ reject(e); });
+      show_11215599('pop').then(()=> resolve()).catch(e=> reject(e));
     } else {
       reject('sdk not loaded');
     }
@@ -43,7 +42,7 @@ function buildLevelScreen(){
     let unlock = i<=maxUnlock;
     let is5th = i%5===0;
     d.className='lvl '+(unlock?(i==maxUnlock?'now':(i<maxUnlock?'done':'')):'locked');
-    d.innerHTML=`<b>${i<maxUnlock?'✓':i}</b><span>${i*500} pts</span><span>${unlock?(i==maxUnlock?(is5th?'PLAY 🔒':'PLAY'):'DONE'):'🔒'}</span>`;
+    d.innerHTML=`<b>${i<maxUnlock?'✓':i}</b><span>${i*200} pts</span><span>${unlock?(i==maxUnlock?(is5th?'PLAY 🔒':'PLAY'):'DONE'):'🔒'}</span>`;
     if(unlock) d.onclick=()=>startLevel(i);
     grid.appendChild(d);
   }
@@ -58,7 +57,7 @@ function showLevels(){
 }
 
 function startLevel(l){
-  // --- 5TH LEVEL UNLOCK PE REWARDED (same jagah) ---
+  // 5TH LEVEL UNLOCK PE REWARDED - same jagah
   if(l%5===0 && l>1 && l===maxUnlock){
     let unlockedFlag = localStorage.getItem('unlocked_'+l);
     if(!unlockedFlag){
@@ -145,7 +144,7 @@ function levelComplete(){
   }
   if(navigator.vibrate) navigator.vibrate([200,100,200]);
 
-  // --- HAR 2 LEVEL PE INTERSTITIAL (same jagah) ---
+  // HAR 2 LEVEL PE INTERSTITIAL - same jagah
   let completedLevel = level;
   let goToLevels = ()=>{ showLevels(); };
 
@@ -160,7 +159,7 @@ function levelComplete(){
 function checkGameOver(){ let shapes=[...trayEl.children].map(e=>e._shape), can=false; for(let s of shapes) for(let r=0;r<10;r++) for(let c=0;c<10;c++) if(canPlace(r,c,s)) can=true; if(!can&&trayEl.children.length>0){ setTimeout(()=>{ if(!isCompleting) tg.showAlert('Game Over! Restart karo'); },200); } }
 function resetLevel(){ board=Array(10).fill().map(()=>Array(10).fill(0)); score=0; levelScore=0; isCompleting=false; createBoard(); randomShapes(); updateUI(); }
 
-// --- +500 WALA REWARDED (same jagah) ---
+// +500 WALA REWARDED - same jagah
 function watchAd(){
   showMonetagRewarded().then(()=>{
     score+=500; levelScore+=500; updateUI();
