@@ -106,27 +106,30 @@ function winLevel(){
     saveGame();
     if(currentLevel>=maxUnlocked){ maxUnlocked=currentLevel+1; saveGame(); }
 
-    // === NEW: VIGNETTE ON 1,3,5,7 ===
-    if(currentLevel % 2!== 0){ // 1,3,5,7 odd levels
-        console.log('Odd Level Win - ' + currentLevel);
+    let shouldShowAd = false;
+
+    // 2,4,6...20 tak
+    if(currentLevel <= 20 && currentLevel % 2 === 0){
+        shouldShowAd = true;
+    }
+    // 21 se har level pe
+    else if(currentLevel >= 21){
+        shouldShowAd = true;
+    }
+
+    if(shouldShowAd){
+        console.log('Level Win Ad - ' + currentLevel);
         if(canShowAd){
             canShowAd=false;
             setTimeout(()=>{canShowAd=true;},30000);
             showInterstitialFallback(()=>{
-                // After OnClicka, show Monetag Vignette 11984504
-                if(typeof window.showMonetagVignette === 'function'){
-                    window.showMonetagVignette(()=>{
-                        showLevelSelect();
-                    });
-                } else {
-                    showLevelSelect();
-                }
+                showLevelSelect();
             });
         } else {
             showLevelSelect();
         }
     } else {
-        // Even levels - no ad, direct
+        // 1,3,5...19 pe no ad
         showLevelSelect();
     }
 }
