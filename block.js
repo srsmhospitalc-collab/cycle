@@ -3,7 +3,7 @@ const boardEl=document.getElementById('board'), trayEl=document.getElementById('
 let board=[], score=0, levelScore=0, level=1, maxUnlock=parseInt(localStorage.getItem('block_level')||1);
 let isCompleting = false;
 
-function getTarget(l){ return l*500; }
+function getTarget(l){ return l*200; }
 
 // ===== MONETAG FUNCTIONS =====
 function showMonetagRewarded(){
