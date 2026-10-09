@@ -11,7 +11,7 @@ function getTarget(l){ return l*300; }
 // === TERA DIYA HUA REWARDED POPUP ===
 function showRewarded(){
   return new Promise((resolve, reject)=>{
-    show_11215599('pop').then(() => {
+    show_11215599().then(() => {
         resolve();
     }).catch(e => {
         reject(e);
