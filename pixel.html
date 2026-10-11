@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>NOT PIXEL 2.0</title>
+  <link rel="stylesheet" href="pixel.css" />
+  <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
+  <!-- RichAds -->
+  <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
+  <script>
+    window.TelegramAdsController = new TelegramAdsController();
+    window.TelegramAdsController.initialize({ pubId: "1013423", appId: "7744" });
+  </script>
+  <!-- Monetag -->
+  <script src='//libtl.com/sdk.js' data-zone='11215599' data-sdk='show_11215599'></script>
+  <!-- Adsbitvex Fallback AppID 000468 -->
+  <script src="https://sdk.adsbitvex.com/functions/v1/ad-script?appid=000468"></script>
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><span>◼</span> NOT PIXEL 2.0</div>
+    <div class="stats">
+      <div id="myPixels">0 PX</div>
+      <div id="online">● 12.4k online</div>
+    </div>
+  </header>
+
+  <div class="canvas-wrap" id="canvasWrap">
+    <div id="pixelGrid" class="pixel-grid"></div>
+    <div id="crosshair">+</div>
+  </div>
+
+  <div class="bottom-panel">
+    <div class="cooldown-bar">
+      <div id="cooldownFill"></div>
+      <span id="cooldownText">READY TO PAINT</span>
+      <button id="skipBtn" class="skip-btn">SKIP AD 📺</button>
+    </div>
+
+    <div class="palette" id="palette"></div>
+
+    <div class="actions">
+      <button id="placeBtn" class="place-btn">PLACE PIXEL</button>
+      <button id="bonusBtn" class="bonus-btn">+10 BONUS 📺</button>
+      <button id="leaderBtn" class="icon-btn">🏆</button>
+    </div>
+  </div>
+
+  <!-- Premium Unlock Modal -->
+  <div id="premiumModal" class="modal">
+    <div class="modal-box">
+      <h3>🔓 Unlock Neon Palette</h3>
+      <p>16 premium colors ke liye ad dekho</p>
+      <button id="unlockPremiumBtn" class="place-btn">WATCH AD & UNLOCK</button>
+      <button id="closePremium" class="ghost">Cancel</button>
+      <div id="adStatus"></div>
+    </div>
+  </div>
+
+  <!-- Leaderboard -->
+  <div id="leaderModal" class="modal">
+    <div class="modal-box">
+      <h3>Live Leaderboard</h3>
+      <div id="leaderList"></div>
+      <button id="closeLeader" class="ghost">Close</button>
+    </div>
+  </div>
+
+  <script src="pixel.js"></script>
+</body>
+</html>
