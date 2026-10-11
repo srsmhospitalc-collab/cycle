@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Classic Solitaire - 100 Levels</title>
+  <link rel="stylesheet" href="solitare.css" />
+  <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
+  <!-- RichAds -->
+  <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
+  <script>
+    window.TelegramAdsController = new TelegramAdsController();
+    window.TelegramAdsController.initialize({
+      pubId: "1013423",
+      appId: "7744",
+    });
+  </script>
+  <!-- Monetag Rewarded -->
+  <script src='//libtl.com/sdk.js' data-zone='11215599' data-sdk='show_11215599'></script>
+  <!-- Adsbitvex Fallback -->
+  <script src="https://sdk.adsbitvex.com/functions/v1/ad-script?appid=000468"></script>
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="logo">♠ SOLITAIRE</div>
+      <div class="stats">
+        <span id="levelLabel">LEVEL 1</span>
+        <span id="moves">Moves: 0</span>
+      </div>
+      <button id="gridBtn">☰ LEVELS</button>
+    </header>
+
+    <div id="gameBoard">
+      <div class="top-row">
+        <div class="pile-group">
+          <div class="pile" id="stock"></div>
+          <div class="pile" id="waste"></div>
+          <div class="pile empty-hint"></div>
+        </div>
+        <div class="foundation-group" id="foundations"></div>
+      </div>
+      <div class="tableau" id="tableau"></div>
+    </div>
+
+    <div class="controls">
+      <button id="undoBtn">↩ Undo</button>
+      <button id="newGameBtn">🔄 New Game</button>
+      <button id="hintBtn">💡 Hint</button>
+    </div>
+  </div>
+
+  <!-- Level Grid Modal -->
+  <div id="levelModal" class="modal show">
+    <div class="modal-content">
+      <h2>Select Level</h2>
+      <p class="diff-info">Har level pichle se zyada difficult</p>
+      <div id="levelGrid" class="level-grid"></div>
+      <button id="closeModal">Play</button>
+    </div>
+  </div>
+
+  <!-- Watch Ad to Unlock Modal -->
+  <div id="adUnlockModal" class="modal">
+    <div class="modal-content ad-box">
+      <div class="lock-icon">🔒</div>
+      <h2 id="lockedLevelText">Level 2 Locked</h2>
+      <p>Is level ko unlock karne ke liye ek chota sa Ad dekho</p>
+      <button id="watchAdBtn" class="reward-btn">📺 WATCH AD & UNLOCK</button>
+      <button id="cancelAdBtn" class="secondary">Cancel</button>
+      <div id="adStatus" class="ad-status"></div>
+    </div>
+  </div>
+
+  <!-- Win Modal -->
+  <div id="winModal" class="modal">
+    <div class="modal-content win-box">
+      <h2>🎉 Level Complete!</h2>
+      <p id="winStats"></p>
+      <button id="nextLevelBtn" class="reward-btn">NEXT LEVEL →</button>
+    </div>
+  </div>
+
+  <script src="solitare.js"></script>
+</body>
+</html>
