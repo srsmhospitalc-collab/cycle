@@ -3,21 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Classic Solitaire - 100 Levels</title>
+  <title>Classic Solitaire - Drag Drop</title>
   <link rel="stylesheet" href="solitare.css" />
   <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
-  <!-- RichAds -->
   <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
   <script>
     window.TelegramAdsController = new TelegramAdsController();
-    window.TelegramAdsController.initialize({
-      pubId: "1013423",
-      appId: "7744",
-    });
+    window.TelegramAdsController.initialize({ pubId: "1013423", appId: "7744" });
   </script>
-  <!-- Monetag Rewarded -->
   <script src='//libtl.com/sdk.js' data-zone='11215599' data-sdk='show_11215599'></script>
-  <!-- Adsbitvex Fallback -->
   <script src="https://sdk.adsbitvex.com/functions/v1/ad-script?appid=000468"></script>
 </head>
 <body>
@@ -26,53 +20,47 @@
       <div class="logo">♠ SOLITAIRE</div>
       <div class="stats">
         <span id="levelLabel">LEVEL 1</span>
-        <span id="moves">Moves: 0</span>
+        <span id="moves">0 Moves</span>
+        <span id="timer">00:00</span>
       </div>
-      <button id="gridBtn">☰ LEVELS</button>
+      <button id="gridBtn">☰</button>
     </header>
-
     <div id="gameBoard">
       <div class="top-row">
         <div class="pile-group">
-          <div class="pile" id="stock"></div>
-          <div class="pile" id="waste"></div>
-          <div class="pile empty-hint"></div>
+          <div class="pile-slot"><div class="pile" id="stock"></div></div>
+          <div class="pile-slot"><div class="pile" id="waste"></div></div>
         </div>
         <div class="foundation-group" id="foundations"></div>
       </div>
       <div class="tableau" id="tableau"></div>
     </div>
-
     <div class="controls">
       <button id="undoBtn">↩ Undo</button>
-      <button id="newGameBtn">🔄 New Game</button>
-      <button id="hintBtn">💡 Hint</button>
+      <button id="newGameBtn">🔄 New</button>
+      <button id="autoBtn">✨ Auto</button>
     </div>
   </div>
+  <div id="dragLayer"></div>
 
-  <!-- Level Grid Modal -->
   <div id="levelModal" class="modal show">
     <div class="modal-content">
-      <h2>Select Level</h2>
-      <p class="diff-info">Har level pichle se zyada difficult</p>
+      <h2>CLASSIC SOLITAIRE</h2>
+      <p class="diff-info">Level <span id="modalLevel">1</span> - Drag & Drop • Level badhne pe difficulty 🔥</p>
       <div id="levelGrid" class="level-grid"></div>
-      <button id="closeModal">Play</button>
+      <button id="closeModal" class="reward-btn">PLAY LEVEL</button>
     </div>
   </div>
-
-  <!-- Watch Ad to Unlock Modal -->
   <div id="adUnlockModal" class="modal">
     <div class="modal-content ad-box">
       <div class="lock-icon">🔒</div>
       <h2 id="lockedLevelText">Level 2 Locked</h2>
-      <p>Is level ko unlock karne ke liye ek chota sa Ad dekho</p>
+      <p>Unlock karne ke liye ad dekho</p>
       <button id="watchAdBtn" class="reward-btn">📺 WATCH AD & UNLOCK</button>
       <button id="cancelAdBtn" class="secondary">Cancel</button>
-      <div id="adStatus" class="ad-status"></div>
+      <div id="adStatus"></div>
     </div>
   </div>
-
-  <!-- Win Modal -->
   <div id="winModal" class="modal">
     <div class="modal-content win-box">
       <h2>🎉 Level Complete!</h2>
@@ -80,7 +68,6 @@
       <button id="nextLevelBtn" class="reward-btn">NEXT LEVEL →</button>
     </div>
   </div>
-
   <script src="solitare.js"></script>
 </body>
 </html>
