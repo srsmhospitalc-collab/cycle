@@ -33,3 +33,13 @@ body{background:#0e0e14;color:#fff;min-height:100vh;overflow:hidden;user-select:
 .ghost{background:transparent;border:none;color:#aaa;margin-top:8px;width:100%}
 .lock{font-size:36px}
 #adStatus{margin-top:8px;color:#00ff88;font-size:12px}
+.congrats{position:absolute;inset:0;background:rgba(14,14,20,.92);backdrop-filter:blur(16px);display:none;align-items:center;justify-content:center;flex-direction:column;z-index:20;text-align:center}
+.congrats.show{display:flex;animation:pop .3s}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+.congrats .confetti{font-size:64px;animation:bounce 1s infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.congrats h2{font-size:28px;margin:12px 0 4px;color:#00ff88}
+.congrats p{opacity:.7}
+.loader{width:120px;height:6px;background:rgba(255,255,255,.15);border-radius:10px;margin:16px 0 8px;overflow:hidden}
+.loader div{height:100%;width:0%;background:linear-gradient(90deg,#00ff88,#00ffaa);animation:load 3s linear forwards}
+@keyframes load{to{width:100%}}
