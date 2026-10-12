@@ -71,25 +71,10 @@
     </div>
   </div>
   <script>
-  // 1. Telegram WebApp Back Button
-  if (window.Telegram && Telegram.WebApp) {
-    Telegram.WebApp.BackButton.show();
-    Telegram.WebApp.BackButton.onClick(() => {
-      window.location.href = 'index.html';
-    });
-  }
-
-  // 2. Browser / Android Back Button
-  history.pushState(null, '', location.href);
-  window.addEventListener('popstate', function() {
-    window.location.href = 'index.html';
-  });
-
-  // 3. Tera jo header ka back button hai uske liye
-  document.querySelector('.back').addEventListener('click', function(e){
-    e.preventDefault();
-    window.location.href = 'index.html';
-  });
+history.pushState(null, '', location.href);
+window.addEventListener('popstate', () => {
+  location.href = 'index.html';
+});
 </script>
 
   <script src="match.js"></script>
