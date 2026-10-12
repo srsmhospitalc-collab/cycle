@@ -26,5 +26,26 @@
   <div class="actions"><button class="ad-btn" onclick="watchAd()">📺 Watch Ad +500</button><button class="reset-btn" onclick="resetLevel()">↻ Reset</button></div>
 </div>
 <script src="block.js"></script>
+  <script>
+  // 1. Telegram WebApp Back Button
+  if (window.Telegram && Telegram.WebApp) {
+    Telegram.WebApp.BackButton.show();
+    Telegram.WebApp.BackButton.onClick(() => {
+      window.location.href = 'index.html';
+    });
+  }
+
+  // 2. Browser / Android Back Button
+  history.pushState(null, '', location.href);
+  window.addEventListener('popstate', function() {
+    window.location.href = 'index.html';
+  });
+
+  // 3. Tera jo header ka back button hai uske liye
+  document.querySelector('.back').addEventListener('click', function(e){
+    e.preventDefault();
+    window.location.href = 'index.html';
+  });
+</script>
 </body>
 </html>
