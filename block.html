@@ -6,13 +6,24 @@
 <title>Block Blast</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src='//libtl.com/sdk.js' data-zone='11215599' data-sdk='show_11215599'></script>
+<script async src="https://sdk.adsbitvex.com/functions/v1/banner-serve?action=sdk"></script>
 <link rel="stylesheet" href="block.css">
 </head>
-  <div data-abx-banner="3c76eab41644" data-abx-w="320" data-abx-h="50" style="display:inline-block;width:320px;height:50px;line-height:0"></div>
-<script async src="https://sdk.adsbitvex.com/functions/v1/banner-serve?action=sdk"></script>
 <body>
+
+<!-- Top Bar with Arrow for index.html -->
+<div class="top" style="position:sticky;top:0;z-index:10;">
+  <a href="index.html" style="text-decoration:none;font-size:22px;font-weight:bold;color:#fff;padding:8px 12px;">←</a>
+  <span>🧱 Block Blast</span>
+</div>
+
+<!-- Banner -->
+<div style="width:100%;display:flex;justify-content:center;padding:6px 0;">
+  <div data-abx-banner="3c76eab41644" data-abx-w="320" data-abx-h="50" style="display:inline-block;width:320px;height:50px;line-height:0"></div>
+</div>
+
 <div id="levelScreen">
-  <div class="top"><span>🧱 Block Blast</span><div class="scores"><span>High: <b id="highTxt">1</b></span> <span>Total: <b id="totalTxt">0</b></span></div></div>
+  <div class="top"><span>Levels</span><div class="scores"><span>High: <b id="highTxt">1</b></span> <span>Total: <b id="totalTxt">0</b></span></div></div>
   <div class="progress-bg"><div id="overallProgress" class="progress"></div></div>
   <div class="level-grid" id="levelGrid"></div>
 </div>
@@ -25,27 +36,17 @@
   <div class="tray" id="tray"></div>
   <div class="actions"><button class="ad-btn" onclick="watchAd()">📺 Watch Ad +500</button><button class="reset-btn" onclick="resetLevel()">↻ Reset</button></div>
 </div>
+
 <script src="block.js"></script>
-  <script>
-  // 1. Telegram WebApp Back Button
-  if (window.Telegram && Telegram.WebApp) {
-    Telegram.WebApp.BackButton.show();
-    Telegram.WebApp.BackButton.onClick(() => {
-      window.location.href = 'index.html';
-    });
-  }
+<script>
+// Mobile back + Telegram back = index.html
+history.pushState(null, "", location.href);
+window.onpopstate = () => location.href = "index.html";
 
-  // 2. Browser / Android Back Button
-  history.pushState(null, '', location.href);
-  window.addEventListener('popstate', function() {
-    window.location.href = 'index.html';
-  });
-
-  // 3. Tera jo header ka back button hai uske liye
-  document.querySelector('.back').addEventListener('click', function(e){
-    e.preventDefault();
-    window.location.href = 'index.html';
-  });
+if (window.Telegram && Telegram.WebApp) {
+  Telegram.WebApp.BackButton.show();
+  Telegram.WebApp.BackButton.onClick(() => location.href = "index.html");
+}
 </script>
 </body>
 </html>
