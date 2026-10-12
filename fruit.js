@@ -94,15 +94,21 @@ function updateUI(){
 function win(){
   clearInterval(spawnTimer);
   if(cur>=max){ max=Math.min(100,cur+1); localStorage.setItem('fruit_max',max); }
+
+  // 1. Show congrats screen for 3 sec
+  const cong=document.getElementById('congrats');
+  document.getElementById('congratsText').innerText=`${score}/${target} fruits cut!`;
+  cong.classList.add('show');
+
+  // 2. Trigger interstitial NOW - 3 sec ka time mil jayega load hone ko
   showInterstitial();
-  renderGrid();
-  document.getElementById('levelScreen').classList.add('show');
-  // ek chota win text top pe flash
-  const scoreEl=document.getElementById('score');
-  const old=scoreEl.innerText;
-  scoreEl.innerText=`🎉 WIN!`;
-  scoreEl.style.color='#00ff88';
-  setTimeout(()=>{ scoreEl.innerText=old; scoreEl.style.color='#fff'; }, 1500);
+
+  // 3. After 3 sec -> go to grid
+  setTimeout(()=>{
+    cong.classList.remove('show');
+    renderGrid();
+    document.getElementById('levelScreen').classList.add('show');
+  }, 3000);
 }
 
 function renderGrid(){
