@@ -13,15 +13,23 @@
   </script>
   <script src='//libtl.com/sdk.js' data-zone='11215599' data-sdk='show_11215599'></script>
   <script src="https://sdk.adsbitvex.com/functions/v1/ad-script?appid=000468"></script>
+  <script async src="https://sdk.adsbitvex.com/functions/v1/banner-serve?action=sdk"></script>
 </head>
 <body>
+  <!-- FIXED TOP BAR WITH BACK ARROW -->
   <header class="top">
-    <div class="brand">🧩 MATCH 3D</div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <a href="index.html" style="text-decoration:none;font-size:24px;font-weight:bold;color:#fff;">←</a>
+      <div class="brand">🧩 MATCH 3D</div>
+    </div>
     <div class="level-info"><span id="levelLabel">LEVEL 1</span><span id="tilesLeft">0 tiles</span></div>
     <button id="gridBtn">☰</button>
   </header>
-  <div data-abx-banner="3c76eab41644" data-abx-w="320" data-abx-h="50" style="display:inline-block;width:320px;height:50px;line-height:0"></div>
-<script async src="https://sdk.adsbitvex.com/functions/v1/banner-serve?action=sdk"></script>
+
+  <!-- Banner inside body -->
+  <div style="width:100%;display:flex;justify-content:center;padding:5px 0;">
+    <div data-abx-banner="3c76eab41644" data-abx-w="320" data-abx-h="50" style="display:inline-block;width:320px;height:50px;line-height:0"></div>
+  </div>
 
   <div id="board" class="board"></div>
 
@@ -70,13 +78,16 @@
       <button id="restartBtn" class="ghost">Restart Level</button>
     </div>
   </div>
-  <script>
-  history.pushState(null, "", location.href);
-  window.onpopstate = function() {
-    window.location.href = "index.html";
-  };
-</script>
 
   <script src="match.js"></script>
+  <script>
+    // Mobile back + Telegram back = index.html
+    history.pushState(null, "", location.href);
+    window.onpopstate = () => location.href = "index.html";
+    if(window.Telegram && Telegram.WebApp){
+      Telegram.WebApp.BackButton.show();
+      Telegram.WebApp.BackButton.onClick(() => location.href = "index.html");
+    }
+  </script>
 </body>
 </html>
