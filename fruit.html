@@ -4,46 +4,42 @@
 <meta charset="UTF-8">
 <meta name="adsbitvex-verify" content="55wFuniMvmgugxDFM5cH5BAp">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TOILET RUSH - 100 LEVELS</title>
-<link rel="stylesheet" href="toilet.css">
+<title>FRUIT CUT SORT BLAST</title>
+<link rel="stylesheet" href="fruit.css">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
-<script>
-  try{
-    window.TelegramAdsController=new TelegramAdsController();
-    window.TelegramAdsController.initialize({pubId:"1013423",appId:"7744"});
-  }catch(e){}
-</script>
+<script>try{window.TelegramAdsController=new TelegramAdsController(); window.TelegramAdsController.initialize({pubId:"1013423",appId:"7744"})}catch(e){}</script>
 <script src="https://sdk.adsbitvex.com/functions/v1/ad-script?appid=000468"></script>
 <script src="//libtl.com/sdk.js" data-zone="11215599" data-sdk="show_11215599"></script>
 </head>
 <body>
 <div class="bg"></div>
-
 <header class="top">
   <a href="index.html" class="back">←</a>
-  <div class="title">🚻 TOILET RUSH</div>
-  <div class="lvl">LVL <span id="lvl">1</span></div>
+  <div class="title">🍉 FRUIT CUT</div>
+  <div class="stats"><span id="lvl">LVL 1</span> <span id="score">0/20</span></div>
   <button id="gridBtn" class="grid">☰</button>
 </header>
 
-<div class="queue-area">
-  <div class="queue-label">QUEUE - Tap person then toilet</div>
-  <div id="queue" class="queue"></div>
+<div class="game-wrap">
+  <div id="fallArea" class="fall-area"></div>
+  <div class="baskets">
+    <div class="basket b-red" data-color="red"><div class="b-icon">🧺</div><div class="b-label">RED</div><div id="c-red" class="b-count">0</div></div>
+    <div class="basket b-yellow" data-color="yellow"><div class="b-icon">🧺</div><div class="b-label">YELLOW</div><div id="c-yellow" class="b-count">0</div></div>
+    <div class="basket b-purple" data-color="purple"><div class="b-icon">🧺</div><div class="b-label">PURPLE</div><div id="c-purple" class="b-count">0</div></div>
+  </div>
+  <div class="progress"><div id="prog"></div></div>
 </div>
 
-<div id="toilets" class="toilets"></div>
-
 <div class="controls">
-  <button id="shuffleBtn">🔀 Shuffle 📺</button>
-  <button id="hintBtn">💡 Hint 📺</button>
-  <button id="extraBtn">🚽 Extra Toilet 📺</button>
+  <button id="slowBtn">⏱ Slow-Mo 📺</button>
+  <button id="bombBtn">💣 Blast All 📺</button>
 </div>
 
 <div id="levelScreen" class="modal show">
   <div class="box">
-    <h1>🚻 TOILET RUSH</h1>
-    <p>Same color ko same toilet me bhejo!</p>
+    <h1>🍉 FRUIT CUT SORT</h1>
+    <p>Tap to cut & auto sort to basket!</p>
     <div id="levelGrid" class="level-grid"></div>
     <button id="playBtn" class="main">PLAY</button>
   </div>
@@ -53,7 +49,6 @@
   <div class="box small">
     <div class="lock">🔒</div>
     <h3 id="adTitle">Locked</h3>
-    <p id="adDesc">Ad dekho</p>
     <button id="watchBtn" class="main">📺 WATCH AD & UNLOCK</button>
     <button id="cancelBtn" class="ghost">Cancel</button>
     <div id="adStatus"></div>
@@ -62,22 +57,21 @@
 
 <div id="winModal" class="modal">
   <div class="box small win">
-    <h2>🎉 Level Clear!</h2>
+    <h2>🎉 Juicy Win!</h2>
     <p id="winText"></p>
     <button id="nextBtn" class="main">NEXT →</button>
-    <a href="index.html" class="ghost">Menu</a>
   </div>
 </div>
 
 <div id="loseModal" class="modal">
   <div class="box small lose">
-    <h2>😡 Queue Jam!</h2>
-    <p>Queue full ho gayi</p>
+    <h2>😢 Too Many Missed</h2>
+    <p>3 fruits miss ho gaye</p>
     <button id="contBtn" class="main">CONTINUE 📺</button>
     <button id="restartBtn" class="ghost">Restart</button>
   </div>
 </div>
 
-<script src="toilet.js"></script>
+<script src="fruit.js"></script>
 </body>
 </html>
