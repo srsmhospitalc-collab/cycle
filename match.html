@@ -71,10 +71,10 @@
     </div>
   </div>
   <script>
-history.pushState(null, '', location.href);
-window.addEventListener('popstate', () => {
-  location.href = 'index.html';
-});
+  history.pushState(null, "", location.href);
+  window.onpopstate = function() {
+    window.location.href = "index.html";
+  };
 </script>
 
   <script src="match.js"></script>
