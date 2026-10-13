@@ -1,139 +1,146 @@
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
-const scoreTxt = document.getElementById('scoreTxt');
-const nextEl = document.getElementById('nextFruit');
+const canvas=document.getElementById('game'), ctx=canvas.getContext('2d');
+const scoreTxt=document.getElementById('scoreTxt'), lvlTxt=document.getElementById('lvlTxt'), bestTxt=document.getElementById('bestTxt');
+const progBar=document.getElementById('progBar'), progTxt=document.getElementById('progTxt'), nextEl=document.getElementById('nextFruit');
 
-const FRUITS = [
-  {r:14, color:"#ff4d4d", emoji:"🍒", score:2},
-  {r:20, color:"#ff8a5b", emoji:"🍓", score:4},
-  {r:28, color:"#a86bff", emoji:"🍇", score:8},
-  {r:32, color:"#ffcc00", emoji:"🍋", score:16},
-  {r:38, color:"#ff6a00", emoji:"🍊", score:32},
-  {r:44, color:"#ff2d2d", emoji:"🍎", score:64},
-  {r:52, color:"#ffeb3b", emoji:"🍍", score:128},
-  {r:60, color:"#4caf50", emoji:"🍈", score:256},
-  {r:70, color:"#2ecc71", emoji:"🍉", score:512},
+const FRUITS=[
+  {r:15,c:"#ff4d4d",e:"🍒",s:20},{r:20,c:"#ff8a5b",e:"🍓",s:30},{r:27,c:"#a86bff",e:"🍇",s:40},
+  {r:32,c:"#ffcc00",e:"🍋",s:50},{r:38,c:"#ff6a00",e:"🍊",s:60},{r:44,c:"#ff2d2d",e:"🍎",s:80},
+  {r:51,c:"#ffeb3b",e:"🍍",s:100},{r:60,c:"#4caf50",e:"🍈",s:150},{r:70,c:"#2ecc71",e:"🍉",s:250},
 ];
+let fruits=[], nextType=0, score=0, level=1, gameOver=false, dropX=180, best=localStorage.getItem('merge_best')||0;
+bestTxt.innerText=best;
 
-let fruits = [];
-let nextType = 0;
-let score = 0;
-let gameOver = false;
-let dropX = 180;
+function randomNext(){ nextType=Math.floor(Math.random()*4); nextEl.innerText=FRUITS[nextType].e; }
+function spawn(x){ fruits.push({x,y:30,vx:(Math.random()-0.5)*1.5,vy:0,type:nextType,r:FRUITS[nextType].r,stable:0}); randomNext(); }
 
-function randomNext(){ nextType = Math.floor(Math.random()*4); nextEl.innerText = "Next: "+FRUITS[nextType].emoji; }
-
-function spawn(x){
-  fruits.push({x:x, y:40, vx:(Math.random()-0.5)*2, vy:0, type:nextType, r:FRUITS[nextType].r});
-  randomNext();
-  if(fruits.length%5==0) showInterstitial(); // har 5 merge pe ad
-}
-
+// ---- ADS LOGIC ----
 function showInterstitial(){
-  try{ TelegramAdsController.show(); }catch(e){}
-  setTimeout(()=>{ try{ if(window.show_11215599) show_11215599(); }catch(e){} },900);
+  console.log("INTERSTITIAL: RichAds -> Adsbitvex");
+  try{ window.TelegramAdsController.show(); }catch(e){}
+  setTimeout(()=>{ try{ if(window.AdsBitvex) AdsBitvex.showInterstitial(); }catch(e){} },1000);
 }
 function watchRewarded(cb){
+  console.log("REWARDED: Monetag -> Adsbitvex");
   if(window.show_11215599){
-    show_11215599().then(cb).catch(()=>{
-      try{ AdsBitvex.showRewarded(cb); }catch(e){ cb(); }
+    show_11215599().then(()=>{ cb(); }).catch(()=>{
+      try{ AdsBitvex.showRewarded(()=>cb()); }catch(e){ cb(); }
     });
-  } else { try{ AdsBitvex.showRewarded(cb); }catch(e){ cb(); } }
+  }else{
+    try{ AdsBitvex.showRewarded(()=>cb()); }catch(e){ cb(); }
+  }
+}
+
+// ---- LEVEL SYSTEM ----
+function checkLevel(){
+  let targetLevel = Math.floor(score/300)+1;
+  if(targetLevel>50) targetLevel=50;
+  if(targetLevel>level){
+    level=targetLevel;
+    lvlTxt.innerText=level;
+    // Level Complete Modal
+    document.getElementById('lcLvl').innerText=level-1;
+    document.getElementById('lcScore').innerText=score;
+    document.getElementById('levelModal').classList.add('show');
+    gameOver=true;
+    showInterstitial(); // HAR LEVEL KE BAAD INTERSTITIAL
+
+    // HAR 5 LEVEL PE LOCK
+    if(level%5==1 && level<=50){
+      setTimeout(()=>{
+        document.getElementById('levelModal').classList.remove('show');
+        document.getElementById('lockLvl').innerText=level;
+        document.getElementById('lockModal').classList.add('show');
+      },1800);
+    }
+    if(score>best){ best=score; localStorage.setItem('merge_best',best); bestTxt.innerText=best; }
+  }
+  let cur=score%300;
+  progBar.style.width=(cur/300*100)+"%";
+  progTxt.innerText=cur+"/300";
 }
 
 function update(){
   if(gameOver) return;
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.strokeStyle="#333"; ctx.strokeRect(2,2,356,596);
-  ctx.fillStyle="#ff000055"; ctx.fillRect(0,0,360,80);
+  ctx.clearRect(0,0,360,600);
+  // glass border
+  ctx.fillStyle="#ffffff08"; ctx.fillRect(0,0,360,600);
+  ctx.strokeStyle="#333"; ctx.lineWidth=2; ctx.strokeRect(1,1,358,598);
 
   for(let f of fruits){
-    f.vy+=0.25; f.x+=f.vx; f.y+=f.vy;
-    f.vx*=0.99;
-    if(f.x-f.r<2){ f.x=2+f.r; f.vx*=-0.5; }
-    if(f.x+f.r>358){ f.x=358-f.r; f.vx*=-0.5; }
-    if(f.y+f.r>598){ f.y=598-f.r; f.vy*=-0.3; f.vx*=0.8; if(Math.abs(f.vy)<0.5) f.vy=0; }
+    f.vy+=0.28; f.x+=f.vx; f.y+=f.vy; f.vx*=0.99;
+    if(f.x-f.r<2){f.x=2+f.r;f.vx*=-0.6} if(f.x+f.r>358){f.x=358-f.r;f.vx*=-0.6}
+    if(f.y+f.r>598){f.y=598-f.r;f.vy*=-0.25;f.vx*=0.8; if(Math.abs(f.vy)<0.8)f.vy=0}
 
-    // collision
     for(let o of fruits){
       if(f==o) continue;
-      let dx=o.x-f.x, dy=o.y-f.y, d=Math.hypot(dx,dy);
-      let minR = f.r+o.r;
-      if(d<minR && d>0){
+      let dx=o.x-f.x, dy=o.y-f.y, d=Math.hypot(dx,dy), minR=f.r+o.r;
+      if(d<minR && d>1){
         if(f.type==o.type && f.type<FRUITS.length-1){
-          // merge
-          let newType = f.type+1;
-          score+=FRUITS[newType].score;
-          scoreTxt.innerText=score;
-          fruits = fruits.filter(p=>p!=f && p!=o);
-          fruits.push({x:(f.x+o.x)/2, y:(f.y+o.y)/2, vx:0, vy:-1, type:newType, r:FRUITS[newType].r});
+          let nt=f.type+1; score+=FRUITS[nt].s; scoreTxt.innerText=score; checkLevel();
+          let mx=(f.x+o.x)/2, my=(f.y+o.y)/2;
+          fruits=fruits.filter(p=>p!=f&&p!=o);
+          fruits.push({x:mx,y:my,vx:0,vy:-1,type:nt,r:FRUITS[nt].r,stable:0});
+          // pop effect
+          ctx.beginPath(); ctx.arc(mx,my,20,0,Math.PI*2); ctx.fillStyle="#fff5"; ctx.fill();
           break;
-        } else {
-          let overlap = (minR-d)/2;
-          let nx=dx/d, ny=dy/d;
-          f.x-=nx*overlap; f.y-=ny*overlap;
-          o.x+=nx*overlap; o.y+=ny*overlap;
+        }else{
+          let ov=(minR-d)/2; let nx=dx/d, ny=dy/d;
+          f.x-=nx*ov; f.y-=ny*ov; o.x+=nx*ov; o.y+=ny*ov;
         }
       }
     }
   }
-
-  // draw
+  // draw fruits
   for(let f of fruits){
-    ctx.beginPath();
-    ctx.arc(f.x,f.y,f.r,0,Math.PI*2);
-    ctx.fillStyle=FRUITS[f.type].color;
-    ctx.fill();
-    ctx.fillStyle="#000"; ctx.font=(f.r*0.8)+"px serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
-    ctx.fillText(FRUITS[f.type].emoji, f.x, f.y+2);
+    ctx.shadowColor=FRUITS[f.type].c+"88"; ctx.shadowBlur=10;
+    ctx.beginPath(); ctx.arc(f.x,f.y,f.r,0,Math.PI*2); ctx.fillStyle=FRUITS[f.type].c; ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.beginPath(); ctx.arc(f.x-f.r*0.3,f.y-f.r*0.3,f.r*0.25,0,Math.PI*2); ctx.fillStyle="#ffffffaa"; ctx.fill();
+    ctx.fillStyle="#000"; ctx.font=`bold ${f.r*0.75}px sans-serif`; ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.fillText(FRUITS[f.type].e,f.x,f.y+1);
   }
 
-  // game over check
+  // glass full check
+  let danger=0;
   for(let f of fruits){
-    if(f.y<80 && Math.abs(f.vy)<0.1 && fruits.length>8){
-      if(Date.now()-f.stableTime>2000){ endGame(); }
-      else { if(!f.stableTime) f.stableTime=Date.now(); }
-    } else { f.stableTime=null; }
+    if(f.y<95 && Math.abs(f.vy)<0.3){ f.stable++; if(f.stable>80) danger++; } else f.stable=0;
   }
-
+  if(danger>=2) endGame();
   requestAnimationFrame(update);
 }
 
 function endGame(){
   gameOver=true;
+  document.getElementById('overLvl').innerText=level;
   document.getElementById('finalScore').innerText=score;
   document.getElementById('overModal').classList.add('show');
 }
 
-// controls
-canvas.addEventListener('pointermove', e=>{
-  let rect=canvas.getBoundingClientRect();
-  dropX = (e.clientX-rect.left)*(canvas.width/rect.width);
+canvas.addEventListener('pointermove',e=>{
+  let r=canvas.getBoundingClientRect(); dropX=(e.clientX-r.left)*(360/r.width);
 });
-canvas.addEventListener('pointerdown', ()=>{
-  if(gameOver) return;
-  spawn(Math.max(20, Math.min(340, dropX)));
-});
+canvas.addEventListener('pointerdown',()=>{ if(!gameOver) spawn(Math.max(20,Math.min(340,dropX))); });
 
-document.getElementById('undoBtn').onclick=()=> watchRewarded(()=>{
-  if(fruits.length){ fruits.pop(); }
+document.getElementById('undoBtn').onclick=()=> watchRewarded(()=>{ if(fruits.length) fruits.pop(); });
+document.getElementById('restartBtn').onclick=()=>{ showInterstitial(); setTimeout(()=>location.reload(),900); };
+document.getElementById('nextLvlBtn').onclick=()=>{
+  document.getElementById('levelModal').classList.remove('show');
+  if(level%5!=1){ gameOver=false; update(); }
+};
+document.getElementById('unlockBtn').onclick=()=> watchRewarded(()=>{
+  document.getElementById('lockModal').classList.remove('show');
+  gameOver=false; update();
 });
-document.getElementById('restartBtn').onclick=()=> location.reload();
-document.getElementById('continueAdBtn').onclick=()=> watchRewarded(()=>{
-  fruits = fruits.filter(f=>f.y>150);
-  gameOver=false;
+document.getElementById('halfBtn').onclick=()=> watchRewarded(()=>{
+  fruits=fruits.sort((a,b)=>b.y-a.y).slice(0,Math.ceil(fruits.length/2));
   document.getElementById('overModal').classList.remove('show');
-  update();
+  gameOver=false; update();
 });
-document.getElementById('restartAdBtn').onclick=()=> location.reload();
+document.getElementById('restartAdBtn').onclick=()=>{ showInterstitial(); setTimeout(()=>location.reload(),900); };
 
-// BACK BUTTON TO INDEX.HTML
+// Back to index.html
 history.pushState(null,"",location.href);
 window.onpopstate=()=> location.href="index.html";
-if(window.Telegram && Telegram.WebApp){
-  Telegram.WebApp.BackButton.show();
-  Telegram.WebApp.BackButton.onClick(()=> location.href="index.html");
-}
+if(window.Telegram?.WebApp){ Telegram.WebApp.BackButton.show(); Telegram.WebApp.BackButton.onClick(()=> location.href="index.html"); }
 
-randomNext();
-update();
+randomNext(); update(); lvlTxt.innerText=level; scoreTxt.innerText=score;
