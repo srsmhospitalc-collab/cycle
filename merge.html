@@ -6,9 +6,15 @@
 <title>FRUIT MERGE - 50 Levels</title>
 <link rel="stylesheet" href="merge.css">
 <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
+<!-- TELEGRAM ADS -->
 <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
-<script>window.TelegramAdsController=new TelegramAdsController();window.TelegramAdsController.initialize({pubId:"1013423",appId:"7744"});</script>
+<script>
+  window.TelegramAdsController=new TelegramAdsController();
+  window.TelegramAdsController.initialize({pubId:"1013423",appId:"7744"});
+</script>
+<!-- MONETAG REWARDED -->
 <script src='//libtl.com/sdk.js' data-zone='11215599' data-sdk='show_11215599'></script>
+<!-- ADSBITVEX BANNER + INTERSTITIAL -->
 <script src="https://sdk.adsbitvex.com/functions/v1/ad-script?appid=000468"></script>
 <script async src="https://sdk.adsbitvex.com/functions/v1/banner-serve?action=sdk"></script>
 </head>
@@ -18,14 +24,14 @@
 <div id="levelScreen" class="screen show">
   <header class="header"><a href="index.html" class="back">←</a><div class="title">🍉 FRUIT MERGE</div><div class="coin">⭐ <b id="totalScore">0</b></div></header>
   <div class="banner-wrap"><div data-abx-banner="3c76eab41644" data-abx-w="320" data-abx-h="50" style="display:inline-block;width:320px;height:50px"></div></div>
-  <h3 class="grid-title">SELECT LEVEL - 50 LEVELS (300 SCORE = 1 LEVEL)</h3>
+  <h3 class="grid-title">SELECT LEVEL - 50 LEVELS (LVL 1=500, LVL 50=25000)</h3>
   <div id="levelGrid" class="grid"></div>
   <div class="banner-wrap"><div data-abx-banner="3c76eab41644" data-abx-w="320" data-abx-h="50" style="display:inline-block;width:320px;height:50px"></div></div>
 </div>
 
 <!-- GAME SCREEN -->
 <div id="gameScreen" class="screen">
-  <header class="header"><button id="goHome" class="back">←</button><div class="title">LVL <span id="lvlTxt">1</span>/50</div><div class="coin">⭐ <b id="scoreTxt">0</b>/300</div></header>
+  <header class="header"><button id="goHome" class="back">←</button><div class="title">LVL <span id="lvlTxt">1</span>/50</div><div class="coin">⭐ <b id="scoreTxt">0</b>/500</div></header>
   <div class="banner-wrap small"><div data-abx-banner="3c76eab41644" data-abx-w="320" data-abx-h="50" style="display:inline-block;width:320px;height:50px"></div></div>
   <div class="game-box">
     <canvas id="game" width="360" height="520"></canvas>
@@ -33,18 +39,18 @@
     <div class="danger-line">GLASS FULL = GAME OVER</div>
     <div class="progress"><div id="progBar"></div></div>
   </div>
-  <div class="controls"><button id="undoBtn" class="btn dark">↩ Undo 📺</button><button id="restartBtn" class="btn light">↻ Restart</button></div>
+  <div class="controls"><button id="undoBtn" class="btn dark">↩ Undo 📺</button><button id="restartBtn" class="btn light">↻ Restart 📺</button></div>
   <div class="banner-wrap"><div data-abx-banner="3c76eab41644" data-abx-w="320" data-abx-h="50" style="display:inline-block;width:320px;height:50px"></div></div>
 </div>
 
 <!-- LEVEL COMPLETE 3 SEC -->
-<div id="levelModal" class="modal"><div class="modal-card success"><div class="emoji-big">🎉</div><h2>CONGRATULATIONS!</h2><p>Level <b id="lcLvl">1</b> Complete</p><div class="count">Going to Levels in <b id="countTxt">3</b>s...</div></div></div>
+<div id="levelModal" class="modal"><div class="modal-card success"><div class="emoji-big">🎉</div><h2>CONGRATULATIONS!</h2><p>Level <b id="lcLvl">1</b> Complete</p><div class="count">Ads loading... Next in <b id="countTxt">3</b>s</div></div></div>
 
 <!-- LOCK POPUP -->
-<div id="lockModal" class="modal"><div class="modal-card lock"><div class="emoji-big">🔒</div><h2>LEVEL <span id="lockLvl">6</span> LOCKED</h2><p>Watch Ad to Unlock Next Levels</p><button id="unlockBtn" class="btn-main">WATCH AD & UNLOCK 📺</button><button id="lockClose" class="btn-ghost">Back</button></div></div>
+<div id="lockModal" class="modal"><div class="modal-card lock"><div class="emoji-big">🔒</div><h2>LEVEL <span id="lockLvl">6</span> LOCKED</h2><p>Watch Ad to Unlock</p><button id="unlockBtn" class="btn-main">WATCH AD & UNLOCK 📺</button><button id="lockClose" class="btn-ghost">Back</button></div></div>
 
 <!-- GAME OVER -->
-<div id="overModal" class="modal"><div class="modal-card over"><div class="emoji-big">💥</div><h2>GLASS FULL!</h2><p>Level <b id="overLvl">1</b></p><button id="halfBtn" class="btn-main green">CLEAR HALF GLASS 📺</button><button id="restartAdBtn" class="btn-ghost">Restart Level</button><button id="overHome" class="btn-ghost">Level Screen</button></div></div>
+<div id="overModal" class="modal"><div class="modal-card over"><div class="emoji-big">💥</div><h2>GLASS FULL!</h2><p>Level <b id="overLvl">1</b></p><button id="halfBtn" class="btn-main green">CLEAR HALF GLASS 📺</button><button id="restartAdBtn" class="btn-ghost">Restart Level 📺</button><button id="overHome" class="btn-ghost">Level Screen</button></div></div>
 
 <script src="merge.js"></script>
 </body>
