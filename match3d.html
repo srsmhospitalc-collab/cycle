@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="adsbitvex-verify" content="55wFuniMvmgugxDFM5cH5BAp">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MATCH 3D - 50 LEVELS</title>
+<title>MATCH 3D - STACK</title>
 <link rel="stylesheet" href="match3d.css">
 <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
 <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
@@ -17,22 +17,22 @@
 <div id="levelScreen" class="screen show">
   <header class="header"><a href="index.html" class="back">←</a><div class="title">🧩 MATCH 3D</div><div class="coin">⭐ <b id="totalScore">0</b></div></header>
   <div class="banner-wrap"><div data-abx-banner="3c76eab41644" data-abx-w="320" data-abx-h="50" style="display:inline-block;width:320px;height:50px"></div></div>
-  <h3 class="grid-title">CLEAR ALL TILES TO WIN - 50 LEVELS</h3>
+  <h3 class="grid-title">STACK TILES - CLEAR ALL - 50 LEVELS</h3>
   <div id="levelGrid" class="grid"></div>
   <div class="banner-wrap"><div data-abx-banner="3c76eab41644" data-abx-w="320" data-abx-h="50" style="display:inline-block;width:320px;height:50px"></div></div>
 </div>
 
 <div id="gameScreen" class="screen">
-  <header class="header"><button id="goHome" class="back">←</button><div class="title">LVL <span id="lvlTxt">1</span>/50</div><div class="coin">🧩 <b id="leftTxt">0</b> Left</div></header>
+  <header class="header"><button id="goHome" class="back">←</button><div class="title">LVL <span id="lvlTxt">1</span>/50 - <span id="leftTxt">0</span> left</div><div class="coin">TRAY <span id="trayCount">0</span>/7</div></header>
   <div class="banner-wrap small"><div data-abx-banner="3c76eab41644" data-abx-w="320" data-abx-h="50" style="display:inline-block;width:320px;height:50px"></div></div>
-  <div class="board" id="board"></div>
-  <div class="tray-wrap"><div class="tray-label">TRAY - 7 SLOTS - 3 SAME = CLEAR</div><div id="tray" class="tray"></div></div>
+  <div class="board-wrap"><div id="board" class="board"></div></div>
+  <div class="tray-wrap"><div class="tray-label">3 SAME = CLEAR</div><div id="tray" class="tray"></div></div>
   <div class="controls"><button id="shuffleBtn" class="btn dark">🔀 Shuffle 📺</button><button id="hintBtn" class="btn dark">💡 Hint 📺</button><button id="restartBtn" class="btn light">↻ Restart 📺</button></div>
   <div class="banner-wrap"><div data-abx-banner="3c76eab41644" data-abx-w="320" data-abx-h="50" style="display:inline-block;width:320px;height:50px"></div></div>
 </div>
 
-<div id="levelModal" class="modal"><div class="modal-card success"><div class="emoji-big">🎉</div><h2>ALL CLEAR!</h2><p>Level <b id="lcLvl">1</b> Done</p><div class="count">Next in <b id="countTxt">3</b>s</div></div></div>
-<div id="lockModal" class="modal"><div class="modal-card lock"><div class="emoji-big">🔒</div><h2>LEVEL <span id="lockLvl">2</span> LOCKED</h2><button id="unlockBtn" class="btn-main">WATCH AD & UNLOCK 📺</button><button id="lockClose" class="btn-ghost">Back</button></div></div>
+<div id="levelModal" class="modal"><div class="modal-card success"><div class="emoji-big">🎉</div><h2>ALL CLEAR!</h2><p>Level <b id="lcLvl">1</b></p><div class="count">Next in <b id="countTxt">3</b>s</div></div></div>
+<div id="lockModal" class="modal"><div class="modal-card lock"><div class="emoji-big">🔒</div><h2>LVL <span id="lockLvl">2</span> LOCKED</h2><button id="unlockBtn" class="btn-main">WATCH & UNLOCK 📺</button><button id="lockClose" class="btn-ghost">Back</button></div></div>
 <div id="overModal" class="modal"><div class="modal-card over"><div class="emoji-big">💥</div><h2>TRAY FULL!</h2><button id="clearBtn" class="btn-main green">CLEAR 3 SLOTS 📺</button><button id="restartAdBtn" class="btn-ghost">Restart 📺</button><button id="overHome" class="btn-ghost">Levels</button></div></div>
 <script src="match3d.js"></script>
 </body>
