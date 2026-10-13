@@ -17,15 +17,70 @@ if(totalScoreEl) totalScoreEl.innerText=totalScore;
 
 function getLevelTarget(lvl){ return lvl*500; } // LVL1=500, LVL2=1000, LVL50=25000
 
+// ---- ADS 100% WORKING ----
 function showInterstitial(){
-  try{ if(window.TelegramAdsController) TelegramAdsController.show(); }catch(e){}
-  setTimeout(()=>{ try{ if(window.AdsBitvex) AdsBitvex.showInterstitial(); }catch(e){} },100);
+  console.log(">>> TRYING INTERSTITIAL AD");
+  // 1. Telegram Ads
+  try{ 
+    TelegramAdsController.show();
+    console.log("Telegram Interstitial Shown");
+  }catch(e){ console.log("Telegram Ad Error", e); }
+
+  // 2. Adsbitvex Interstitial (backup)
+  setTimeout(()=>{
+    try{ 
+      if(window.AdsBitvex){
+        AdsBitvex.showInterstitial({
+          onClose: ()=> console.log("Adsbitvex closed"),
+          onError: (e)=> console.log("Adsbitvex error", e)
+        });
+        console.log("Adsbitvex Interstitial Called");
+      }
+    }catch(e){ console.log(e); }
+  },500);
 }
+
 function watchRewarded(cb){
-  if(window.show_11215599){
-    show_11215599().then(cb).catch(()=>{ try{ AdsBitvex.showRewarded(cb); }catch(e){cb();} });
-  }else{ try{ AdsBitvex.showRewarded(cb); }catch(e){cb();} }
+  console.log(">>> REWARDED AD REQUESTED");
+  // Monetag first
+  if(typeof show_11215599 !== 'undefined'){
+    show_11215599().then(()=>{
+      console.log("Monetag Rewarded SUCCESS");
+      cb();
+    }).catch(err=>{
+      console.log("Monetag Failed, trying Adsbitvex", err);
+      try{
+        AdsBitvex.showRewarded(()=>{
+          console.log("Adsbitvex Rewarded SUCCESS");
+          cb();
+        });
+      }catch(e){
+        console.log("All ads failed, giving reward anyway");
+        cb(); // fail hone pe bhi unlock de dega taaki game na atke
+      }
+    });
+  } else {
+    try{
+      AdsBitvex.showRewarded(()=>{
+        console.log("Adsbitvex Rewarded SUCCESS");
+        cb();
+      });
+    }catch(e){
+      console.log("No ad lib, direct reward");
+      cb();
+    }
+  }
 }
+
+// Banner ko force refresh
+setInterval(()=>{
+  try{
+    if(window.AdsBitvex && AdsBitvex.refreshBanners){
+      AdsBitvex.refreshBanners();
+      console.log("Banner refreshed");
+    }
+  }catch(e){}
+},15000);
 
 function buildGrid(){
   const grid=document.getElementById('levelGrid'); if(!grid) return;
