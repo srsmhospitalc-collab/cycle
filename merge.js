@@ -10,7 +10,7 @@ const FRUITS=[
  {icon:"🍈",r:54,score:600,color:"#7bed9f"},
  {icon:"🍉",r:64,score:1000,color:"#2ed573"},
 ];
-let level=1, score=0, melons=0, stars=0, fruits=[], nextIdx=0, timer=60, timerInt=null, gameOver=false, lastTap=0, lastMonetag=0;
+let level=1, score=0, melons=0, fruits=[], nextIdx=0, timer=60, timerInt=null, gameOver=false, lastTap=0, lastMonetag=0;
 let unlocked=parseInt(localStorage.getItem('merge_unlocked')||'1');
 let totalStar=parseInt(localStorage.getItem('merge_stars')||'0');
 const canvas=document.getElementById('gameCanvas'); const ctx=canvas.getContext('2d');
@@ -63,13 +63,14 @@ function startLevel(lvl){
 }
 
 function updateNext(){ document.getElementById('nextFruit').innerText=FRUITS[nextIdx].icon; }
-function updateUI(){ document.getElementById('scoreTxt').innerText=score; document.getElementById('melonTxt').innerText=melons+"/"+levelConfig(level).needMelon; let s=calcStars(); document.getElementById('starTxt').innerText='⭐'.repeat(s); }
+function updateUI(){ document.getElementById('scoreTxt').innerText=score; document.getElementById('melonTxt').innerText=melons+"/"+levelConfig(level).needMelon; let s=calcStars(); document.getElementById('starTxt').innerText=s==0?'○':'⭐'.repeat(s); }
+
 function calcStars(){
- let cfg=levelConfig(level); let st=0;
- if(score>=cfg.target) st=1;
- if(melons>=cfg.needMelon) st=Math.max(st,2);
+ let cfg=levelConfig(level); 
+ if(score < cfg.target) return 0;
+ let st=1;
+ if(melons>=cfg.needMelon) st=2;
  if(score>=cfg.target*1.5 && melons>=cfg.needMelon && timer>10) st=3;
- if(score>=cfg.target && melons>=cfg.needMelon) st=Math.max(st,2);
  return st;
 }
 
@@ -89,8 +90,7 @@ function loop(){
 }
 function updatePhysics(){
  for(let f of fruits){
-   f.vy+=0.35; f.x+=f.vx; f.y+=f.vy;
-   f.vx*=0.99;
+   f.vy+=0.35; f.x+=f.vx; f.y+=f.vy; f.vx*=0.99;
    if(f.x-f.r<0){ f.x=f.r; f.vx*=-0.6; }
    if(f.x+f.r>canvas.width){ f.x=canvas.width-f.r; f.vx*=-0.6; }
    if(f.y+f.r>canvas.height){ f.y=canvas.height-f.r; f.vy*=-0.35; if(Math.abs(f.vy)<1) f.vy=0; f.vx*=0.85; }
@@ -121,7 +121,7 @@ function checkMerge(){
 }
 function checkTopLine(){
  let overCount=fruits.filter(f=>f.y-f.r<80 && Math.abs(f.vy)<0.5).length;
- if(fruits.length>12 && overCount>=3){ setTimeout(()=>{ if(fruits.filter(f=>f.y-f.r<80).length>=3) gameOver=true, showGameOver(); },800); }
+ if(fruits.length>12 && overCount>=3){ setTimeout(()=>{ if(fruits.filter(f=>f.y-f.r<80).length>=3 && !gameOver) { gameOver=true; showGameOver(); } },800); }
 }
 function draw(){
  ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -131,21 +131,29 @@ function draw(){
 }
 
 function checkWin(timeUp){
- let cfg=levelConfig(level); let s=calcStars();
- if(score>=cfg.target && melons>=cfg.needMelon){
+ let cfg=levelConfig(level); 
+ let s=calcStars();
+ if(score>=cfg.target){
    gameOver=true; clearInterval(timerInt);
-   document.getElementById('winScore').innerText=score; document.getElementById('winTarget').innerText=cfg.target;
-   document.getElementById('starBox').innerText='⭐'.repeat(s)||'○'; document.getElementById('winTitle').innerText=s==3?'PERFECT! 🎉':s==2?'LEVEL CLEAR!':'CLEAR! ⭐';
+   document.getElementById('winScore').innerText=score; 
+   document.getElementById('winTarget').innerText=cfg.target;
+   document.getElementById('starBox').innerText='⭐'.repeat(s)||'⭐';
+   document.getElementById('winTitle').innerText=s==3?'PERFECT! 🎉':s==2?'GREAT! 🍉':'LEVEL CLEAR! ⭐';
    document.getElementById('winModal').classList.add('show');
-   let prev=parseInt(localStorage.getItem('merge_star_'+level)||'0'); if(s>prev){ localStorage.setItem('merge_star_'+level,s); totalStar+=s-prev; localStorage.setItem('merge_stars',totalStar); }
+   
+   let prev=parseInt(localStorage.getItem('merge_star_'+level)||'0'); 
+   if(s>prev){ localStorage.setItem('merge_star_'+level,s); totalStar+=s-prev; localStorage.setItem('merge_stars',totalStar); }
    if(level>=unlocked && level<50){ unlocked=level+1; localStorage.setItem('merge_unlocked',unlocked); }
-   let c=3; document.getElementById('countTxt').innerText=c; let iv=setInterval(()=>{ c--; document.getElementById('countTxt').innerText=c; if(c<=0){ clearInterval(iv); document.getElementById('winModal').classList.remove('show'); showInterstitial(); setTimeout(()=>{ document.getElementById('gameScreen').classList.remove('show'); document.getElementById('levelScreen').classList.add('show'); buildGrid(); },500);} },1000);
+   
+   let c=3; document.getElementById('countTxt').innerText=c; 
+   let iv=setInterval(()=>{ c--; document.getElementById('countTxt').innerText=c; 
+   if(c<=0){ clearInterval(iv); document.getElementById('winModal').classList.remove('show'); showInterstitial(); setTimeout(()=>{ document.getElementById('gameScreen').classList.remove('show'); document.getElementById('levelScreen').classList.add('show'); buildGrid(); },500);} },1000);
  }else if(timeUp){
    gameOver=true; showGameOver();
  }
 }
 function showGameOver(){
- clearInterval(timerInt); document.getElementById('overInfo').innerText=`Score ${score} - Need ${levelConfig(level).target} & ${levelConfig(level).needMelon} 🍉`; document.getElementById('overModal').classList.add('show');
+ clearInterval(timerInt); document.getElementById('overInfo').innerText=`Score ${score} - Need ${levelConfig(level).target}`; document.getElementById('overModal').classList.add('show');
 }
 
 document.getElementById('shuffleBtn').onclick=()=>watchRewarded(()=>{ fruits.splice(0,Math.floor(fruits.length/2)); updateUI(); });
