@@ -1,181 +1,123 @@
-const tg = window.Telegram?.WebApp; tg?.expand();
-let curLevel=+localStorage.getItem('match_level')||1;
-let maxUnlock=+localStorage.getItem('match_max')||1;
-let tray=[], boardTiles=[], history=[];
-let icons=["🍎","🍌","🍇","🍓","🍒","🥝","🍍","🥥","🍑","🍋","🍉","🥭","🍈","🍐","🫐","🍏","⚽","🏀","🎮","🎲","🚗","🚀","⭐","❤️","🔥","💎","🎁","🍔","🍕","🧁"];
+const canvas=document.getElementById('game'), ctx=canvas.getContext('2d');
+const levelScreen=document.getElementById('levelScreen'), gameScreen=document.getElementById('gameScreen');
+const lvlTxt=document.getElementById('lvlTxt'), scoreTxt=document.getElementById('scoreTxt'), totalScoreEl=document.getElementById('totalScore');
+const progBar=document.getElementById('progBar'), nextEl=document.getElementById('nextFruit');
 
-// --- ADS FALLBACK ---
-async function showInterstitial(){
-  try{
-    if(window.TelegramAdsController?.triggerInterstitialBanner) await window.TelegramAdsController.triggerInterstitialBanner();
-    else await window.TelegramAdsController.triggerNativeNotification(false);
-    return true;
-  }catch{ try{ await window.showadsbitvex_init(); return true; }catch{ return false; } }
+const FRUITS=[{r:14,c:"#ff4d4d",e:"🍒",s:20},{r:19,c:"#ff8a5b",e:"🍓",s:30},{r:26,c:"#a86bff",e:"🍇",s:40},{r:31,c:"#ffcc00",e:"🍋",s:50},{r:37,c:"#ff6a00",e:"🍊",s:60},{r:43,c:"#ff2d2d",e:"🍎",s:80},{r:50,c:"#ffeb3b",e:"🍍",s:100},{r:58,c:"#4caf50",e:"🍈",s:140},{r:68,c:"#2ecc71",e:"🍉",s:220}];
+
+let fruits=[], nextType=0, score=0, level=1, gameOver=false, dropX=180;
+let totalScore = parseInt(localStorage.getItem('merge_total')||'0');
+let unlocked = parseInt(localStorage.getItem('merge_unlocked')||'1');
+totalScoreEl.innerText=totalScore;
+
+function showInterstitial(){
+  try{ TelegramAdsController.show(); }catch(e){}
+  setTimeout(()=>{ try{ AdsBitvex.showInterstitial(); }catch(e){} },800);
 }
-async function showRewarded(){
-  const s=document.getElementById('adStatus'); if(s) s.innerText='Loading ad...';
-  try{ await window.show_11215599(); if(s) s.innerText='Reward!'; return true; }
-  catch{
-    try{ await window.TelegramAdsController.triggerNativeNotification(true); return true; }
-    catch{ try{ await window.showadsbitvex(); return true; }catch{ if(s) s.innerText='Ad failed'; return false; } }
-  }
+function watchRewarded(cb){
+  if(window.show_11215599){ show_11215599().then(cb).catch(()=>{ try{ AdsBitvex.showRewarded(cb); }catch(e){cb();} }); }
+  else{ try{ AdsBitvex.showRewarded(cb); }catch(e){cb();} }
 }
 
-// --- LEVEL GRID ---
-function renderGrid(){
-  const g=document.getElementById('levelGrid'); g.innerHTML='';
-  for(let i=1;i<=100;i++){
-    const d=document.createElement('div');
-    d.className='level-cell '+(i<=maxUnlock?(i<maxUnlock?'completed':'unlocked'):'locked');
-    d.innerText=i; d.onclick=()=> openLevel(i);
-    g.appendChild(d);
+function buildGrid(){
+  const grid=document.getElementById('levelGrid'); grid.innerHTML='';
+  for(let i=1;i<=50;i++){
+    let b=document.createElement('button');
+    if(i<=unlocked){ b.className=i==unlocked?'active':'unlocked'; b.innerHTML=`${i}<small>${i*300}</small>`; b.onclick=()=>startLevel(i); }
+    else{ b.className='locked'; b.innerHTML=`🔒<small>${i*5==0?'AD':''}</small>`; if(i%5==1) b.onclick=()=>openLock(i); }
+    grid.appendChild(b);
   }
 }
-function openLevel(lvl){
-  if(lvl>maxUnlock){
-    document.getElementById('adTitle').innerText=`Level ${lvl} Locked`;
-    document.getElementById('adModal').classList.add('show');
-    document.getElementById('watchAdBtn').onclick=async()=>{
-      const btn=document.getElementById('watchAdBtn'); btn.innerText='LOADING...';
-      const ok=await showRewarded(); btn.innerText='📺 WATCH AD & UNLOCK';
-      if(ok){ maxUnlock=lvl; localStorage.setItem('match_max',maxUnlock); document.getElementById('adModal').classList.remove('show'); startLevel(lvl); }
-    }; return;
-  }
-  startLevel(lvl);
+function openLock(lvl){
+  document.getElementById('lockLvl').innerText=lvl;
+  document.getElementById('lockModal').classList.add('show');
+  document.getElementById('unlockBtn').onclick=()=> watchRewarded(()=>{
+    unlocked=lvl; localStorage.setItem('merge_unlocked',unlocked); buildGrid();
+    document.getElementById('lockModal').classList.remove('show');
+  });
 }
+
 function startLevel(lvl){
-  curLevel=lvl; localStorage.setItem('match_level',lvl);
-  document.getElementById('levelModal').classList.remove('show');
-  initLevel(lvl); renderGrid();
+  level=lvl; score=0; fruits=[]; gameOver=false;
+  lvlTxt.innerText=level; scoreTxt.innerText=`0/300`;
+  progBar.style.width='0%';
+  levelScreen.classList.remove('show'); gameScreen.classList.add('show');
+  randomNext(); update();
+}
+function goToLevels(){
+  levelScreen.classList.add('show'); gameScreen.classList.remove('show');
+  buildGrid(); totalScoreEl.innerText=totalScore;
 }
 
-// --- GAME LOGIC ---
-function initLevel(lvl){
-  const board=document.getElementById('board'); board.innerHTML='';
-  tray=[]; history=[]; boardTiles=[];
-  const difficulty = Math.min(lvl, 30);
-  const pairs = 6 + Math.floor(difficulty/2); // unique icons
-  const totalTiles = (pairs*3) + (lvl>20? 9 : 0); // always multiple of 3
-  const layers = 1 + Math.floor(lvl/15); // 3D effect
+function randomNext(){ nextType=Math.floor(Math.random()*4); nextEl.innerText=FRUITS[nextType].e; }
+function spawn(x){ fruits.push({x,y:30,vx:(Math.random()-0.5)*1.2,vy:0,type:nextType,r:FRUITS[nextType].r,stable:0}); randomNext(); }
 
-  // pick icons
-  const useIcons = icons.slice(0, pairs).sort(()=>Math.random()-0.5);
-  let tilePool=[];
-  useIcons.forEach(ic=>{ for(let k=0;k<3;k++) tilePool.push(ic); });
-  // add extra for higher levels
-  if(totalTiles>tilePool.length){ while(tilePool.length<totalTiles){ const ic=useIcons[Math.floor(Math.random()*useIcons.length)]; tilePool.push(ic); } }
-  tilePool = tilePool.slice(0, Math.floor(tilePool.length/3)*3).sort(()=>Math.random()-0.5);
+function checkLevelComplete(){
+  if(score>=300){
+    totalScore+=score; localStorage.setItem('merge_total',totalScore);
+    if(level<50 && level>=unlocked){ unlocked=level+1; localStorage.setItem('merge_unlocked',unlocked); }
+    // 3 sec congrats
+    document.getElementById('lcLvl').innerText=level;
+    document.getElementById('levelModal').classList.add('show');
+    let c=3; document.getElementById('countTxt').innerText=c;
+    let iv=setInterval(()=>{ c--; document.getElementById('countTxt').innerText=c; if(c<=0){ clearInterval(iv);
+      document.getElementById('levelModal').classList.remove('show');
+      showInterstitial(); // level ke baad interstitial
+      setTimeout(()=>goToLevels(),600);
+    }},1000);
+    gameOver=true;
+  }
+}
 
-  const W=board.clientWidth||360, H=board.clientHeight||400;
-  tilePool.forEach((icon, i)=>{
-    const x = 20 + (Math.random()*(W-80));
-    const y = 20 + (Math.random()*(H-80));
-    const layer = Math.floor(Math.random()*layers);
-    const el=document.createElement('div');
-    el.className='tile'; el.innerText=icon; el.style.left=x+'px'; el.style.top=y+'px'; el.style.zIndex=layer*10 + i;
-    el.style.transform=`scale(${0.9+layer*0.08})`;
-    el.dataset.icon=icon; el.dataset.idx=i;
-    el.onclick=()=> pickTile(el, icon);
-    board.appendChild(el);
-    boardTiles.push({el, icon, layer, x, y});
-  });
-  updateLocks(); renderTray(); document.getElementById('levelLabel').innerText='LEVEL '+lvl; document.getElementById('tilesLeft').innerText=boardTiles.length+' tiles';
-}
-function updateLocks(){
-  // simple lock: if tile overlaps 80% by higher z, lock it
-  boardTiles.forEach(t=>{
-    let locked=false;
-    boardTiles.forEach(o=>{
-      if(o===t) return;
-      if(o.layer>t.layer && Math.abs(o.x-t.x)<40 && Math.abs(o.y-t.y)<40) locked=true;
-    });
-    t.el.classList.toggle('locked', locked);
-  });
-}
-function pickTile(el, icon){
-  if(el.classList.contains('locked')) return;
-  if(tray.length>=7) return showLose();
-  history.push({boardHTML: document.getElementById('board').innerHTML, tray:[...tray], tiles:[...boardTiles]});
-  // move to tray
-  tray.push(icon);
-  el.remove();
-  boardTiles = boardTiles.filter(b=>b.el!==el);
-  renderTray(); updateLocks(); checkMatch(); checkWin();
-  document.getElementById('tilesLeft').innerText=boardTiles.length+' tiles';
-}
-function renderTray(){
-  const t=document.getElementById('tray'); t.innerHTML='';
-  tray.forEach(ic=>{
-    const d=document.createElement('div'); d.className='t-tile'; d.innerText=ic; t.appendChild(d);
-  });
-}
-function checkMatch(){
-  // count 3 same
-  const counts={};
-  tray.forEach(ic=> counts[ic]=(counts[ic]||0)+1);
-  for(let ic in counts){
-    if(counts[ic]>=3){
-      // remove 3
-      let removed=0;
-      tray = tray.filter(c=>{ if(c===ic && removed<3){ removed++; return false; } return true; });
-      renderTray();
-      // sparkle effect
-      if(navigator.vibrate) navigator.vibrate(30);
-      setTimeout(checkMatch,150);
-      break;
+function update(){
+  if(gameOver) return;
+  ctx.clearRect(0,0,360,520);
+  ctx.fillStyle="#ffffff06"; ctx.fillRect(0,0,360,520);
+  ctx.strokeStyle="#2a2a2a"; ctx.strokeRect(1,1,358,518);
+  ctx.fillStyle="#ff444422"; ctx.fillRect(0,0,360,85);
+  for(let f of fruits){
+    f.vy+=0.3; f.x+=f.vx; f.y+=f.vy; f.vx*=0.99;
+    if(f.x-f.r<2){f.x=2+f.r;f.vx*=-0.5} if(f.x+f.r>358){f.x=358-f.r;f.vx*=-0.5}
+    if(f.y+f.r>518){f.y=518-f.r;f.vy*=-0.25;f.vx*=0.8; if(Math.abs(f.vy)<0.8)f.vy=0}
+    for(let o of fruits){
+      if(f==o) continue;
+      let dx=o.x-f.x, dy=o.y-f.y, d=Math.hypot(dx,dy), minR=f.r+o.r;
+      if(d<minR && d>1){
+        if(f.type==o.type && f.type<FRUITS.length-1){
+          let nt=f.type+1; score+=FRUITS[nt].s; scoreTxt.innerText=score+"/300"; progBar.style.width=Math.min(100,score/300*100)+"%"; checkLevelComplete();
+          fruits=fruits.filter(p=>p!=f&&p!=o);
+          fruits.push({x:(f.x+o.x)/2,y:(f.y+o.y)/2,vx:0,vy:-1,type:nt,r:FRUITS[nt].r,stable:0}); break;
+        }else{ let ov=(minR-d)/2, nx=dx/d, ny=dy/d; f.x-=nx*ov; f.y-=ny*ov; o.x+=nx*ov; o.y+=ny*ov; }
+      }
     }
   }
-}
-function checkWin(){
-  if(boardTiles.length===0 && tray.length===0){
-    document.getElementById('winStats').innerText=`Level ${curLevel} cleared! ${tray.length===0?'Perfect!':''}`;
-    document.getElementById('winModal').classList.add('show');
-    showInterstitial();
+  for(let f of fruits){
+    ctx.shadowColor=f.r>40?FRUITS[f.type].c+"66":"transparent"; ctx.shadowBlur=8;
+    ctx.beginPath(); ctx.arc(f.x,f.y,f.r,0,Math.PI*2); ctx.fillStyle=FRUITS[f.type].c; ctx.fill(); ctx.shadowBlur=0;
+    ctx.fillStyle="#000"; ctx.font=`bold ${f.r*0.7}px sans-serif`; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillText(FRUITS[f.type].e,f.x,f.y+1);
   }
+  let danger=0; for(let f of fruits){ if(f.y<85 && Math.abs(f.vy)<0.3){ f.stable++; if(f.stable>70) danger++; } else f.stable=0; }
+  if(danger>=2) endGame();
+  requestAnimationFrame(update);
 }
-function showLose(){ document.getElementById('loseModal').classList.add('show'); }
+function endGame(){
+  gameOver=true; document.getElementById('overLvl').innerText=level; document.getElementById('overModal').classList.add('show');
+}
 
-// --- CONTROLS ---
-document.getElementById('gridBtn').onclick=()=>{ renderGrid(); document.getElementById('levelModal').classList.add('show'); };
-document.getElementById('closeModal').onclick=()=> document.getElementById('levelModal').classList.remove('show');
-document.getElementById('cancelAd').onclick=()=> document.getElementById('adModal').classList.remove('show');
-document.getElementById('nextBtn').onclick=()=>{
-  document.getElementById('winModal').classList.remove('show');
-  const n=curLevel+1; if(n<=100){ if(n>maxUnlock){ maxUnlock=n; localStorage.setItem('match_max',maxUnlock);} startLevel(n); }
-};
-document.getElementById('restartBtn').onclick=()=>{ document.getElementById('loseModal').classList.remove('show'); startLevel(curLevel); };
-document.getElementById('continueBtn').onclick=async()=>{
-  const ok=await showRewarded();
-  if(ok){ tray.splice(-3,3); renderTray(); document.getElementById('loseModal').classList.remove('show'); }
-};
-document.getElementById('undoBtn').onclick=()=>{
-  if(!history.length) return;
-  const h=history.pop();
-  // simple undo: restore last
-  tray=h.tray; renderTray();
-  document.getElementById('board').innerHTML=h.boardHTML;
-  // rebind clicks
-  boardTiles=[]; document.querySelectorAll('.tile').forEach(el=>{
-    const icon=el.dataset.icon; el.onclick=()=> pickTile(el, icon); boardTiles.push({el, icon, layer:0, x:0, y:0});
-  });
-  updateLocks();
-};
-document.getElementById('shuffleBtn').onclick=async()=>{
-  const ok=await showRewarded();
-  if(!ok) return;
-  const board=document.getElementById('board');
-  const tiles=[...board.children]; tiles.sort(()=>Math.random()-0.5);
-  tiles.forEach((el,i)=>{ el.style.left=20+Math.random()*(board.clientWidth-80)+'px'; el.style.top=20+Math.random()*(board.clientHeight-80)+'px'; });
-  updateLocks();
-};
-document.getElementById('hintBtn').onclick=async()=>{
-  const ok=await showRewarded(); if(!ok) return;
-  const counts={}; tray.forEach(c=> counts[c]=(counts[c]||0)+1);
-  let need=null; for(let c in counts) if(counts[c]==2){ need=c; break; }
-  if(!need) need=tray[0];
-  const found=document.querySelectorAll('.tile');
-  for(let el of found){ if(el.dataset.icon===need &&!el.classList.contains('locked')){ el.classList.add('hint'); setTimeout(()=>el.classList.remove('hint'),1500); break; } }
-};
+canvas.addEventListener('pointermove',e=>{ let r=canvas.getBoundingClientRect(); dropX=(e.clientX-r.left)*(360/r.width); });
+canvas.addEventListener('pointerdown',()=>{ if(!gameOver) spawn(Math.max(18,Math.min(342,dropX))); });
 
-// Init
-renderGrid(); startLevel(curLevel);
+document.getElementById('undoBtn').onclick=()=> watchRewarded(()=>{ if(fruits.length) fruits.pop(); });
+document.getElementById('restartBtn').onclick=()=>{ showInterstitial(); setTimeout(()=>startLevel(level),700); };
+document.getElementById('goHome').onclick=()=>{ showInterstitial(); goToLevels(); };
+document.getElementById('halfBtn').onclick=()=> watchRewarded(()=>{ fruits=fruits.sort((a,b)=>b.y-a.y).slice(0,Math.ceil(fruits.length/2)); document.getElementById('overModal').classList.remove('show'); gameOver=false; update(); });
+document.getElementById('restartAdBtn').onclick=()=>{ showInterstitial(); setTimeout(()=>{ document.getElementById('overModal').classList.remove('show'); startLevel(level); },700); };
+document.getElementById('overHome').onclick=()=>{ document.getElementById('overModal').classList.remove('show'); goToLevels(); };
+document.getElementById('lockClose').onclick=()=> document.getElementById('lockModal').classList.remove('show');
+
+// Back -> index.html
+history.pushState(null,"",location.href);
+window.onpopstate=()=>{ if(gameScreen.classList.contains('show')) goToLevels(); else location.href="index.html"; };
+if(window.Telegram?.WebApp){ Telegram.WebApp.BackButton.show(); Telegram.WebApp.BackButton.onClick(()=>{ if(gameScreen.classList.contains('show')) goToLevels(); else location.href="index.html"; }); }
+
+buildGrid();
