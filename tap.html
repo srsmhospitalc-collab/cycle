@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Tap Master - 10 Levels</title>
+<title>Tap Master</title>
 <link rel="stylesheet" href="tap.css">
-<!-- Monetag SDK - Telegram ke liye In-App -->
+<!-- Monetag SDK -->
 <script src='//libtl.com/sdk.js' data-zone='11215599' data-sdk='show_11215599'></script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -26,14 +26,17 @@
     <div class="tap-emoji">👆</div>
   </div>
 
+  <!-- Rewarded Button -->
+  <button id="rewardBtn" class="reward-btn">📺 Watch Ad +50 Taps FREE</button>
+
   <div class="stats">Total Taps: <span id="totalTaps">0</span></div>
   <div class="debug" id="debug">Ready</div>
 </div>
 
 <div id="levelPopup" class="popup hidden">
   <div class="popup-box">
-    <h2 id="popupTitle">Level 1 Complete! 🎉</h2>
-    <p>Ad loading for next level...</p>
+    <h2 id="popupTitle"></h2>
+    <p>Next level loading...</p>
     <button id="nextBtn">NEXT LEVEL ▶</button>
   </div>
 </div>
