@@ -14,16 +14,6 @@ const LEVEL_CONFIG = { 1:{tubes:4,colors:2},2:{tubes:4,colors:2},3:{tubes:5,colo
 
 // === AD LOGIC: OnClicka -> Adsbitvex -> Monetag ===
 function showInterstitialFallback(onDone){
-    if(typeof window.showInpageOnClicka === 'function'){
-        console.log('Trying OnClicka Inpage 6152854');
-        window.showInpageOnClicka().then(()=>{ console.log('OnClicka Inpage OK'); onDone(); }).catch(()=>{
-            console.log('OnClicka Inpage fail -> Adsbitvex Init');
-            tryFallbackInit(onDone);
-        });
-        return;
-    }
-    tryFallbackInit(onDone);
-    function tryFallbackInit(cb){
         if(typeof window.showadsbitvex_init === 'function'){
             window.showadsbitvex_init().then(cb).catch(()=>cb());
         } else { cb(); }
@@ -34,25 +24,14 @@ function showRewardedWithFallback(onReward){
     if(typeof show_11215599 === 'function'){
         console.log('Trying Monetag Rewarded 11215599');
         show_11215599().then(onReward).catch(()=>{
-            console.log('Monetag Rewarded fail -> Adsbitvex');
+            console.log('Monetag Rewarded');
             tryFallbackRewarded(onReward);
         });
         return;
     }
-    tryFallbackRewarded(onReward);
 }
 
-function tryFallbackRewarded(onReward){
-    if(typeof window.showadsbitvex === 'function'){
-        console.log('Trying Adsbitvex Rewarded');
-        window.showadsbitvex().then(()=>{ console.log('Adsbitvex OK'); onReward(); }).catch(()=>{
-            console.log('Adsbitvex fail');
-            tg.showAlert('Ad pura dekho tabhi reward milega');
-        });
-        return;
-    }
-    tg.showAlert('No Ad Available');
-}
+
 
 function getLevelConfig(lvl){ if(LEVEL_CONFIG[lvl]) return LEVEL_CONFIG[lvl]; const colors=Math.min(3+Math.floor(lvl/5),8); return {tubes:colors+2, colors}; }
 function generateLevel(lvl){
