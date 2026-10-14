@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tap Master - 10 Levels</title>
+<link rel="stylesheet" href="tap.css">
+<!-- Monetag Interstitial Only -->
+<script src='//libtl.com/sdk.js' data-zone='11215599' data-sdk='show_11215599'></script>
+</head>
+<body>
+<div id="game">
+  <div class="top-bar">
+    <a href="index.html" class="backBtn">← Back</a>
+    <div class="level">Level <span id="levelCount">1</span>/10</div>
+  </div>
+  
+  <div class="progress-box">
+    <div class="progress-bar"><div id="progress"></div></div>
+    <div class="tap-info"><span id="tapCount">0</span> / 100 Taps</div>
+  </div>
+
+  <div class="tap-area" id="tapBtn">
+    <div class="tap-text">TAP!</div>
+    <div class="tap-emoji">👆</div>
+  </div>
+
+  <div class="stats">Total Taps: <span id="totalTaps">0</span></div>
+</div>
+
+<div id="levelPopup" class="popup hidden">
+  <div class="popup-box">
+    <h2 id="popupTitle">Level 1 Complete! 🎉</h2>
+    <p>Next level loading...</p>
+    <button id="nextBtn">NEXT LEVEL ▶</button>
+  </div>
+</div>
+
+<script src="tap.js"></script>
+</body>
+</html>
