@@ -12,18 +12,49 @@ const progressEl = document.getElementById('progress');
 const popup = document.getElementById('levelPopup');
 const popupTitle = document.getElementById('popupTitle');
 const nextBtn = document.getElementById('nextBtn');
+const debugEl = document.getElementById('debug');
 
-// Monetag Interstitial Function - Har Level ke Baad
+// Telegram Init
+if(window.Telegram && window.Telegram.WebApp){
+  window.Telegram.WebApp.ready();
+  window.Telegram.WebApp.expand();
+  debugEl.innerText = "Telegram Mode";
+}else{
+  debugEl.innerText = "Browser Mode";
+}
+
+// Telegram Fix Interstitial
 function showInterstitialAd(callback){
+  debugEl.innerText = "Ad loading...";
+  
   if(typeof show_11215599 === 'function'){
-    show_11215599().then(()=>{
-      console.log("Interstitial shown");
-      if(callback) callback();
-    }).catch(()=>{
-      console.log("Ad fail, continue");
-      if(callback) callback();
+    // Ye type inApp Telegram me zaroori hai
+    const adPromise = show_11215599({
+      type: 'inApp',
+      inAppSettings: {
+        frequency: 2,
+        capping: 0.1,
+        interval: 30,
+        timeout: 5,
+        everyPage: false
+      }
     });
+
+    if(adPromise && adPromise.then){
+      adPromise.then(()=>{
+        debugEl.innerText = "Ad shown ✓";
+        if(callback) callback();
+      }).catch((e)=>{
+        debugEl.innerText = "Ad failed, continue";
+        console.log(e);
+        if(callback) callback();
+      });
+    }else{
+      debugEl.innerText = "SDK no promise";
+      if(callback) callback();
+    }
   }else{
+    debugEl.innerText = "SDK not loaded";
     if(callback) callback();
   }
 }
@@ -34,13 +65,8 @@ function handleTap(){
   tapCountEl.innerText = tapsInLevel;
   totalTapsEl.innerText = totalTaps;
   progressEl.style.width = (tapsInLevel / tapsNeeded * 100) + "%";
-
-  // Vibration effect
-  if(navigator.vibrate) navigator.vibrate(30);
-
-  if(tapsInLevel >= tapsNeeded){
-    levelComplete();
-  }
+  if(navigator.vibrate) navigator.vibrate(20);
+  if(tapsInLevel >= tapsNeeded) levelComplete();
 }
 
 function levelComplete(){
@@ -51,23 +77,24 @@ function levelComplete(){
     popup.querySelector('p').innerText = `Total ${totalTaps} Taps!`;
     nextBtn.innerText = "PLAY AGAIN 🔄";
     popup.classList.remove('hidden');
-    
     // Last level ke baad bhi ad
-    showInterstitialAd(()=>{});
+    setTimeout(()=>{ showInterstitialAd(()=>{}); }, 300);
     return;
   }
 
   popupTitle.innerText = `Level ${currentLevel} Complete! 🎉`;
+  popup.querySelector('p').innerText = `Level ${currentLevel + 1} ke liye ad...`;
   popup.classList.remove('hidden');
 
-  // Level complete hote hi interstitial dikhao
-  showInterstitialAd(()=>{});
+  // Har level ke baad ad - 500ms delay taaki Telegram click samjhe
+  setTimeout(()=>{
+    showInterstitialAd(()=>{});
+  }, 500);
 }
 
 nextBtn.addEventListener('click', ()=>{
   popup.classList.add('hidden');
   if(currentLevel >= maxLevel){
-    // Reset game
     currentLevel = 1;
     totalTaps = 0;
     totalTapsEl.innerText = 0;
@@ -79,8 +106,9 @@ nextBtn.addEventListener('click', ()=>{
   levelCountEl.innerText = currentLevel;
   progressEl.style.width = "0%";
   tapBtn.style.pointerEvents = "auto";
+  debugEl.innerText = currentLevel > 1 ? `Level ${currentLevel} started` : "Ready";
 });
 
-// Tap events - mobile + desktop
-tapBtn.addEventListener('touchstart', (e)=>{ e.preventDefault(); handleTap(); });
+// Tap events
+tapBtn.addEventListener('touchstart', (e)=>{ e.preventDefault(); handleTap(); }, {passive:false});
 tapBtn.addEventListener('click', handleTap);
