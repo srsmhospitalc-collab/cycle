@@ -1,0 +1,18 @@
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{background:#0f0f0f;color:#fff;display:flex;justify-content:center;align-items:center;min-height:100vh}
+#game{width:95%;max-width:400px;background:#1a1a1a;border-radius:20px;padding:15px;border:2px solid #333}
+.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.backBtn{background:#222;color:#fff;text-decoration:none;padding:8px 14px;border-radius:8px;font-size:14px;border:1px solid #444;transition:0.2s}
+.backBtn:hover{background:#ffcc00;color:#000}
+.coins{background:#333;padding:5px 12px;border-radius:20px;font-weight:bold}
+.header{text-align:center;margin-bottom:15px}
+.header h1{font-size:22px;color:#ffcc00;letter-spacing:1px}
+.road{height:300px;background:#222;position:relative;border-radius:15px;overflow:hidden;border:2px dashed #444}
+.car{position:absolute;left:50%;top:20px;transform:translateX(-50%);font-size:50px;transition:top 0.6s cubic-bezier(.17,.67,.83,.67)}
+.wall{margin-top:15px;background:#ff3333;text-align:center;padding:15px;border-radius:10px;font-weight:bold;letter-spacing:2px}
+.controls{display:flex;gap:10px;margin-top:15px}
+.controls button{flex:1;padding:14px;border:none;border-radius:10px;font-weight:bold;cursor:pointer}
+#crashBtn{background:#ffcc00;color:#000}
+#doubleBtn{background:#333;color:#ffcc00;border:1px solid #ffcc00}
+.crash-anim{animation:shake 0.3s 3}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
