@@ -7,43 +7,41 @@
   <title>SFA Games</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-  <!-- Adsbitvex + Monetag as Fallback -->
   <script src="https://sdk.adsbitvex.com/functions/v1/ad-script?appid=000468"></script>
   <script src='//libtl.com/sdk.js' data-zone='11215599' data-sdk='show_11215599'></script>
-
   <style>
     body { overflow-y: auto!important; height: auto!important; padding-bottom: 90px!important; }
-   .container { height: auto!important; min-height: 100vh; overflow-y: auto!important; }
+    .container { height: auto!important; min-height: 100vh; overflow-y: auto!important; }
     #gameScreen { overflow-y: auto!important; height: auto!important; }
-   .tubes-container { max-height: 55vh; overflow-y: auto; padding: 10px; padding-bottom: 30px; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+    .tubes-container { max-height: 55vh; overflow-y: auto; padding: 10px; padding-bottom: 30px; -webkit-overflow-scrolling: touch; }
+    #gameWrapper { display:none; position:fixed; inset:0; z-index:99999; background:#121212; }
+    #gameWrapper iframe { width:100%; height:100%; border:0; }
+    #closeGame { position:absolute; top:10px; left:10px; z-index:100000; background:#ffcc00; color:#000; border:0; padding:8px 14px; border-radius:8px; font-weight:bold; }
   </style>
 </head>
-  <div data-abx-banner="3c76eab41644" data-abx-w="320" data-abx-h="50" style="display:inline-block;width:320px;height:50px;line-height:0"></div>
-<script async src="https://sdk.adsbitvex.com/functions/v1/banner-serve?action=sdk"></script>
 <body>
 <div class="container">
     <div id="homeScreen" class="screen active">
         <h1>SFA Games</h1>
-        <p style="color:#666;margin-bottom:40px;text-align:center;font-size:16px">PLAY & FUN</p>
+        <p style="color:#666;margin-bottom:20px;text-align:center;font-size:16px">PLAY & FUN</p>
+        
+        <!-- Banner yaha andar lagao, bahar nahi -->
+        <div style="text-align:center;margin-bottom:15px;">
+          <div data-abx-banner="3c76eab41644" data-abx-w="320" data-abx-h="50" style="display:inline-block;width:320px;height:50px;line-height:0"></div>
+        </div>
+
         <div style="text-align:center">
-            <button class="btn" onclick="showLevelSelect()">Ball Sort</button>
-          <br><br>
-    <button class="btn" onclick="(function(){let w=document.getElementById('g2048W');if(!w){w=document.createElement('div');w.id='g2048W';w.style='position:fixed;inset:0;z-index:99999;background:#121212';w.innerHTML='<iframe id=\'g2048F\' style=\'width:100%;height:100%;border:0\'></iframe>';document.body.appendChild(w);}document.getElementById('g2048F').src='2048.html';w.style.display='block';})()">2048 GAME</button>
-          <br><br>
-    <button class="btn" onclick="(function(){let w=document.getElementById('g2048W');if(!w){w=document.createElement('div');w.id='g2048W';w.style='position:fixed;inset:0;z-index:99999;background:#121212';w.innerHTML='<iframe id=\'g2048F\' style=\'width:100%;height:100%;border:0\'></iframe>';document.body.appendChild(w);}document.getElementById('g2048F').src='block.html';w.style.display='block';})()">Block Brick</button>
-          <br><br>
-    <button class="btn" onclick="(function(){let w=document.getElementById('g2048W');if(!w){w=document.createElement('div');w.id='g2048W';w.style='position:fixed;inset:0;z-index:99999;background:#121212';w.innerHTML='<iframe id=\'g2048F\' style=\'width:100%;height:100%;border:0\'></iframe>';document.body.appendChild(w);}document.getElementById('g2048F').src='match3d.html';w.style.display='block';})()">Match 3D</button>
-       <br><br>
-    <button class="btn" onclick="(function(){let w=document.getElementById('g2048W');if(!w){w=document.createElement('div');w.id='g2048W';w.style='position:fixed;inset:0;z-index:99999;background:#121212';w.innerHTML='<iframe id=\'g2048F\' style=\'width:100%;height:100%;border:0\'></iframe>';document.body.appendChild(w);}document.getElementById('g2048F').src='fruit.html';w.style.display='block';})()">Fruit collect</button>
-     <br><br>
-    <button class="btn" onclick="(function(){let w=document.getElementById('g2048W');if(!w){w=document.createElement('div');w.id='g2048W';w.style='position:fixed;inset:0;z-index:99999;background:#121212';w.innerHTML='<iframe id=\'g2048F\' style=\'width:100%;height:100%;border:0\'></iframe>';document.body.appendChild(w);}document.getElementById('g2048F').src='merge.html';w.style.display='block';})()">Fruit Merge</button>
-      <br><br>
-    <button class="btn" onclick="(function(){let w=document.getElementById('g2048W');if(!w){w=document.createElement('div');w.id='g2048W';w.style='position:fixed;inset:0;z-index:99999;background:#121212';w.innerHTML='<iframe id=\'g2048F\' style=\'width:100%;height:100%;border:0\'></iframe>';document.body.appendChild(w);}document.getElementById('g2048F').src='crash.html';w.style.display='block';})()">Crash & Run</button>
-       <br><br>
-    <button class="btn" onclick="(function(){let w=document.getElementById('g2048W');if(!w){w=document.createElement('div');w.id='g2048W';w.style='position:fixed;inset:0;z-index:99999;background:#121212';w.innerHTML='<iframe id=\'g2048F\' style=\'width:100%;height:100%;border:0\'></iframe>';document.body.appendChild(w);}document.getElementById('g2048F').src='tap.html';w.style.display='block';})()">Tap</button>
+            <button class="btn" onclick="showLevelSelect()">Ball Sort</button><br><br>
+            <button class="btn" onclick="openGame('2048.html')">2048 GAME</button><br><br>
+            <button class="btn" onclick="openGame('block.html')">Block Brick</button><br><br>
+            <button class="btn" onclick="openGame('match3d.html')">Match 3D</button><br><br>
+            <button class="btn" onclick="openGame('fruit.html')">Fruit collect</button><br><br>
+            <button class="btn" onclick="openGame('merge.html')">Fruit Merge</button><br><br>
+            <button class="btn" onclick="openGame('crash.html')">Crash & Run</button><br><br>
+            <button class="btn" onclick="openGame('tap.html')">Tap</button>
          </div>
       </div>
+
     <div id="levelScreen" class="screen">
         <h2 style="margin-bottom:15px;text-align:center;color:#4a90e2">SELECT LEVEL</h2>
         <div class="level-grid" id="levelGrid"></div>
@@ -51,6 +49,7 @@
             <button class="btn" onclick="showHome()">⬅ BACK</button>
         </div>
     </div>
+
     <div id="gameScreen" class="screen">
         <div class="game-header">
             <button class="icon-btn" onclick="showLevelSelect()">←</button>
@@ -66,6 +65,28 @@
       <button id="unlockBtn" style="display:none;">🔓 Level Unlock karne ke liye Ad Dekho</button>
     </div>
 </div>
+
+<!-- Ek hi Wrapper sab games ke liye -->
+<div id="gameWrapper">
+  <button id="closeGame" onclick="closeGame()">← BACK</button>
+  <iframe id="gameFrame" src=""></iframe>
+</div>
+
+<script async src="https://sdk.adsbitvex.com/functions/v1/banner-serve?action=sdk"></script>
 <script src="game.js"></script>
+<script>
+function openGame(src){
+  document.getElementById('gameFrame').src = src;
+  document.getElementById('gameWrapper').style.display = 'block';
+}
+function closeGame(){
+  document.getElementById('gameWrapper').style.display = 'none';
+  document.getElementById('gameFrame').src = '';
+  // Game band karte hi Interstitial
+  if(typeof show_11215599 === 'function'){
+    show_11215599({type:'inApp'});
+  }
+}
+</script>
 </body>
 </html>
