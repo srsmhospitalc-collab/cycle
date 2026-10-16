@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Gummy Galaxy</title>
+<link rel="stylesheet" href="candy.css">
+<script src="https://telegram.org/js/telegram-web-app.js?56"></script>
+<script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
+<script>
+  window.TelegramAdsController = new TelegramAdsController();
+  window.TelegramAdsController.initialize({
+    pubId: "1013423",
+    appId: "7744"
+  });
+</script>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo"><span>🍬</span> GUMMY GALAXY</div>
+    <div class="stats">
+      <div class="stat"><span>LEVEL</span><b id="levelTxt">1</b></div>
+      <div class="stat"><span>SCORE</span><b id="scoreTxt">0</b></div>
+      <div class="stat"><span>MOVES</span><b id="movesTxt">25</b></div>
+    </div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-bar"><div id="progressFill"></div></div>
+    <div class="target">Target: <b id="targetTxt">800</b></div>
+  </div>
+  <div class="board-container"><div id="board" class="board"></div></div>
+  <div class="bottom-panel">
+    <div class="embed-ad" id="embedAd"><span class="ad-label">AD</span><div class="ad-content">🎁 Play & Earn</div></div>
+    <div class="controls"><button id="hintBtn">💡 Hint</button><button id="shuffleBtn">🔀 Shuffle</button></div>
+  </div>
+  <!-- Modals same as generated file -->
+  <div id="levelModal" class="modal hidden"><div class="modal-card"><h2 id="modalTitle">Level Complete!</h2><p id="modalScore"></p><button id="nextBtn" class="primary-btn">Next Level 🚀</button></div></div>
+  <div id="lockedModal" class="modal hidden"><div class="modal-card locked-card"><div>🔒</div><h2>Level <span id="lockedLevel">5</span> Locked!</h2><button id="unlockBtn" class="primary-btn reward-btn">🎥 Watch & Unlock</button></div></div>
+</div>
+<script src="candy.js"></script>
+</body>
+</html>
