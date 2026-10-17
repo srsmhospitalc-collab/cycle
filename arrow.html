@@ -6,24 +6,28 @@
 <title>Arrow Escape</title>
 <link rel="stylesheet" href="arrow.css">
 
-<!-- 1. Telegram wala - Head me -->
 <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
-
-<!-- 2. Adexium wala - Head me -->
 <script src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
 <script>
   let adexiumWidget;
   document.addEventListener('DOMContentLoaded', () => {
+    // Telegram ready karna zaroori hai
+    if(window.Telegram && Telegram.WebApp) Telegram.WebApp.ready();
+    
     adexiumWidget = new AdexiumWidget({
       wid: 'eb8fe161-d2d4-4452-865e-f7565c5f0e43',
-      adFormat: 'interstitial'
+      adFormat: 'interstitial',
+      debug: true // Test ad lane ke liye
     });
-    // autoMode() MAT lagana game me
+    console.log("Adexium Initialized");
   });
 
   function showAd(){
+    console.log("Trying to show ad...");
     if(adexiumWidget){
-      adexiumWidget.showAd(); // Jab tu bolega tabhi ad ayega
+      adexiumWidget.showAd().then(()=>console.log("Ad shown")).catch(e=>console.log("Ad error",e));
+    } else {
+      console.log("Widget not ready");
     }
   }
 </script>
