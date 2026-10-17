@@ -52,41 +52,17 @@ if(centerWatchBtn){
     if(levelToUnlock%5!==0 && lastCompleted < levelToUnlock-1){ hideCenterModal(); return; }
     let btn=this; btn.innerText="Ad Loading...";
 
-    const onSuccessAdsbitvex=()=>{
-      let c = parseInt(localStorage.getItem('adsv_count')||'0') + 1;
-      localStorage.setItem('adsv_count', c);
-      if(c >= 10){
-        localStorage.setItem('adsv_block_till', Date.now() + 15*60*60*1000);
-      }
-      if(!adUnlockedLevels.includes(levelToUnlock)){ adUnlockedLevels.push(levelToUnlock); localStorage.setItem("adUnlockedLevels", JSON.stringify(adUnlockedLevels)); }
-      hideCenterModal(); startLevel(levelToUnlock);
-    };
     const onSuccessMonetag=()=>{
       if(!adUnlockedLevels.includes(levelToUnlock)){ adUnlockedLevels.push(levelToUnlock); localStorage.setItem("adUnlockedLevels", JSON.stringify(adUnlockedLevels)); }
       hideCenterModal(); startLevel(levelToUnlock);
     };
     const onFail=()=>{ btn.innerText="🔄 Retry Karo"; };
-    const showMonetag = () => {
-      if(typeof show_11215599 === 'function'){
-        show_11215599().then(onSuccessMonetag).catch(onFail);
-      } else if(window.TelegramAdsController){
-        window.TelegramAdsController.triggerRewardedAd().then(onSuccessMonetag).catch(onFail);
-      } else onFail();
-    };
-    let count = parseInt(localStorage.getItem('adsv_count')||'0');
-    let blockTill = parseInt(localStorage.getItem('adsv_block_till')||'0');
-    if(blockTill && Date.now() < blockTill){
-      showMonetag();
-      return;
-    }
-    if(blockTill && Date.now() >= blockTill){
-      localStorage.setItem('adsv_count','0');
-      localStorage.setItem('adsv_block_till','0');
-    }
-    if(typeof window.showadsbitvex==='function'){
-      window.showadsbitvex().then(onSuccessAdsbitvex).catch(()=>{ showMonetag(); });
+
+    // REWARDED = SIRF MONETAG
+    if(typeof show_11215599 === 'function'){
+      show_11215599().then(onSuccessMonetag).catch(onFail);
     } else {
-      showMonetag();
+      onFail();
     }
   };
 }
@@ -104,17 +80,34 @@ function showInterstitialCascade(cb){
   let finished=false;
   const timer=setTimeout(()=>{ if(!finished){ finished=true; isAdShowing=false; cb(); } }, 4000);
   const safeFinish=()=>{ if(finished) return; finished=true; clearTimeout(timer); isAdShowing=false; cb(); };
+
+  const tryMonetag = () => {
+    try{
+      if(typeof show_11215599 === 'function'){
+        show_11215599({
+          type: 'inApp',
+          inAppSettings: { frequency:2, capping:0.1, interval:30, timeout:5, everyPage:false }
+        });
+      }
+    }catch(e){}
+    setTimeout(safeFinish, 500);
+  };
+
   try{
-    if(window.TelegramAdsController && window.TelegramAdsController.triggerInterstitial){
-      window.TelegramAdsController.triggerInterstitial().then(safeFinish).catch(safeFinish);
-    } else if(typeof window.showadsbitvex_init==='function'){
-      window.showadsbitvex_init().then(safeFinish).catch(safeFinish);
-    } else safeFinish();
-  }catch(e){ safeFinish(); }
+    // INTERSTITIAL = RICHADS PAHLE
+    if(window.TelegramAdsController && window.TelegramAdsController.triggerInterstitialBanner){
+      window.TelegramAdsController.triggerInterstitialBanner().then(safeFinish).catch(()=>{
+        // RichAds fail to Monetag
+        tryMonetag();
+      });
+    } else {
+      tryMonetag();
+    }
+  }catch(e){ tryMonetag(); }
 }
 
 function showLevel3MonetagInterstitial(cb){
-  // Screenshot wala - ONLY LEVEL 3
+  // Screenshot wala - ONLY LEVEL 3 - SIRF MONETAG
   if(typeof show_11215599 === 'function'){
     try{
       show_11215599({
@@ -150,7 +143,6 @@ function levelComplete(){
   const goNext=()=>{ isAdShowing=false; showLevelScreen(); };
 
   if(level === 3){
-    // Level 3 pe SIRF wahi In-App Interstitial
     showLevel3MonetagInterstitial(goNext);
   } else if(shouldShowInterstitial(level)){
     showInterstitialCascade(goNext);
