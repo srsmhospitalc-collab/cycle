@@ -5,8 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Block Blast</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<!-- 1. RichAds SDK - LIVE -->
+<script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
+<script>
+  try {
+    window.TelegramAdsController = new TelegramAdsController();
+    window.TelegramAdsController.initialize({
+      pubId: "1013423",
+      appId: "7744",
+      debug: false
+    });
+  } catch(e) { console.log('RichAds init fail:', e) }
+</script>
+
+<!-- 2. Monetag SDK - LIVE -->
 <script src='//libtl.com/sdk.js' data-zone='11215599' data-sdk='show_11215599'></script>
-<script async src="https://sdk.adsbitvex.com/functions/v1/banner-serve?action=sdk"></script>
+
 <link rel="stylesheet" href="block.css">
 </head>
 <body>
@@ -15,11 +30,6 @@
 <div class="top" style="position:sticky;top:0;z-index:10;">
   <a href="index.html" style="text-decoration:none;font-size:22px;font-weight:bold;color:#fff;padding:8px 12px;">←</a>
   <span>🧱 Block Blast</span>
-</div>
-
-<!-- Banner -->
-<div style="width:100%;display:flex;justify-content:center;padding:6px 0;">
-  <div data-abx-banner="3c76eab41644" data-abx-w="320" data-abx-h="50" style="display:inline-block;width:320px;height:50px;line-height:0"></div>
 </div>
 
 <div id="levelScreen">
