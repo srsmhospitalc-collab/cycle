@@ -12,47 +12,85 @@ let extraTubeUsed = false;
 const COLORS = ['#ef4444', '#3b82f6', '#22c55e', '#eab308', '#a855f7', '#ec4899', '#f97316', '#06b6d4', '#84cc16', '#6366f1'];
 const LEVEL_CONFIG = { 1:{tubes:4,colors:2},2:{tubes:4,colors:2},3:{tubes:5,colors:3},4:{tubes:5,colors:3},5:{tubes:6,colors:4},10:{tubes:7,colors:5},15:{tubes:8,colors:6},20:{tubes:9,colors:7} };
 
-// === FINAL AD SETUP ===
-// Interstitial = Adsbitvex
-// Rewarded = Monetag 11215599
+// === FINAL AD SETUP - RICHADS FIRST + MONETAG ===
+// Interstitial = RichAds Telegram + Monetag 11215599
+// Rewarded = RichAds Telegram + Monetag 11215599
+
+// RichAds Controller Init
+try {
+    if(typeof TelegramAdsController !== 'undefined'){
+        window.TelegramAdsController = window.TelegramAdsController || new TelegramAdsController();
+        window.TelegramAdsController.initialize({
+            pubId: "1013423",
+            appId: "410286"
+        });
+    }
+} catch(e){ console.log('RichAds init error', e); }
 
 function showInterstitialFallback(onDone){
     let done = () => { if(onDone) onDone(); };
-    console.log('Adsbitvex Interstitial Try');
+    console.log('Interstitial Try - RichAds First');
 
+    // 1. Pahle RichAds
     try{
-        if(typeof window.showAdsbitvexInterstitial === 'function'){
-            window.showAdsbitvexInterstitial().then(done).catch(done);
+        if(window.TelegramAdsController && window.TelegramAdsController.triggerInterstitialBanner){
+            window.TelegramAdsController.triggerInterstitialBanner().then(done).catch(()=>{
+                // 2. RichAds fail to Monetag
+                tryMonetagInterstitial(done);
+            });
             return;
         }
-        if(typeof window.showadsbitvex_init === 'function'){
-            let p = window.showadsbitvex_init();
-            if(p && p.then){ p.then(done).catch(done); }
-            else { setTimeout(done, 1200); }
-            return;
-        }
-        if(window.adsbitvex && window.adsbitvex.show){
-            window.adsbitvex.show().then(done).catch(done);
-            return;
-        }
-    }catch(e){ console.log('Adsbitvex error', e); }
-    done();
+    }catch(e){ console.log('RichAds Interstitial error', e); }
+
+    // Fallback Monetag
+    tryMonetagInterstitial(done);
 }
 
-function showRewardedWithFallback(onReward){
-    let rewardedDone = () => { if(onReward) onReward(); };
-    console.log('Monetag Rewarded Try 11215599');
-
+function tryMonetagInterstitial(onDone){
     if(typeof show_11215599 === 'function'){
         show_11215599({
             type: 'inApp',
             inAppSettings: { frequency:2, capping:0.1, interval:30, timeout:5, everyPage:false }
-        }).then(rewardedDone).catch((e)=>{
+        }).then(onDone).catch(()=>{ onDone(); });
+    } else {
+        onDone();
+    }
+}
+
+function showRewardedWithFallback(onReward){
+    let rewardedDone = () => { if(onReward) onReward(); };
+    console.log('Rewarded Try - RichAds First 11215599');
+
+    // 1. Pahle RichAds Rewarded
+    try{
+        if(window.TelegramAdsController && window.TelegramAdsController.triggerInterstitialBanner){
+            window.TelegramAdsController.triggerInterstitialBanner(true).then((result)=>{
+                console.log('RichAds Rewarded success', result);
+                rewardedDone();
+            }).catch(()=>{
+                // 2. RichAds fail to Monetag Rewarded
+                tryMonetagRewarded(rewardedDone);
+            });
+            return;
+        }
+    }catch(e){ console.log('RichAds Rewarded error', e); }
+
+    tryMonetagRewarded(rewardedDone);
+}
+
+function tryMonetagRewarded(onReward){
+    if(typeof show_11215599 === 'function'){
+        show_11215599({
+            type: 'inApp',
+            inAppSettings: { frequency:2, capping:0.1, interval:30, timeout:5, everyPage:false }
+        }).then(onReward).catch((e)=>{
             console.log('Monetag Rewarded fail/skip', e);
+            // Agar Monetag bhi nahi to bhi reward de do taaki game na atke
+            // onReward(); // Chaho to comment hatake test ke liye de sakta hai
         });
     } else {
-        console.log('Monetag SDK not found, giving reward for test');
-        rewardedDone();
+        console.log('Monetag SDK not found');
+        onReward();
     }
 }
 
