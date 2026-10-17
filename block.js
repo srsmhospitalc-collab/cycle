@@ -8,29 +8,51 @@ const TOTAL_LEVELS=50;
 // TARGET 300,600,900...
 function getTarget(l){ return l*300; }
 
-// === TERA DIYA HUA REWARDED POPUP ===
+// === REWARDED = SIRF MONETAG ===
 function showRewarded(){
   return new Promise((resolve, reject)=>{
-    show_11215599().then(() => {
-        resolve();
-    }).catch(e => {
-        reject(e);
-    });
+    if(typeof show_11215599 === 'function'){
+      show_11215599().then(() => {
+          resolve();
+      }).catch(e => {
+          reject(e);
+      });
+    } else {
+      reject('Monetag not loaded');
+    }
   });
 }
 
-// === TERA DIYA HUA IN-APP INTERSTITIAL ===
+// === INTERSTITIAL = RICHADS PAHLE + MONETAG BAAD ME ===
 function showInterstitial(){
-  show_11215599({
-    type: 'inApp',
-    inAppSettings: {
-      frequency: 2,
-      capping: 0.1,
-      interval: 30,
-      timeout: 5,
-      everyPage: false
+  try {
+    if(window.TelegramAdsController && window.TelegramAdsController.triggerInterstitialBanner){
+      window.TelegramAdsController.triggerInterstitialBanner().then(()=>{
+        console.log('RichAds Interstitial shown');
+      }).catch(()=>{
+        // RichAds fail to Monetag
+        tryMonetagInterstitial();
+      });
+      return;
     }
-  });
+  } catch(e){ console.log('RichAds error', e); }
+  
+  tryMonetagInterstitial();
+}
+
+function tryMonetagInterstitial(){
+  if(typeof show_11215599 === 'function'){
+    show_11215599({
+      type: 'inApp',
+      inAppSettings: {
+        frequency: 2,
+        capping: 0.1,
+        interval: 30,
+        timeout: 5,
+        everyPage: false
+      }
+    });
+  }
 }
 
 function buildLevelScreen(){
