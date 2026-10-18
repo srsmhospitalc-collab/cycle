@@ -17,13 +17,73 @@ function checkGameState(){if(score>=target){if(level%2==0){triggerAd('interstiti
 function showLevelComplete(){document.getElementById('modalTitle').textContent=`Level ${level} Complete!`;document.getElementById('modalScore').textContent=`Score: ${score} / ${target}`;document.getElementById('adInfo').textContent=level%2==0?'🎬 Interstitial Ad shown':'✨ Bonus ready';levelModal.classList.remove('hidden');}
 function showLockedLevel(nextLevel){document.getElementById('lockedLevel').textContent=nextLevel;lockedModal.classList.remove('hidden');}
 function updateUI(){scoreTxt.textContent=score;movesTxt.textContent=moves;let pct=Math.min(100,Math.floor((score/target)*100));progressFill.style.width=pct+'%';}
-function triggerAd(type,log){console.log('Ad Trigger:',type,log);try{if(type==='interstitial'){if(window.TelegramAdsController&&window.TelegramAdsController.triggerInterstitialBanner){window.TelegramAdsController.triggerInterstitialBanner().then(r=>console.log('Interstitial clicked',r)).catch(e=>console.log('Interstitial no fill',e));}if(window.TelegramAdsController&&window.TelegramAdsController.triggerNativeNotification){window.TelegramAdsController.triggerNativeNotification(false).catch(()=>{});}}else if(type==='rewarded'){if(window.TelegramAdsController&&window.TelegramAdsController.triggerInterstitialVideo){window.TelegramAdsController.triggerInterstitialVideo().then(r=>{console.log('Rewarded success',r);onRewardedSuccess();}).catch(e=>{console.log('Rewarded fail',e);onRewardedSuccess();});}else if(window.TelegramAdsController&&window.TelegramAdsController.triggerNativeNotification){window.TelegramAdsController.triggerNativeNotification(true).then(r=>onRewardedSuccess()).catch(()=>onRewardedSuccess());}else{onRewardedSuccess();}}}catch(e){console.log('Ad error',e)}}
+
+// === FINAL AD LOGIC ===
+function showMonetagInterstitial(){
+  if(typeof show_11215599 === 'function'){
+    try{
+      show_11215599({
+        type: 'inApp',
+        inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
+      });
+    }catch(e){ console.log('Monetag Interstitial error', e); }
+  }
+}
+
+function showMonetagRewarded(){
+  return new Promise((resolve, reject)=>{
+    if(typeof show_11215599 === 'function'){
+      show_11215599().then(resolve).catch(reject);
+    } else {
+      reject('Monetag not loaded');
+    }
+  });
+}
+
+function triggerAd(type,log){
+  console.log('Ad Trigger:',type,log);
+  try{
+    if(type==='interstitial'){
+      // INTERSTITIAL = RICHADS PAHLE, MONETAG BAAD ME
+      if(window.TelegramAdsController && window.TelegramAdsController.triggerInterstitialBanner){
+        window.TelegramAdsController.triggerInterstitialBanner().then(r=>{
+          console.log('RichAds Interstitial success',r);
+        }).catch(e=>{
+          console.log('RichAds no fill, trying Monetag',e);
+          showMonetagInterstitial();
+        });
+      } else {
+        showMonetagInterstitial();
+      }
+    } else if(type==='rewarded'){
+      // REWARDED = SIRF MONETAG
+      showMonetagRewarded().then(()=>{
+        console.log('Monetag Rewarded success');
+        onRewardedSuccess();
+      }).catch(e=>{
+        console.log('Monetag Rewarded fail',e);
+        // fail pe bhi reward mat do - user ko retry karne do
+      });
+    }
+  }catch(e){ console.log('Ad error',e); }
+}
+
 function onRewardedSuccess(){lockedModal.classList.add('hidden');level++;initGame();showToast('🔓 Galaxy Unlocked! +50 Moves');moves+=50;updateUI();}
 function showToast(msg){let t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
 function showCombo(count){let el=document.getElementById('combo');el.textContent=count>=5?`GALAXY COMBO x${count}!`:`COMBO x${count}!`;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),800);}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 document.getElementById('nextBtn').onclick=()=>{levelModal.classList.add('hidden');let next=level+1;if(next%5==0){showLockedLevel(next);}else{level=next;initGame();}};
-document.getElementById('unlockBtn').onclick=()=>{triggerAd('rewarded','Unlock Level '+(level+1));document.getElementById('unlockBtn').textContent='Loading...';setTimeout(()=>{document.getElementById('unlockBtn').textContent='🎥 Watch & Unlock';},2000);};
+document.getElementById('unlockBtn').onclick=()=>{
+  document.getElementById('unlockBtn').textContent='Loading Ad...';
+  // Rewarded sirf Monetag
+  showMonetagRewarded().then(()=>{
+    onRewardedSuccess();
+    document.getElementById('unlockBtn').textContent='🎥 Watch & Unlock';
+  }).catch(()=>{
+    document.getElementById('unlockBtn').textContent='🔄 Retry';
+    showToast('Ad not ready, try again');
+  });
+};
 document.getElementById('hintBtn').onclick=()=>{let hints=findHint();if(hints){let [a,b]=hints;let el1=boardEl.children[a.r*BOARD_SIZE+a.c];let el2=boardEl.children[b.r*BOARD_SIZE+b.c];el1.classList.add('hint');el2.classList.add('hint');setTimeout(()=>{el1.classList.remove('hint');el2.classList.remove('hint');},1600);}else{showToast('No hints, shuffling...');shuffleBoard();}triggerAd('interstitial','Hint - Push Style');};
 document.getElementById('shuffleBtn').onclick=()=>{shuffleBoard();triggerAd('interstitial','Shuffle - Interstitial');};
 function findHint(){for(let r=0;r<BOARD_SIZE;r++)for(let c=0;c<BOARD_SIZE;c++){let dirs=[[0,1],[1,0]];for(let [dr,dc]of dirs){let nr=r+dr,nc=c+dc;if(nr>=BOARD_SIZE||nc>=BOARD_SIZE)continue;swap(r,c,nr,nc);if(findAllMatches().length>0){swap(r,c,nr,nc);return[{r,c},{r:nr,c:nc}];}swap(r,c,nr,nc);}}return null;}
