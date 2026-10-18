@@ -5,22 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>2048 TOWER 5x5</title>
 <link rel="stylesheet" href="2048.css">
-
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-<!-- 1. RICHADS - Pehle -->
+<!-- RichAds SDK -->
 <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
 <script>
   try {
-    window.TelegramAdsController = new TelegramAdsController();
-    window.TelegramAdsController.initialize({ pubId: "1013423", appId: "7744" });
-  } catch(e){}
+    if(window.parent && window.parent.TelegramAdsController && !window.TelegramAdsController){
+      window.TelegramAdsController = window.parent.TelegramAdsController;
+    } else if(typeof TelegramAdsController !== 'undefined' && !window.TelegramAdsController.triggerInterstitialBanner){
+      window.TelegramAdsController = new TelegramAdsController();
+      window.TelegramAdsController.initialize({ pubId: "1013423", appId: "7744" });
+    }
+  } catch(e){ console.log('RichAds init error', e); }
 </script>
 
-<!-- 2. MONETAG REWARDED + INTERSTITIAL (11215599) -->
+<!-- Monetag SDK - Parent fallback -->
+<script>
+  if(window.parent && window.parent.show_11215599 && !window.show_11215599){
+    window.show_11215599 = window.parent.show_11215599;
+  }
+</script>
 <script src="https://libtl.com/sdk.js" data-zone="11215599" data-sdk="show_11215599"></script>
-
-
 </head>
 <body>
 
@@ -28,7 +34,7 @@
   <h1>2048<span>TOWER 5x5</span></h1>
   <p class="subtitle">Select Level</p>
   <div class="back-wrapper-middle">
-    <button class="back-btn-pro-middle" onclick="window.location.href='index.html'">
+    <button class="back-btn-pro-middle" onclick="if(window.parent && window.parent.closeGame) window.parent.closeGame(); else window.location.href='index.html'">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
       Back
     </button>
@@ -42,7 +48,7 @@
     <div class="center-modal-icon">🔓</div>
     <h3 id="centerAdTitle">Level Locked</h3>
     <p id="centerAdDesc">Watch Ad to Unlock</p>
-    <button id="centerWatchBtn">▶ WATCH AD</button>
+    <button id="centerWatchBtn">▶️ WATCH AD & UNLOCK</button>
     <button id="centerCancelBtn">Cancel</button>
   </div>
 </div>
