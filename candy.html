@@ -6,17 +6,27 @@
 <title>Gummy Galaxy - Candy Crush</title>
 <link rel="stylesheet" href="candy.css">
 <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
+
+<!-- RichAds with Parent Fallback -->
 <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
 <script>
-  window.TelegramAdsController = new TelegramAdsController();
-  window.TelegramAdsController.initialize({
-    pubId: "1013423",
-    appId: "7744",
-    debug: false
-  });
+  try {
+    if(window.parent && window.parent.TelegramAdsController){
+      window.TelegramAdsController = window.parent.TelegramAdsController;
+    } else {
+      window.TelegramAdsController = new TelegramAdsController();
+      window.TelegramAdsController.initialize({ pubId: "1013423", appId: "7744" });
+    }
+  } catch(e){}
 </script>
-<!-- Monetag LIVE - Added -->
-<script src='//libtl.com/sdk.js' data-zone='11215599' data-sdk='show_11215599'></script>
+
+<!-- Monetag with Parent Fallback -->
+<script>
+  if(window.parent && window.parent.show_11215599){
+    window.show_11215599 = window.parent.show_11215599;
+  }
+</script>
+<script src="https://libtl.com/sdk.js" data-zone="11215599" data-sdk="show_11215599"></script>
 </head>
 <body>
 <div class="app">
