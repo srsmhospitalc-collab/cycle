@@ -27,17 +27,12 @@ try {
     }
 } catch(e){ console.log('RichAds init error', e); }
 
-function showInterstitialFallback(onDone){
-    let done = () => { if(onDone) onDone(); };
-    console.log('Interstitial Try - RichAds First');
-
-    // 1. Pahle RichAds
-    try{
-        if(window.TelegramAdsController && window.TelegramAdsController.triggerInterstitialBanner){
-            window.TelegramAdsController.triggerInterstitialBanner().then(done).catch(()=>{
-                // 2. RichAds fail to Monetag
-                tryMonetagInterstitial(done);
-            });
+function showInterstitial(){
+  try{
+    window.TelegramAdsController.triggerInterstitialBanner(true).catch(()=>{
+      show_11215599({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
+    });
+    return;
             return;
         }
     }catch(e){ console.log('RichAds Interstitial error', e); }
