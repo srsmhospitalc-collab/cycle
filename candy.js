@@ -13,59 +13,38 @@ async function swapAndCheck(r1,c1,r2,c2){isSwapping=true;swap(r1,c1,r2,c2);rende
 function swap(r1,c1,r2,c2){let t=board[r1][c1];board[r1][c1]=board[r2][c2];board[r2][c2]=t;}
 function findAllMatches(){let matched=new Set();for(let r=0;r<BOARD_SIZE;r++){let count=1;for(let c=1;c<BOARD_SIZE;c++){if(board[r][c]==board[r][c-1])count++;else{if(count>=3)for(let k=c-count;k<c;k++)matched.add(`${r},${k}`);count=1;} }if(count>=3)for(let k=BOARD_SIZE-count;k<BOARD_SIZE;k++)matched.add(`${r},${k}`);}for(let c=0;c<BOARD_SIZE;c++){let count=1;for(let r=1;r<BOARD_SIZE;r++){if(board[r][c]==board[r-1][c])count++;else{if(count>=3)for(let k=r-count;k<r;k++)matched.add(`${k},${c}`);count=1;}}if(count>=3)for(let k=BOARD_SIZE-count;k<BOARD_SIZE;k++)matched.add(`${k},${c}`);}return Array.from(matched).map(s=>{let [r,c]=s.split(',').map(Number);return {r,c}});}
 async function processMatches(matches){if(matches.length>=4)showCombo(matches.length);score+=matches.length*40*level;matches.forEach(({r,c})=>{let el=boardEl.children[r*BOARD_SIZE+c];if(el)el.classList.add('matched');});await sleep(350);let cols={};matches.forEach(({r,c})=>{if(!cols[c])cols[c]=[];cols[c].push(r);});for(let c in cols){let col=parseInt(c);let rows=cols[col].sort((a,b)=>b-a);for(let r of rows){for(let k=r;k>0;k--)board[k][col]=board[k-1][col];board[0][col]=Math.floor(Math.random()*CANDY_TYPES);}}updateUI();renderBoard();await sleep(100);}
-function checkGameState(){if(score>=target){if(level%2==0){triggerAd('interstitial',`Level ${level} Complete - Interstitial`);}showLevelComplete();}else if(moves<=0){showToast('Out of moves! Try again');setTimeout(()=>{initGame();},1200);}}
+function checkGameState(){if(score>=target){if(level%2==0){triggerAd('interstitial',`Level ${level} Complete`);}showLevelComplete();}else if(moves<=0){showToast('Out of moves! Try again');setTimeout(()=>{initGame();},1200);}}
 function showLevelComplete(){document.getElementById('modalTitle').textContent=`Level ${level} Complete!`;document.getElementById('modalScore').textContent=`Score: ${score} / ${target}`;document.getElementById('adInfo').textContent=level%2==0?'🎬 Interstitial Ad shown':'✨ Bonus ready';levelModal.classList.remove('hidden');}
 function showLockedLevel(nextLevel){document.getElementById('lockedLevel').textContent=nextLevel;lockedModal.classList.remove('hidden');}
 function updateUI(){scoreTxt.textContent=score;movesTxt.textContent=moves;let pct=Math.min(100,Math.floor((score/target)*100));progressFill.style.width=pct+'%';}
 
-// === FINAL AD LOGIC ===
+// === FINAL AD LOGIC WITH PARENT FALLBACK ===
+function getMonetagFn(){ return window.show_11215599 || (window.parent && window.parent.show_11215599); }
+function getRichAdsCtrl(){ return window.TelegramAdsController || (window.parent && window.parent.TelegramAdsController); }
+
 function showMonetagInterstitial(){
-  if(typeof show_11215599 === 'function'){
-    try{
-      show_11215599({
-        type: 'inApp',
-        inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
-      });
-    }catch(e){ console.log('Monetag Interstitial error', e); }
+  let fn=getMonetagFn();
+  if(typeof fn === 'function'){
+    try{ fn({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } }); }catch(e){}
   }
 }
-
 function showMonetagRewarded(){
   return new Promise((resolve, reject)=>{
-    if(typeof show_11215599 === 'function'){
-      show_11215599().then(resolve).catch(reject);
-    } else {
-      reject('Monetag not loaded');
-    }
+    let fn=getMonetagFn();
+    if(typeof fn === 'function'){ fn().then(resolve).catch(reject); } else { reject('Monetag not loaded'); }
   });
 }
-
-function triggerAd(type,log){
-  console.log('Ad Trigger:',type,log);
+function triggerAd(type){
   try{
     if(type==='interstitial'){
-      // INTERSTITIAL = RICHADS PAHLE, MONETAG BAAD ME
-      if(window.TelegramAdsController && window.TelegramAdsController.triggerInterstitialBanner){
-        window.TelegramAdsController.triggerInterstitialBanner().then(r=>{
-          console.log('RichAds Interstitial success',r);
-        }).catch(e=>{
-          console.log('RichAds no fill, trying Monetag',e);
-          showMonetagInterstitial();
-        });
-      } else {
-        showMonetagInterstitial();
-      }
+      let ctrl=getRichAdsCtrl();
+      if(ctrl && ctrl.triggerInterstitialBanner){
+        ctrl.triggerInterstitialBanner().catch(()=>{ showMonetagInterstitial(); });
+      } else { showMonetagInterstitial(); }
     } else if(type==='rewarded'){
-      // REWARDED = SIRF MONETAG
-      showMonetagRewarded().then(()=>{
-        console.log('Monetag Rewarded success');
-        onRewardedSuccess();
-      }).catch(e=>{
-        console.log('Monetag Rewarded fail',e);
-        // fail pe bhi reward mat do - user ko retry karne do
-      });
+      showMonetagRewarded().then(()=>{ onRewardedSuccess(); }).catch(()=>{});
     }
-  }catch(e){ console.log('Ad error',e); }
+  }catch(e){}
 }
 
 function onRewardedSuccess(){lockedModal.classList.add('hidden');level++;initGame();showToast('🔓 Galaxy Unlocked! +50 Moves');moves+=50;updateUI();}
@@ -74,18 +53,13 @@ function showCombo(count){let el=document.getElementById('combo');el.textContent
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 document.getElementById('nextBtn').onclick=()=>{levelModal.classList.add('hidden');let next=level+1;if(next%5==0){showLockedLevel(next);}else{level=next;initGame();}};
 document.getElementById('unlockBtn').onclick=()=>{
-  document.getElementById('unlockBtn').textContent='Loading Ad...';
-  // Rewarded sirf Monetag
+  let btn=document.getElementById('unlockBtn'); btn.textContent='Loading Ad...';
   showMonetagRewarded().then(()=>{
-    onRewardedSuccess();
-    document.getElementById('unlockBtn').textContent='🎥 Watch & Unlock';
-  }).catch(()=>{
-    document.getElementById('unlockBtn').textContent='🔄 Retry';
-    showToast('Ad not ready, try again');
-  });
+    onRewardedSuccess(); btn.textContent='🎥 Watch & Unlock';
+  }).catch(()=>{ btn.textContent='🔄 Retry'; showToast('Ad not ready, try again'); });
 };
-document.getElementById('hintBtn').onclick=()=>{let hints=findHint();if(hints){let [a,b]=hints;let el1=boardEl.children[a.r*BOARD_SIZE+a.c];let el2=boardEl.children[b.r*BOARD_SIZE+b.c];el1.classList.add('hint');el2.classList.add('hint');setTimeout(()=>{el1.classList.remove('hint');el2.classList.remove('hint');},1600);}else{showToast('No hints, shuffling...');shuffleBoard();}triggerAd('interstitial','Hint - Push Style');};
-document.getElementById('shuffleBtn').onclick=()=>{shuffleBoard();triggerAd('interstitial','Shuffle - Interstitial');};
+document.getElementById('hintBtn').onclick=()=>{let hints=findHint();if(hints){let [a,b]=hints;let el1=boardEl.children[a.r*BOARD_SIZE+a.c];let el2=boardEl.children[b.r*BOARD_SIZE+b.c];el1.classList.add('hint');el2.classList.add('hint');setTimeout(()=>{el1.classList.remove('hint');el2.classList.remove('hint');},1600);}else{showToast('No hints, shuffling...');shuffleBoard();}triggerAd('interstitial');};
+document.getElementById('shuffleBtn').onclick=()=>{shuffleBoard();triggerAd('interstitial');};
 function findHint(){for(let r=0;r<BOARD_SIZE;r++)for(let c=0;c<BOARD_SIZE;c++){let dirs=[[0,1],[1,0]];for(let [dr,dc]of dirs){let nr=r+dr,nc=c+dc;if(nr>=BOARD_SIZE||nc>=BOARD_SIZE)continue;swap(r,c,nr,nc);if(findAllMatches().length>0){swap(r,c,nr,nc);return[{r,c},{r:nr,c:nc}];}swap(r,c,nr,nc);}}return null;}
 function shuffleBoard(){createBoard();renderBoard();showToast('Board Shuffled');}
 setInterval(()=>{let ad=document.getElementById('embedAd');if(ad)ad.querySelector('.ad-content').textContent=['🎁 Play & Earn - RichAds','🚀 New Galaxy Bonus!','💎 500 Coins Free!'][Math.floor(Math.random()*3)];},8000);
