@@ -5,52 +5,40 @@ let board=[], score=0, levelScore=0, level=1, maxUnlock=parseInt(localStorage.ge
 let isCompleting=false;
 const TOTAL_LEVELS=50;
 
-// TARGET 300,600,900...
 function getTarget(l){ return l*300; }
 
-// === REWARDED = SIRF MONETAG ===
+// === REWARDED - MONETAG with parent fallback ===
 function showRewarded(){
   return new Promise((resolve, reject)=>{
-    if(typeof show_11215599 === 'function'){
-      show_11215599().then(() => {
-          resolve();
-      }).catch(e => {
-          reject(e);
-      });
+    let fn = window.show_11215599 || (window.parent && window.parent.show_11215599);
+    if(typeof fn === 'function'){
+      fn().then(resolve).catch(reject);
     } else {
       reject('Monetag not loaded');
     }
   });
 }
 
-// === INTERSTITIAL = RICHADS PAHLE + MONETAG BAAD ME ===
+// === INTERSTITIAL - RICHADS FIRST + MONETAG FALLBACK ===
 function showInterstitial(){
+  let ctrl = window.TelegramAdsController || (window.parent && window.parent.TelegramAdsController);
   try {
-    if(window.TelegramAdsController && window.TelegramAdsController.triggerInterstitialBanner){
-      window.TelegramAdsController.triggerInterstitialBanner().then(()=>{
-        console.log('RichAds Interstitial shown');
-      }).catch(()=>{
-        // RichAds fail to Monetag
-        tryMonetagInterstitial();
-      });
+    if(ctrl && ctrl.triggerInterstitialBanner){
+      ctrl.triggerInterstitialBanner().then(()=>{
+        console.log('RichAds shown');
+      }).catch(()=>{ tryMonetagInterstitial(); });
       return;
     }
-  } catch(e){ console.log('RichAds error', e); }
-  
+  } catch(e){}
   tryMonetagInterstitial();
 }
 
 function tryMonetagInterstitial(){
-  if(typeof show_11215599 === 'function'){
-    show_11215599({
+  let fn = window.show_11215599 || (window.parent && window.parent.show_11215599);
+  if(typeof fn === 'function'){
+    fn({
       type: 'inApp',
-      inAppSettings: {
-        frequency: 2,
-        capping: 0.1,
-        interval: 30,
-        timeout: 5,
-        everyPage: false
-      }
+      inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
     });
   }
 }
@@ -63,16 +51,16 @@ function buildLevelScreen(){
   for(let i=1;i<=TOTAL_LEVELS;i++){
     let d=document.createElement('div');
     let unlock=i<=maxUnlock;
-    let is5th=i%5===0;
     d.className='lvl '+(unlock?(i==maxUnlock?'now':(i<maxUnlock?'done':'')):'locked');
-    d.innerHTML=`<b>${i<maxUnlock?'✓':i}</b><span>${i*300} pts</span><span>${unlock?(i==maxUnlock?(is5th?'PLAY 🔒':'PLAY'):'DONE'):'🔒'}</span>`;
+    d.innerHTML=`<b>${i<maxUnlock?'✓':i}</b><span>${i*300} pts</span><span>${unlock?(i==maxUnlock?(i%5===0?'PLAY 🔒':'PLAY'):'DONE'):'🔒'}</span>`;
     if(unlock) d.onclick=()=>startLevel(i);
     grid.appendChild(d);
   }
 }
 function showLevels(){ isCompleting=false; document.getElementById('levelScreen').classList.remove('hidden'); document.getElementById('gameScreen').classList.add('hidden'); maxUnlock=parseInt(localStorage.getItem('block_level')||1); buildLevelScreen(); }
+
 function startLevel(l){
-  if(l%5===0 && l>1 && l===maxUnlock &&!localStorage.getItem('unlocked_'+l)){
+  if(l%5===0 && l>1 && l===maxUnlock && !localStorage.getItem('unlocked_'+l)){
     showRewarded().then(()=>{ localStorage.setItem('unlocked_'+l,'1'); actuallyStartLevel(l); }).catch(()=>{ alert('Ad pura dekho level '+l+' unlock karne ke liye!'); });
     return;
   }
@@ -80,13 +68,13 @@ function startLevel(l){
 }
 function actuallyStartLevel(l){ level=l; levelScore=0; score=0; isCompleting=false; board=Array(10).fill().map(()=>Array(10).fill(0)); document.getElementById('levelScreen').classList.add('hidden'); document.getElementById('gameScreen').classList.remove('hidden'); document.getElementById('level').innerText=level; createBoard(); randomShapes(); updateUI(); }
 
-// BLOCK BLAST SHAPES - Zyada famous wale
 const SHAPES=[[[1]],[[1,1]],[[1,1,1]],[[1,1,1,1]],[[1,1,1,1,1]],[[1,1],[1,1]],[[1,1,1],[1,1,1]],[[1,0,0],[1,0,0],[1,1,1]],[[0,0,1],[0,0,1],[1,1,1]],[[1,1,0],[0,1,1]],[[0,1,1],[1,1,0]],[[1,1,1],[0,1,0]],[[0,1,0],[1,1,1]]];
 
 function createBoard(){ boardEl.innerHTML=''; for(let r=0;r<10;r++) for(let c=0;c<10;c++){ let d=document.createElement('div'); d.className='cell'; d.dataset.r=r; d.dataset.c=c; boardEl.appendChild(d);} paint(); }
 function paint(){ document.querySelectorAll('.cell').forEach(el=>{ let r=+el.dataset.r,c=+el.dataset.c; el.className='cell'+(board[r][c]?' filled':''); }); document.getElementById('score').innerText=score; document.getElementById('targetTxt').innerText=levelScore+'/'+getTarget(level); document.getElementById('nextTxt').innerText=getTarget(level); document.getElementById('progress').style.width=Math.min(100,(levelScore/getTarget(level))*100)+'%'; if(!isCompleting && levelScore>=getTarget(level)) levelComplete(); }
 function updateUI(){ paint(); }
 function randomShapes(){ trayEl.innerHTML=''; for(let i=0;i<3;i++){ let shape=SHAPES[Math.floor(Math.random()*SHAPES.length)]; let wrap=document.createElement('div'); wrap.className='block'; wrap.style.gridTemplateColumns=`repeat(${shape[0].length},18px)`; shape.forEach(row=>row.forEach(v=>{ let cell=document.createElement('div'); cell.className=v?'block-cell':''; if(!v) cell.style.background='transparent'; cell.style.boxShadow='none'; wrap.appendChild(cell); })); wrap._shape=shape; addDrag(wrap); trayEl.appendChild(wrap); } }
+
 let dragBlock=null,ghostPos=null;
 function addDrag(el){ el.addEventListener('touchstart', startDrag, {passive:false}); el.addEventListener('mousedown', startDrag); }
 function startDrag(e){ e.preventDefault(); dragBlock=this; this.classList.add('dragging'); let move=(ev)=>{ let x=ev.touches?ev.touches[0].clientX:ev.clientX, y=ev.touches?ev.touches[0].clientY:ev.clientY; dragBlock.style.left=x-30+'px'; dragBlock.style.top=y-30+'px'; let t=document.elementFromPoint(x,y); if(t&&t.classList.contains('cell')){ ghostPos={r:+t.dataset.r,c:+t.dataset.c}; showGhost(); } }; let end=()=>{ document.removeEventListener('touchmove',move); document.removeEventListener('mousemove',move); dragBlock.classList.remove('dragging'); dragBlock.style.left=''; dragBlock.style.top=''; if(ghostPos&&canPlace(ghostPos.r,ghostPos.c,dragBlock._shape)) place(ghostPos.r,ghostPos.c,dragBlock._shape); clearGhost(); dragBlock=null; ghostPos=null; document.removeEventListener('touchend',end); document.removeEventListener('mouseup',end); }; document.addEventListener('touchmove',move,{passive:false}); document.addEventListener('mousemove',move); document.addEventListener('touchend',end); document.addEventListener('mouseup',end); }
