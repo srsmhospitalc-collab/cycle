@@ -4,50 +4,37 @@ let unlocked=parseInt(localStorage.getItem('match3d_unlocked')||'1');
 let total=parseInt(localStorage.getItem('match3d_total')||'0');
 document.getElementById('totalScore').innerText=total;
 
-// AD - FINAL NO ADSBITVEX
+// === ADS - FINAL with Parent Fallback ===
+function getMonetagFn(){ return window.show_11215599 || (window.parent && window.parent.show_11215599); }
+function getRichCtrl(){ return window.TelegramAdsController || (window.parent && window.parent.TelegramAdsController); }
+
 function showInterstitial(){
-  // INTERSTITIAL = RICHADS PAHLE, MONETAG BAAD ME
   try{
-    if(window.TelegramAdsController && window.TelegramAdsController.triggerInterstitialBanner){
-      window.TelegramAdsController.triggerInterstitialBanner(true).then(()=>{}).catch(()=>{
-        // fail -> Monetag
-        if(typeof show_11215599 === 'function'){
-          try{
-            show_11215599({
-              type: 'inApp',
-              inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
-            });
-          }catch(e){}
+    let ctrl=getRichCtrl();
+    if(ctrl && ctrl.triggerInterstitialBanner){
+      ctrl.triggerInterstitialBanner(true).catch(()=>{
+        let fn=getMonetagFn();
+        if(typeof fn==='function'){
+          fn({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
         }
       });
       return;
     }
   }catch(e){}
-  // direct Monetag if RichAds not available
-  if(typeof show_11215599 === 'function'){
-    try{
-      show_11215599({
-        type: 'inApp',
-        inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
-      });
-    }catch(e){}
+  let fn=getMonetagFn();
+  if(typeof fn==='function'){
+    fn({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
   }
 }
 
 function watchRewarded(cb){
-  // REWARDED = SIRF MONETAG
-  if(typeof show_11215599 === 'function'){
-    show_11215599().then(()=>{ cb(); }).catch(()=>{
-      // ad fail, cb mat karo ya fir retry bolo - yaha cb nahi karenge taki free reward na mile
-      console.log('Monetag rewarded failed');
-    });
-  } else {
-    console.log('Monetag not loaded');
-  }
+  let fn=getMonetagFn();
+  if(typeof fn==='function'){
+    fn().then(()=>{ cb(); }).catch(()=>{ console.log('Monetag rewarded failed'); });
+  } else { console.log('Monetag not loaded'); }
 }
 
 function getTileCount(lvl){ return Math.min(48, 12 + Math.floor(lvl*1.2))*3; }
-
 function buildGrid(){
   const g=document.getElementById('levelGrid'); g.innerHTML='';
   for(let i=1;i<=50;i++){
@@ -58,7 +45,6 @@ function buildGrid(){
   }
 }
 function openLock(lvl){ document.getElementById('lockLvl').innerText=lvl; document.getElementById('lockModal').classList.add('show'); document.getElementById('unlockBtn').onclick=()=>watchRewarded(()=>{ unlocked=lvl; localStorage.setItem('match3d_unlocked',unlocked); buildGrid(); document.getElementById('lockModal').classList.remove('show'); }); }
-
 function startLevel(lvl){
   level=lvl; tray=[]; tiles=[];
   let totalTiles=getTileCount(lvl);
@@ -67,39 +53,20 @@ function startLevel(lvl){
   let icons = [];
   for(let t=0;t<totalTiles/3;t++){ let ic=ICONS[t%ICONS.length]; icons.push(ic,ic,ic); }
   icons=icons.sort(()=>Math.random()-0.5);
-
   let id=0;
   for(let z=0;z<layers;z++){
     let offset = (z%2)*18;
     let c = z==layers-1? cols-1 : cols;
     let r = z==layers-1? rows-1 : rows;
-    for(let y=0;y<r;y++){
-      for(let x=0;x<c;x++){
-        if(id>=totalTiles) break;
-        if(Math.random()<0.12 && z>0) continue;
-        tiles.push({
-          id:id,
-          icon:icons[id],
-          x: 12 + x*54 + offset + Math.random()*4,
-          y: 14 + y*52 + offset*0.6 + Math.random()*3,
-          z:z,
-          removed:false
-        });
-        id++;
-      }
-    }
+    for(let y=0;y<r;y++){ for(let x=0;x<c;x++){ if(id>=totalTiles) break; if(Math.random()<0.12 && z>0) continue; tiles.push({ id:id, icon:icons[id], x: 12 + x*54 + offset + Math.random()*4, y: 14 + y*52 + offset*0.6 + Math.random()*3, z:z, removed:false }); id++; } }
   }
-  while(id<totalTiles){
-    tiles.push({id:id, icon:icons[id], x: 20+Math.random()*240, y: 20+Math.random()*300, z: Math.floor(Math.random()*layers), removed:false}); id++;
-  }
-
+  while(id<totalTiles){ tiles.push({id:id, icon:icons[id], x: 20+Math.random()*240, y: 20+Math.random()*300, z: Math.floor(Math.random()*layers), removed:false}); id++; }
   document.getElementById('lvlTxt').innerText=level;
   document.getElementById('leftTxt').innerText=tiles.filter(t=>!t.removed).length;
   document.getElementById('levelScreen').classList.remove('show');
   document.getElementById('gameScreen').classList.add('show');
   render();
 }
-
 function isBlocked(tile){
   if(tile.removed) return true;
   for(let other of tiles){
@@ -109,7 +76,6 @@ function isBlocked(tile){
   }
   return false;
 }
-
 function render(){
   const board=document.getElementById('board'); board.innerHTML='';
   let sorted=[...tiles].sort((a,b)=>a.z-b.z);
@@ -127,32 +93,21 @@ function render(){
   renderTray();
   if(tiles.filter(t=>!t.removed).length==0) levelComplete();
 }
-
 function renderTray(){
   const tr=document.getElementById('tray'); tr.innerHTML='';
   document.getElementById('trayCount').innerText=tray.length;
-  for(let i=0;i<7;i++){
-    let d=document.createElement('div'); d.className='slot';
-    if(tray[i]) d.innerText=tray[i];
-    tr.appendChild(d);
-  }
+  for(let i=0;i<7;i++){ let d=document.createElement('div'); d.className='slot'; if(tray[i]) d.innerText=tray[i]; tr.appendChild(d); }
 }
-
 function tapTile(id){
   let now=Date.now(); if(now-lastTap<180) return; lastTap=now;
   let tile=tiles.find(t=>t.id==id); if(!tile || tile.removed || isBlocked(tile)) return;
   if(tray.length>=7) return gameOver();
   tile.removed=true; tray.push(tile.icon);
   let counts={}; tray.forEach(ic=>counts[ic]=(counts[ic]||0)+1);
-  for(let ic in counts){
-    if(counts[ic]>=3){
-      let c=0; tray=tray.filter(v=>{ if(v==ic && c<3){c++; return false;} return true; });
-    }
-  }
+  for(let ic in counts){ if(counts[ic]>=3){ let c=0; tray=tray.filter(v=>{ if(v==ic && c<3){c++; return false;} return true; }); } }
   render();
   if(tray.length>=7) gameOver();
 }
-
 function levelComplete(){
   total+=level*10; localStorage.setItem('match3d_total',total);
   if(level<50 && level>=unlocked){ unlocked=level+1; localStorage.setItem('match3d_unlocked',unlocked); }
@@ -161,19 +116,14 @@ function levelComplete(){
   let iv=setInterval(()=>{ c--; document.getElementById('countTxt').innerText=c; if(c<=0){ clearInterval(iv); document.getElementById('levelModal').classList.remove('show'); showInterstitial(); setTimeout(()=>{ document.getElementById('gameScreen').classList.remove('show'); document.getElementById('levelScreen').classList.add('show'); buildGrid(); document.getElementById('totalScore').innerText=total; },500); } },1000);
 }
 function gameOver(){ document.getElementById('overModal').classList.add('show'); }
-
 document.getElementById('shuffleBtn').onclick=()=>watchRewarded(()=>{ let avail=tiles.filter(t=>!t.removed); let icons=avail.map(t=>t.icon).sort(()=>Math.random()-0.5); avail.forEach((t,i)=>t.icon=icons[i]); render(); });
 document.getElementById('hintBtn').onclick=()=>watchRewarded(()=>{
-  let free=tiles.filter(t=>!t.removed &&!isBlocked(t));
-  if(!free.length) return;
+  let free=tiles.filter(t=>!t.removed &&!isBlocked(t)); if(!free.length) return;
   let map={}; free.forEach(t=>{ map[t.icon]=map[t.icon]||[]; map[t.icon].push(t); });
   let hintTile=null; for(let k in map){ if(map[k].length>=2){ hintTile=map[k][0]; break; } }
   if(!hintTile) hintTile=free[Math.floor(Math.random()*free.length)];
   render();
-  setTimeout(()=>{
-    let el=[...document.querySelectorAll('.tile3d')].find(e=>e.textContent.includes(hintTile.icon));
-    if(el){ el.classList.add('hint'); setTimeout(()=>el.classList.remove('hint'),1800); }
-  },50);
+  setTimeout(()=>{ let el=[...document.querySelectorAll('.tile3d')].find(e=>e.textContent.includes(hintTile.icon)); if(el){ el.classList.add('hint'); setTimeout(()=>el.classList.remove('hint'),1800); } },50);
 });
 document.getElementById('clearBtn').onclick=()=>watchRewarded(()=>{ tray.splice(0,3); renderTray(); document.getElementById('overModal').classList.remove('show'); });
 document.getElementById('restartBtn').onclick=()=>{ showInterstitial(); setTimeout(()=>startLevel(level),500); };
