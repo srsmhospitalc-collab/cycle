@@ -16,13 +16,19 @@ function showLevelScreen(){
   levelScreenEl.classList.remove("hidden");
   renderLevelGrid();
 }
-function hideCenterModal(){ centerModal.classList.add("hidden"); if(centerWatchBtn) centerWatchBtn.innerText="▶️ WATCH AD"; }
+function hideCenterModal(){ centerModal.classList.add("hidden"); if(centerWatchBtn) centerWatchBtn.innerText="▶️ WATCH AD & UNLOCK"; }
+
 function isLevelUnlocked(i){
   if(i===1) return true;
   if(lastCompleted < i-1) return false;
-  if(i%5===0){ return adUnlockedLevels.includes(i); }
+  // HAR 5 LEVEL PE AD LOCK
+  if(i%5===0){ 
+    // agar pehle se clear hai ya ad se unlock hai to open
+    return adUnlockedLevels.includes(i) || lastCompleted >= i; 
+  }
   return true;
 }
+
 function renderLevelGrid(){
   levelGridEl.innerHTML="";
   for(let i=1;i<=100;i++){
@@ -38,7 +44,7 @@ function renderLevelGrid(){
       btn.onclick=()=>{
         levelToUnlock=i;
         if(centerTitle) centerTitle.innerText=`Level ${i} Locked`;
-        if(i%5===0 && lastCompleted>=i-1){ if(centerDesc) centerDesc.innerText=`Level ${i} unlock karne ke liye Rewarded Ad dekho!`; }
+        if(i%5===0 && lastCompleted>=i-1){ if(centerDesc) centerDesc.innerText=`Level ${i} unlock karne ke liye Ad dekho! 5,10,15... levels Ad se khulenge`; }
         else if(lastCompleted < i-1){ if(centerDesc) centerDesc.innerText=`Pehle Level ${i-1} complete karo!`; }
         centerModal.classList.remove("hidden");
       };
@@ -47,88 +53,72 @@ function renderLevelGrid(){
   }
 }
 
+// REWARDED = SIRF MONETAG - HAR 5 LEVEL PE
 if(centerWatchBtn){
   centerWatchBtn.onclick=function(){
     if(levelToUnlock%5!==0 && lastCompleted < levelToUnlock-1){ hideCenterModal(); return; }
     let btn=this; btn.innerText="Ad Loading...";
 
-    const onSuccessMonetag=()=>{
-      if(!adUnlockedLevels.includes(levelToUnlock)){ adUnlockedLevels.push(levelToUnlock); localStorage.setItem("adUnlockedLevels", JSON.stringify(adUnlockedLevels)); }
-      hideCenterModal(); startLevel(levelToUnlock);
+    const onSuccess=()=>{
+      if(!adUnlockedLevels.includes(levelToUnlock)){ 
+        adUnlockedLevels.push(levelToUnlock); 
+        localStorage.setItem("adUnlockedLevels", JSON.stringify(adUnlockedLevels)); 
+      }
+      hideCenterModal(); 
+      startLevel(levelToUnlock);
     };
-    const onFail=()=>{ btn.innerText="🔄 Retry Karo"; };
+    const onFail=()=>{ btn.innerText="🔄 Retry Karo - Ad fail"; };
 
-    // REWARDED = SIRF MONETAG
-    show_11215599().then(() => {
-    // You need to add your user reward function here, which will be executed after the user watches the ad.
-    // For more details, please refer to the detailed instructions.
-    alert('You have seen an ad!');
-})
+    if(typeof show_11215599 === 'function'){
+      show_11215599().then(()=>{
+        onSuccess();
+      }).catch(()=>{
+        onFail();
+      });
     } else {
       onFail();
+      console.log('Monetag not loaded');
     }
   };
 }
 if(centerCancelBtn) centerCancelBtn.onclick=hideCenterModal;
 
+// HAR 2 LEVEL PE INTERSTITIAL
 function shouldShowInterstitial(lv){
-  if(lv === 3) return true;
-  if(lv<=10) return lv%2===0;
-  else return true;
+  return lv % 2 === 0; // 2,4,6,8,10...
 }
 
 function showInterstitialCascade(cb){
   if(isAdShowing){ cb(); return; }
   isAdShowing=true;
   let finished=false;
-  const timer=setTimeout(()=>{ if(!finished){ finished=true; isAdShowing=false; cb(); } }, 4000);
+  const timer=setTimeout(()=>{ if(!finished){ finished=true; isAdShowing=false; cb(); } }, 4500);
   const safeFinish=()=>{ if(finished) return; finished=true; clearTimeout(timer); isAdShowing=false; cb(); };
 
   const tryMonetag = () => {
     try{
-      show_11215599({
-  type: 'inApp',
-  inAppSettings: {
-    frequency: 2,
-    capping: 0.1,
-    interval: 30,
-    timeout: 5,
-    everyPage: false
-  }
-})
+      if(typeof show_11215599 === 'function'){
+        show_11215599({
+          type: 'inApp',
+          inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
+        });
       }
     }catch(e){}
-    setTimeout(safeFinish, 500);
+    setTimeout(safeFinish, 800);
   };
 
   try{
-    // INTERSTITIAL = RICHADS PAHLE
+    // INTERSTITIAL = RICHADS PAHLE, MONETAG BAAD ME
     if(window.TelegramAdsController && window.TelegramAdsController.triggerInterstitialBanner){
-      window.TelegramAdsController.triggerInterstitialBanner().then(safeFinish).catch(()=>{
-        // RichAds fail to Monetag
+      window.TelegramAdsController.triggerInterstitialBanner().then(()=>{
+        safeFinish();
+      }).catch(()=>{
         tryMonetag();
       });
     } else {
       tryMonetag();
     }
   }catch(e){ tryMonetag(); }
-}
-
-function showLevel3MonetagInterstitial(cb){
-  // Screenshot wala - ONLY LEVEL 3 - SIRF MONETAG
-  show_11215599({
-  type: 'inApp',
-  inAppSettings: {
-    frequency: 2,
-    capping: 0.1,
-    interval: 30,
-    timeout: 5,
-    everyPage: false
-  }
-})
-    }catch(e){}
-  }
-  setTimeout(cb, 2500);
 }
 
 function startLevel(lv){ level=lv; target=level*200; score=0; animating=false; levelFinished=false; isAdShowing=false; board=Array.from({length:5},()=>Array(5).fill(0)); levelScreenEl.classList.add("hidden"); gameScreenEl.classList.remove("hidden"); randomNext(); render(); }
@@ -148,9 +138,7 @@ function levelComplete(){
   if(level==100){ showLevelScreen(); return; }
   const goNext=()=>{ isAdShowing=false; showLevelScreen(); };
 
-  if(level === 3){
-    showLevel3MonetagInterstitial(goNext);
-  } else if(shouldShowInterstitial(level)){
+  if(shouldShowInterstitial(level)){
     showInterstitialCascade(goNext);
   } else {
     setTimeout(goNext, 200);
@@ -167,4 +155,4 @@ async function checkAndMerge(r,c){
   while(q.length){ let [cr,cc]=q.shift(); for(let [dr,dc] of [[0,-1],[0,1],[-1,0],[1,0]]){ let nr=cr+dr, nc=cc+dc; if(nr>=0&&nr<5&&nc>=0&&nc<5&&!visited[nr][nc]&&board[nr][nc]==val){ visited[nr][nc]=true; q.push([nr,nc]); toMerge.push([nr,nc]); } } }
   if(toMerge.length>=2){ toMerge.forEach(([mr,mc])=>{ let el=document.getElementById(`cell-${mr}-${mc}`); if(el) el.classList.add("merge-pop"); }); await new Promise(r=>setTimeout(r,220)); let newVal=val*2; if(toMerge.length==3) newVal=val*4; if(toMerge.length>=4) newVal=val*8; toMerge.forEach(([mr,mc])=> board[mr][mc]=0); let topRow=Math.min(...toMerge.map(p=>p[0])); let avgCol=Math.round(toMerge.reduce((s,p)=>s+p[1],0)/toMerge.length); board[topRow][avgCol]=newVal; score+=newVal; render(); await new Promise(r=>setTimeout(r,150)); await checkAndMerge(topRow,avgCol); }
 }
-showLevelScreen();
+showLevelScreen(); 
