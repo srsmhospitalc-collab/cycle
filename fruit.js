@@ -1,11 +1,41 @@
-// AD FALLBACK - YOUR CHAIN
+// AD - FINAL: NO ADSBITVEX
 async function showRewarded(){
   const s=document.getElementById('adStatus'); if(s) s.innerText='Loading...';
-  try{ if(typeof show_11215599==='function'){ await show_11215599(); if(s) s.innerText='Reward!'; return true; } throw 1; }
-  catch{ try{ if(window.TelegramAdsController){ await window.TelegramAdsController.triggerRewardedAd(); return true; } throw 1; }
-  catch{ try{ await window.showadsbitvex(); return true; }catch{ if(s) s.innerText='Ad failed'; return false; } } }
+  // REWARDED = SIRF MONETAG
+  try{
+    if(typeof show_11215599==='function'){
+      await show_11215599();
+      if(s) s.innerText='Reward!';
+      return true;
+    }
+    throw 1;
+  }catch{
+    if(s) s.innerText='Ad failed, retry';
+    return false;
+  }
 }
-async function showInterstitial(){ try{ await window.TelegramAdsController.triggerInterstitial(); }catch{ try{ await window.showadsbitvex_init(); }catch{} } }
+
+async function showInterstitial(){
+  // INTERSTITIAL = RICHADS PAHLE, MONETAG BAAD ME
+  try{
+    if(window.TelegramAdsController && window.TelegramAdsController.triggerInterstitialBanner){
+      await window.TelegramAdsController.triggerInterstitialBanner();
+      console.log('RichAds Interstitial OK');
+      return;
+    }
+    throw 1;
+  }catch{
+    // RichAds fail to Monetag In-App
+    try{
+      if(typeof show_11215599 === 'function'){
+        show_11215599({
+          type: 'inApp',
+          inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
+        });
+      }
+    }catch(e){}
+  }
+}
 
 // GAME
 let cur=+localStorage.getItem('fruit_level')||1;
@@ -24,7 +54,7 @@ function getLevelConfig(lvl){
   const rnd=mulberry32(lvl*999);
   return {
     target:15+Math.floor(lvl*1.2),
-    speed: 2.5 - Math.min(1.5, lvl*0.02), // seconds to fall
+    speed: 2.5 - Math.min(1.5, lvl*0.02),
     spawn: Math.max(400, 1100 - lvl*8),
     colors: lvl<10?['red','yellow']: lvl<30?['red','yellow','purple']:['red','yellow','purple']
   };
@@ -69,11 +99,9 @@ function cutFruit(el){
   if(el.classList.contains('cut')) return;
   const col=el.dataset.color;
   el.classList.add('cut');
-  // blast to basket
   const basket=document.querySelector(`.basket[data-color="${col}"]`);
   if(basket){ basket.classList.add('active'); setTimeout(()=>basket.classList.remove('active'),300); }
   score++; updateUI();
-  // particles
   for(let i=0;i<4;i++){
     const p=document.createElement('div');
     p.style.position='absolute'; p.style.left=el.style.left; p.style.top=el.getBoundingClientRect().top - document.getElementById('fallArea').getBoundingClientRect().top + 'px';
@@ -95,20 +123,22 @@ function win(){
   clearInterval(spawnTimer);
   if(cur>=max){ max=Math.min(100,cur+1); localStorage.setItem('fruit_max',max); }
 
-  // 1. Show congrats screen for 3 sec
   const cong=document.getElementById('congrats');
   document.getElementById('congratsText').innerText=`${score}/${target} fruits cut!`;
   cong.classList.add('show');
 
-  // 2. Trigger interstitial NOW - 3 sec ka time mil jayega load hone ko
   showInterstitial();
 
-  // 3. After 3 sec -> go to grid
   setTimeout(()=>{
     cong.classList.remove('show');
     renderGrid();
     document.getElementById('levelScreen').classList.add('show');
   }, 3000);
+}
+
+function lose(){
+  clearInterval(spawnTimer);
+  document.getElementById('loseModal').classList.add('show');
 }
 
 function renderGrid(){
