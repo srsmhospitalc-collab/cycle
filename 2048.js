@@ -59,8 +59,11 @@ if(centerWatchBtn){
     const onFail=()=>{ btn.innerText="🔄 Retry Karo"; };
 
     // REWARDED = SIRF MONETAG
-    if(typeof show_11215599 === 'function'){
-      show_11215599().then(onSuccessMonetag).catch(onFail);
+    show_11215599().then(() => {
+    // You need to add your user reward function here, which will be executed after the user watches the ad.
+    // For more details, please refer to the detailed instructions.
+    alert('You have seen an ad!');
+})
     } else {
       onFail();
     }
@@ -83,11 +86,16 @@ function showInterstitialCascade(cb){
 
   const tryMonetag = () => {
     try{
-      if(typeof show_11215599 === 'function'){
-        show_11215599({
-          type: 'inApp',
-          inAppSettings: { frequency:2, capping:0.1, interval:30, timeout:5, everyPage:false }
-        });
+      show_11215599({
+  type: 'inApp',
+  inAppSettings: {
+    frequency: 2,
+    capping: 0.1,
+    interval: 30,
+    timeout: 5,
+    everyPage: false
+  }
+})
       }
     }catch(e){}
     setTimeout(safeFinish, 500);
@@ -108,18 +116,16 @@ function showInterstitialCascade(cb){
 
 function showLevel3MonetagInterstitial(cb){
   // Screenshot wala - ONLY LEVEL 3 - SIRF MONETAG
-  if(typeof show_11215599 === 'function'){
-    try{
-      show_11215599({
-        type: 'inApp',
-        inAppSettings: {
-          frequency: 2,
-          capping: 0.1,
-          interval: 30,
-          timeout: 5,
-          everyPage: false
-        }
-      });
+  show_11215599({
+  type: 'inApp',
+  inAppSettings: {
+    frequency: 2,
+    capping: 0.1,
+    interval: 30,
+    timeout: 5,
+    everyPage: false
+  }
+})
     }catch(e){}
   }
   setTimeout(cb, 2500);
