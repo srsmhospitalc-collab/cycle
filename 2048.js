@@ -4,18 +4,10 @@ const centerModal=document.getElementById("centerAdModal"), centerTitle=document
 let board,score,next,level,target,animating=false;
 let lastCompleted=parseInt(localStorage.getItem("lastCompleted")||"0");
 let adUnlockedLevels=JSON.parse(localStorage.getItem("adUnlockedLevels")||"[]");
-let levelToUnlock=0;
-let levelFinished=false;
-let isAdShowing=false;
-let tg=window.Telegram?.WebApp; try{tg.ready();tg.expand();}catch(e){}
+let levelToUnlock=0, levelFinished=false, isAdShowing=false;
+try{window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand();}catch(e){}
 
-function showLevelScreen(){
-  levelFinished=false;
-  isAdShowing=false;
-  gameScreenEl.classList.add("hidden");
-  levelScreenEl.classList.remove("hidden");
-  renderLevelGrid();
-}
+function showLevelScreen(){ levelFinished=false; isAdShowing=false; gameScreenEl.classList.add("hidden"); levelScreenEl.classList.remove("hidden"); renderLevelGrid(); }
 function hideCenterModal(){ centerModal.classList.add("hidden"); if(centerWatchBtn) centerWatchBtn.innerText="▶️ WATCH AD & UNLOCK"; }
 
 function isLevelUnlocked(i){
@@ -39,9 +31,9 @@ function renderLevelGrid(){
     else{
       btn.onclick=()=>{
         levelToUnlock=i;
-        if(centerTitle) centerTitle.innerText=`Level ${i} Locked`;
-        if(i%5===0 && lastCompleted>=i-1){ if(centerDesc) centerDesc.innerText=`Level ${i} unlock karne ke liye Ad dekho! 5,10,15... levels Ad se khulenge`; }
-        else { if(centerDesc) centerDesc.innerText=`Pehle Level ${i-1} complete karo!`; }
+        centerTitle.innerText=`Level ${i} Locked`;
+        if(i%5===0 && lastCompleted>=i-1){ centerDesc.innerText=`Level ${i} unlock karne ke liye Ad dekho!`; }
+        else { centerDesc.innerText=`Pehle Level ${i-1} complete karo!`; }
         centerModal.classList.remove("hidden");
       };
     }
@@ -49,7 +41,7 @@ function renderLevelGrid(){
   }
 }
 
-// REWARDED - HAR 5 LEVEL PE - SIRF MONETAG
+// REWARDED - HAR 5 LEVEL
 if(centerWatchBtn){
   centerWatchBtn.onclick=function(){
     if(levelToUnlock%5!==0 && lastCompleted < levelToUnlock-1){ hideCenterModal(); return; }
@@ -59,14 +51,8 @@ if(centerWatchBtn){
       hideCenterModal(); startLevel(levelToUnlock);
     };
     const onFail=()=>{ btn.innerText="🔄 Retry Karo"; };
-
-    let monetagFn = window.show_11215599 || (window.parent && window.parent.show_11215599);
-    if(typeof monetagFn === 'function'){
-      monetagFn().then(onSuccess).catch(onFail);
-    } else {
-      onFail();
-      console.log('Monetag SDK not found');
-    }
+    let fn = window.show_11215599 || (window.parent && window.parent.show_11215599);
+    if(typeof fn === 'function'){ fn().then(onSuccess).catch(onFail); } else { onFail(); }
   };
 }
 if(centerCancelBtn) centerCancelBtn.onclick=hideCenterModal;
@@ -75,28 +61,17 @@ function shouldShowInterstitial(lv){ return lv % 2 === 0; }
 
 function showInterstitialCascade(cb){
   if(isAdShowing){ cb(); return; }
-  isAdShowing=true;
-  let finished=false;
+  isAdShowing=true; let finished=false;
   const timer=setTimeout(()=>{ if(!finished){ finished=true; isAdShowing=false; cb(); } }, 5000);
   const safeFinish=()=>{ if(finished) return; finished=true; clearTimeout(timer); isAdShowing=false; cb(); };
-
-  const tryMonetag = () => {
-    let monetagFn = window.show_11215599 || (window.parent && window.parent.show_11215599);
-    try{
-      if(typeof monetagFn === 'function'){
-        monetagFn({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
-      }
-    }catch(e){}
+  const tryMonetag=()=>{
+    let fn = window.show_11215599 || (window.parent && window.parent.show_11215599);
+    try{ if(typeof fn === 'function'){ fn({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } }); } }catch(e){}
     setTimeout(safeFinish, 1000);
   };
-
   try{
-    let controller = window.TelegramAdsController || (window.parent && window.parent.TelegramAdsController);
-    if(controller && controller.triggerInterstitialBanner){
-      controller.triggerInterstitialBanner().then(safeFinish).catch(tryMonetag);
-    } else {
-      tryMonetag();
-    }
+    let ctrl = window.TelegramAdsController || (window.parent && window.parent.TelegramAdsController);
+    if(ctrl && ctrl.triggerInterstitialBanner){ ctrl.triggerInterstitialBanner().then(safeFinish).catch(tryMonetag); } else { tryMonetag(); }
   }catch(e){ tryMonetag(); }
 }
 
