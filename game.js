@@ -12,14 +12,10 @@ let extraTubeUsed = false;
 const COLORS = ['#ef4444', '#3b82f6', '#22c55e', '#eab308', '#a855f7', '#ec4899', '#f97316', '#06b6d4', '#84cc16', '#6366f1'];
 const LEVEL_CONFIG = { 1:{tubes:4,colors:2},2:{tubes:4,colors:2},3:{tubes:5,colors:3},4:{tubes:5,colors:3},5:{tubes:6,colors:4},10:{tubes:7,colors:5},15:{tubes:8,colors:6},20:{tubes:9,colors:7} };
 
-// === FINAL AD SETUP - RICHADS FIRST + MONETAG ===
-// Interstitial = RichAds Telegram + Monetag 11215599
-// Rewarded = RichAds Telegram + Monetag 11215599
-
-// RichAds Controller Init
+// === FINAL AD - RICHADS + MONETAG - SINGLE PAGE ===
 try {
     if(typeof TelegramAdsController !== 'undefined'){
-        window.TelegramAdsController = window.TelegramAdsController || new TelegramAdsController();
+        window.TelegramAdsController = new TelegramAdsController();
         window.TelegramAdsController.initialize({
             pubId: "1013423",
             appId: "7744"
@@ -28,65 +24,37 @@ try {
 } catch(e){ console.log('RichAds init error', e); }
 
 function showInterstitial(){
+  // RichAds First
   try{
-    window.TelegramAdsController.triggerInterstitialBanner(true).catch(()=>{
-      show_11215599({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
-    });
-    return;
-            return;
+    if(window.TelegramAdsController && window.TelegramAdsController.triggerInterstitialBanner){
+      window.TelegramAdsController.triggerInterstitialBanner(true).catch(()=>{
+        // Fallback Monetag
+        if(typeof show_11215599 === 'function'){
+          show_11215599({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
         }
-    }catch(e){ console.log('RichAds Interstitial error', e); }
-
-    // Fallback Monetag
-    tryMonetagInterstitial(done);
-}
-
-function tryMonetagInterstitial(onDone){
-    if(typeof show_11215599 === 'function'){
-        show_11215599({
-            type: 'inApp',
-            inAppSettings: { frequency:2, capping:0.1, interval:30, timeout:5, everyPage:false }
-        }).then(onDone).catch(()=>{ onDone(); });
-    } else {
-        onDone();
+      });
+      return;
     }
+  }catch(e){ console.log('RichAds Interstitial error', e); }
+
+  // Direct Monetag
+  if(typeof show_11215599 === 'function'){
+    show_11215599({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
+  }
 }
 
 function showRewardedWithFallback(onReward){
-    let rewardedDone = () => { if(onReward) onReward(); };
-    console.log('Rewarded Try - RichAds First 11215599');
-
-    // 1. Pahle RichAds Rewarded
-    try{
-        if(window.TelegramAdsController && window.TelegramAdsController.triggerInterstitialBanner){
-            window.TelegramAdsController.triggerInterstitialBanner(true).then((result)=>{
-                console.log('RichAds Rewarded success', result);
-                rewardedDone();
-            }).catch(()=>{
-                // 2. RichAds fail to Monetag Rewarded
-                tryMonetagRewarded(rewardedDone);
-            });
-            return;
-        }
-    }catch(e){ console.log('RichAds Rewarded error', e); }
-
-    tryMonetagRewarded(rewardedDone);
-}
-
-function tryMonetagRewarded(onReward){
-    if(typeof show_11215599 === 'function'){
-        show_11215599({
-            type: 'inApp',
-            inAppSettings: { frequency:2, capping:0.1, interval:30, timeout:5, everyPage:false }
-        }).then(onReward).catch((e)=>{
-            console.log('Monetag Rewarded fail/skip', e);
-            // Agar Monetag bhi nahi to bhi reward de do taaki game na atke
-            // onReward(); // Chaho to comment hatake test ke liye de sakta hai
-        });
-    } else {
-        console.log('Monetag SDK not found');
-        onReward();
-    }
+  // Rewarded = SIRF Monetag (RichAds ka Rewarded nahi hai, Interstitial hi hai)
+  console.log('Rewarded - Monetag 11215599');
+  if(typeof show_11215599 === 'function'){
+    show_11215599().then(()=>{
+      if(onReward) onReward();
+    }).catch((e)=>{
+      console.log('Monetag Rewarded fail', e);
+    });
+  } else {
+    console.log('Monetag SDK not found');
+  }
 }
 
 function getLevelConfig(lvl){ if(LEVEL_CONFIG[lvl]) return LEVEL_CONFIG[lvl]; const colors=Math.min(3+Math.floor(lvl/5),8); return {tubes:colors+2, colors}; }
