@@ -22,7 +22,7 @@ try {
         window.TelegramAdsController = window.TelegramAdsController || new TelegramAdsController();
         window.TelegramAdsController.initialize({
             pubId: "1013423",
-            appId: "410286"
+            appId: "7744"
         });
     }
 } catch(e){ console.log('RichAds init error', e); }
