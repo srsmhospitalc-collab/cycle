@@ -1,10 +1,12 @@
-// AD - FINAL: NO ADSBITVEX
+function getMonetagFn(){ return window.show_11215599 || (window.parent && window.parent.show_11215599); }
+function getRichCtrl(){ return window.TelegramAdsController || (window.parent && window.parent.TelegramAdsController); }
+
 async function showRewarded(){
   const s=document.getElementById('adStatus'); if(s) s.innerText='Loading...';
-  // REWARDED = SIRF MONETAG
   try{
-    if(typeof show_11215599==='function'){
-      await show_11215599();
+    let fn=getMonetagFn();
+    if(typeof fn==='function'){
+      await fn();
       if(s) s.innerText='Reward!';
       return true;
     }
@@ -16,22 +18,18 @@ async function showRewarded(){
 }
 
 async function showInterstitial(){
-  // INTERSTITIAL = RICHADS PAHLE, MONETAG BAAD ME
   try{
-    if(window.TelegramAdsController && window.TelegramAdsController.triggerInterstitialBanner){
-      await window.TelegramAdsController.triggerInterstitialBanner();
-      console.log('RichAds Interstitial OK');
+    let ctrl=getRichCtrl();
+    if(ctrl && ctrl.triggerInterstitialBanner){
+      await ctrl.triggerInterstitialBanner();
       return;
     }
     throw 1;
   }catch{
-    // RichAds fail to Monetag In-App
     try{
-      if(typeof show_11215599 === 'function'){
-        show_11215599({
-          type: 'inApp',
-          inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
-        });
+      let fn=getMonetagFn();
+      if(typeof fn === 'function'){
+        fn({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
       }
     }catch(e){}
   }
@@ -40,7 +38,7 @@ async function showInterstitial(){
 // GAME
 let cur=+localStorage.getItem('fruit_level')||1;
 let max=+localStorage.getItem('fruit_max')||1;
-let score=0, target=0, missed=0, isSlow=false, gameTimer=null, spawnTimer=null;
+let score=0, target=0, missed=0, isSlow=false, spawnTimer=null;
 
 const FRUITS=[
   {emoji:'🍎',color:'red'},{emoji:'🍓',color:'red'},{emoji:'🍉',color:'red'},
@@ -49,106 +47,61 @@ const FRUITS=[
 ];
 
 function mulberry32(a){return function(){var t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296}}
-
 function getLevelConfig(lvl){
   const rnd=mulberry32(lvl*999);
-  return {
-    target:15+Math.floor(lvl*1.2),
-    speed: 2.5 - Math.min(1.5, lvl*0.02),
-    spawn: Math.max(400, 1100 - lvl*8),
-    colors: lvl<10?['red','yellow']: lvl<30?['red','yellow','purple']:['red','yellow','purple']
-  };
+  return { target:15+Math.floor(lvl*1.2), speed: 2.5 - Math.min(1.5, lvl*0.02), spawn: Math.max(400, 1100 - lvl*8), colors: lvl<10?['red','yellow']: lvl<30?['red','yellow','purple']:['red','yellow','purple'] };
 }
-
 function startLevel(lvl){
   cur=lvl; localStorage.setItem('fruit_level',lvl);
   document.getElementById('levelScreen').classList.remove('show');
   document.getElementById('lvl').innerText=lvl;
   const cfg=getLevelConfig(lvl); target=cfg.target; score=0; missed=0; updateUI();
   const area=document.getElementById('fallArea'); area.innerHTML='';
-  clearInterval(spawnTimer); clearInterval(gameTimer);
+  clearInterval(spawnTimer);
   let count=0;
-  spawnTimer=setInterval(()=>{
-    if(count>=target+5) { clearInterval(spawnTimer); return; }
-    spawnFruit(cfg); count++;
-  }, cfg.spawn);
+  spawnTimer=setInterval(()=>{ if(count>=target+5) { clearInterval(spawnTimer); return; } spawnFruit(cfg); count++; }, cfg.spawn);
 }
-
 function spawnFruit(cfg){
   const area=document.getElementById('fallArea');
-  const rnd=Math.random();
   let pool=FRUITS.filter(f=>cfg.colors.includes(f.color));
-  const f=pool[Math.floor(rnd*pool.length)];
-  const el=document.createElement('div');
-  el.className='fruit';
-  el.innerText=f.emoji;
-  el.dataset.color=f.color;
+  const f=pool[Math.floor(Math.random()*pool.length)];
+  const el=document.createElement('div'); el.className='fruit'; el.innerText=f.emoji; el.dataset.color=f.color;
   el.style.left=Math.random()* (area.clientWidth-56) + 'px';
   el.style.animationDuration=(isSlow? cfg.speed*2 : cfg.speed)+'s';
   el.onclick=()=> cutFruit(el);
   area.appendChild(el);
-  el.addEventListener('animationend',()=>{
-    if(!el.classList.contains('cut')){
-      el.remove(); missed++;
-      if(missed>=3) lose();
-    }
-  });
+  el.addEventListener('animationend',()=>{ if(!el.classList.contains('cut')){ el.remove(); missed++; if(missed>=3) lose(); } });
 }
-
 function cutFruit(el){
   if(el.classList.contains('cut')) return;
-  const col=el.dataset.color;
-  el.classList.add('cut');
+  const col=el.dataset.color; el.classList.add('cut');
   const basket=document.querySelector(`.basket[data-color="${col}"]`);
   if(basket){ basket.classList.add('active'); setTimeout(()=>basket.classList.remove('active'),300); }
   score++; updateUI();
-  for(let i=0;i<4;i++){
-    const p=document.createElement('div');
-    p.style.position='absolute'; p.style.left=el.style.left; p.style.top=el.getBoundingClientRect().top - document.getElementById('fallArea').getBoundingClientRect().top + 'px';
-    p.innerText='✨'; p.style.pointerEvents='none';
-    document.getElementById('fallArea').appendChild(p);
-    p.animate([{transform:'translate(0,0)',opacity:1},{transform:`translate(${(Math.random()-0.5)*80}px, -60px)`,opacity:0}],{duration:400}).onfinish=()=>p.remove();
-  }
+  for(let i=0;i<4;i++){ const p=document.createElement('div'); p.style.position='absolute'; p.style.left=el.style.left; p.style.top=el.getBoundingClientRect().top - document.getElementById('fallArea').getBoundingClientRect().top + 'px'; p.innerText='✨'; p.style.pointerEvents='none'; document.getElementById('fallArea').appendChild(p); p.animate([{transform:'translate(0,0)',opacity:1},{transform:`translate(${(Math.random()-0.5)*80}px, -60px)`,opacity:0}],{duration:400}).onfinish=()=>p.remove(); }
   setTimeout(()=>el.remove(),350);
 }
-
 function updateUI(){
   document.getElementById('score').innerText=`${score}/${target}`;
-  document.getElementById('c-red').innerText=document.querySelectorAll('.fruit[data-color="red"].cut').length || Math.floor(score/3);
+  document.getElementById('c-red').innerText=Math.floor(score/3);
   document.getElementById('prog').style.width=Math.min(100, (score/target)*100)+'%';
   if(score>=target) win();
 }
-
 function win(){
   clearInterval(spawnTimer);
   if(cur>=max){ max=Math.min(100,cur+1); localStorage.setItem('fruit_max',max); }
-
   const cong=document.getElementById('congrats');
   document.getElementById('congratsText').innerText=`${score}/${target} fruits cut!`;
   cong.classList.add('show');
-
   showInterstitial();
-
-  setTimeout(()=>{
-    cong.classList.remove('show');
-    renderGrid();
-    document.getElementById('levelScreen').classList.add('show');
-  }, 3000);
+  setTimeout(()=>{ cong.classList.remove('show'); renderGrid(); document.getElementById('levelScreen').classList.add('show'); }, 3000);
 }
-
-function lose(){
-  clearInterval(spawnTimer);
-  document.getElementById('loseModal').classList.add('show');
-}
-
+function lose(){ clearInterval(spawnTimer); document.getElementById('loseModal').classList.add('show'); }
 function renderGrid(){
   const g=document.getElementById('levelGrid'); g.innerHTML='';
   for(let i=1;i<=100;i++){
-    const d=document.createElement('div');
-    d.className='level-cell '+(i<=max?(i<max?'completed':'unlocked'):'locked');
-    d.innerHTML=`${i>max?'🔒':i}`;
-    d.onclick=()=> openLevel(i);
-    g.appendChild(d);
+    const d=document.createElement('div'); d.className='level-cell '+(i<=max?(i<max?'completed':'unlocked'):'locked');
+    d.innerHTML=`${i>max?'🔒':i}`; d.onclick=()=> openLevel(i); g.appendChild(d);
   }
 }
 function openLevel(lvl){
@@ -163,23 +116,13 @@ function openLevel(lvl){
   }
   startLevel(lvl);
 }
-
 document.getElementById('gridBtn').onclick=()=>{ renderGrid(); document.getElementById('levelScreen').classList.add('show'); };
 document.getElementById('playBtn').onclick=()=> document.getElementById('levelScreen').classList.remove('show');
 document.getElementById('cancelBtn').onclick=()=> document.getElementById('adModal').classList.remove('show');
 document.getElementById('nextBtn').onclick=()=>{ document.getElementById('winModal').classList.remove('show'); if(cur<100) startLevel(cur+1); else { renderGrid(); document.getElementById('levelScreen').classList.add('show'); } };
 document.getElementById('restartBtn').onclick=()=>{ document.getElementById('loseModal').classList.remove('show'); startLevel(cur); };
-document.getElementById('contBtn').onclick=async()=>{
-  const ok=await showRewarded(); if(ok){ missed=0; document.getElementById('loseModal').classList.remove('show'); const cfg=getLevelConfig(cur); spawnTimer=setInterval(()=>spawnFruit(cfg), cfg.spawn); }
-};
-document.getElementById('slowBtn').onclick=async()=>{
-  const ok=await showRewarded(); if(!ok) return;
-  isSlow=true; setTimeout(()=>isSlow=false,5000);
-};
-document.getElementById('bombBtn').onclick=async()=>{
-  const ok=await showRewarded(); if(!ok) return;
-  document.querySelectorAll('.fruit').forEach(el=>{ if(!el.classList.contains('cut')) cutFruit(el); });
-};
-
+document.getElementById('contBtn').onclick=async()=>{ const ok=await showRewarded(); if(ok){ missed=0; document.getElementById('loseModal').classList.remove('show'); const cfg=getLevelConfig(cur); spawnTimer=setInterval(()=>spawnFruit(cfg), cfg.spawn); } };
+document.getElementById('slowBtn').onclick=async()=>{ const ok=await showRewarded(); if(!ok) return; isSlow=true; setTimeout(()=>isSlow=false,5000); };
+document.getElementById('bombBtn').onclick=async()=>{ const ok=await showRewarded(); if(!ok) return; document.querySelectorAll('.fruit').forEach(el=>{ if(!el.classList.contains('cut')) cutFruit(el); }); };
 renderGrid(); startLevel(cur);
 window.Telegram?.WebApp?.expand();
