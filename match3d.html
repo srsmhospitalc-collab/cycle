@@ -2,33 +2,44 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="adsbitvex-verify" content="55wFuniMvmgugxDFM5cH5BAp">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>MATCH 3D - STACK</title>
 <link rel="stylesheet" href="match3d.css">
 <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
+
+<!-- RichAds -->
 <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
-<script>window.TelegramAdsController=new TelegramAdsController();window.TelegramAdsController.initialize({pubId:"1013423",appId:"7744"});</script>
-<script src="https://sdk.adsbitvex.com/functions/v1/ad-script?appid=000468"></script>
-<script src='//libtl.com/sdk.js' data-zone='11215599' data-sdk='show_11215599'></script>
-<script async src="https://sdk.adsbitvex.com/functions/v1/banner-serve?action=sdk"></script>
+<script>
+  try{
+    if(window.parent && window.parent.TelegramAdsController){
+      window.TelegramAdsController = window.parent.TelegramAdsController;
+    } else {
+      window.TelegramAdsController = new TelegramAdsController();
+      window.TelegramAdsController.initialize({pubId:"1013423",appId:"7744"});
+    }
+  }catch(e){}
+</script>
+
+<!-- Monetag -->
+<script>
+  if(window.parent && window.parent.show_11215599){
+    window.show_11215599 = window.parent.show_11215599;
+  }
+</script>
+<script src="https://libtl.com/sdk.js" data-zone="11215599" data-sdk="show_11215599"></script>
 </head>
 <body>
 <div id="levelScreen" class="screen show">
   <header class="header"><a href="index.html" class="back">←</a><div class="title">🧩 MATCH 3D</div><div class="coin">⭐ <b id="totalScore">0</b></div></header>
-  <div class="banner-wrap"><div data-abx-banner="3c76eab41644" data-abx-w="320" data-abx-h="50" style="display:inline-block;width:320px;height:50px"></div></div>
   <h3 class="grid-title">STACK TILES - CLEAR ALL - 50 LEVELS</h3>
   <div id="levelGrid" class="grid"></div>
-  <div class="banner-wrap"><div data-abx-banner="3c76eab41644" data-abx-w="320" data-abx-h="50" style="display:inline-block;width:320px;height:50px"></div></div>
 </div>
 
 <div id="gameScreen" class="screen">
   <header class="header"><button id="goHome" class="back">←</button><div class="title">LVL <span id="lvlTxt">1</span>/50 - <span id="leftTxt">0</span> left</div><div class="coin">TRAY <span id="trayCount">0</span>/7</div></header>
-  <div class="banner-wrap small"><div data-abx-banner="3c76eab41644" data-abx-w="320" data-abx-h="50" style="display:inline-block;width:320px;height:50px"></div></div>
   <div class="board-wrap"><div id="board" class="board"></div></div>
   <div class="tray-wrap"><div class="tray-label">3 SAME = CLEAR</div><div id="tray" class="tray"></div></div>
   <div class="controls"><button id="shuffleBtn" class="btn dark">🔀 Shuffle 📺</button><button id="hintBtn" class="btn dark">💡 Hint 📺</button><button id="restartBtn" class="btn light">↻ Restart 📺</button></div>
-  <div class="banner-wrap"><div data-abx-banner="3c76eab41644" data-abx-w="320" data-abx-h="50" style="display:inline-block;width:320px;height:50px"></div></div>
 </div>
 
 <div id="levelModal" class="modal"><div class="modal-card success"><div class="emoji-big">🎉</div><h2>ALL CLEAR!</h2><p>Level <b id="lcLvl">1</b></p><div class="count">Next in <b id="countTxt">3</b>s</div></div></div>
