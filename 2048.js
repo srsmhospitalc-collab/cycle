@@ -21,11 +21,7 @@ function hideCenterModal(){ centerModal.classList.add("hidden"); if(centerWatchB
 function isLevelUnlocked(i){
   if(i===1) return true;
   if(lastCompleted < i-1) return false;
-  // HAR 5 LEVEL PE AD LOCK
-  if(i%5===0){ 
-    // agar pehle se clear hai ya ad se unlock hai to open
-    return adUnlockedLevels.includes(i) || lastCompleted >= i; 
-  }
+  if(i%5===0){ return adUnlockedLevels.includes(i) || lastCompleted >= i; }
   return true;
 }
 
@@ -45,7 +41,7 @@ function renderLevelGrid(){
         levelToUnlock=i;
         if(centerTitle) centerTitle.innerText=`Level ${i} Locked`;
         if(i%5===0 && lastCompleted>=i-1){ if(centerDesc) centerDesc.innerText=`Level ${i} unlock karne ke liye Ad dekho! 5,10,15... levels Ad se khulenge`; }
-        else if(lastCompleted < i-1){ if(centerDesc) centerDesc.innerText=`Pehle Level ${i-1} complete karo!`; }
+        else { if(centerDesc) centerDesc.innerText=`Pehle Level ${i-1} complete karo!`; }
         centerModal.classList.remove("hidden");
       };
     }
@@ -53,68 +49,51 @@ function renderLevelGrid(){
   }
 }
 
-// REWARDED = SIRF MONETAG - HAR 5 LEVEL PE
+// REWARDED - HAR 5 LEVEL PE - SIRF MONETAG
 if(centerWatchBtn){
   centerWatchBtn.onclick=function(){
     if(levelToUnlock%5!==0 && lastCompleted < levelToUnlock-1){ hideCenterModal(); return; }
     let btn=this; btn.innerText="Ad Loading...";
-
     const onSuccess=()=>{
-      if(!adUnlockedLevels.includes(levelToUnlock)){ 
-        adUnlockedLevels.push(levelToUnlock); 
-        localStorage.setItem("adUnlockedLevels", JSON.stringify(adUnlockedLevels)); 
-      }
-      hideCenterModal(); 
-      startLevel(levelToUnlock);
+      if(!adUnlockedLevels.includes(levelToUnlock)){ adUnlockedLevels.push(levelToUnlock); localStorage.setItem("adUnlockedLevels", JSON.stringify(adUnlockedLevels)); }
+      hideCenterModal(); startLevel(levelToUnlock);
     };
-    const onFail=()=>{ btn.innerText="🔄 Retry Karo - Ad fail"; };
+    const onFail=()=>{ btn.innerText="🔄 Retry Karo"; };
 
-    if(typeof show_11215599 === 'function'){
-      show_11215599().then(()=>{
-        onSuccess();
-      }).catch(()=>{
-        onFail();
-      });
+    let monetagFn = window.show_11215599 || (window.parent && window.parent.show_11215599);
+    if(typeof monetagFn === 'function'){
+      monetagFn().then(onSuccess).catch(onFail);
     } else {
       onFail();
-      console.log('Monetag not loaded');
+      console.log('Monetag SDK not found');
     }
   };
 }
 if(centerCancelBtn) centerCancelBtn.onclick=hideCenterModal;
 
-// HAR 2 LEVEL PE INTERSTITIAL
-function shouldShowInterstitial(lv){
-  return lv % 2 === 0; // 2,4,6,8,10...
-}
+function shouldShowInterstitial(lv){ return lv % 2 === 0; }
 
 function showInterstitialCascade(cb){
   if(isAdShowing){ cb(); return; }
   isAdShowing=true;
   let finished=false;
-  const timer=setTimeout(()=>{ if(!finished){ finished=true; isAdShowing=false; cb(); } }, 4500);
+  const timer=setTimeout(()=>{ if(!finished){ finished=true; isAdShowing=false; cb(); } }, 5000);
   const safeFinish=()=>{ if(finished) return; finished=true; clearTimeout(timer); isAdShowing=false; cb(); };
 
   const tryMonetag = () => {
+    let monetagFn = window.show_11215599 || (window.parent && window.parent.show_11215599);
     try{
-      if(typeof show_11215599 === 'function'){
-        show_11215599({
-          type: 'inApp',
-          inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
-        });
+      if(typeof monetagFn === 'function'){
+        monetagFn({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
       }
     }catch(e){}
-    setTimeout(safeFinish, 800);
+    setTimeout(safeFinish, 1000);
   };
 
   try{
-    // INTERSTITIAL = RICHADS PAHLE, MONETAG BAAD ME
-    if(window.TelegramAdsController && window.TelegramAdsController.triggerInterstitialBanner){
-      window.TelegramAdsController.triggerInterstitialBanner().then(()=>{
-        safeFinish();
-      }).catch(()=>{
-        tryMonetag();
-      });
+    let controller = window.TelegramAdsController || (window.parent && window.parent.TelegramAdsController);
+    if(controller && controller.triggerInterstitialBanner){
+      controller.triggerInterstitialBanner().then(safeFinish).catch(tryMonetag);
     } else {
       tryMonetag();
     }
@@ -137,12 +116,7 @@ function levelComplete(){
   if(level>lastCompleted){ lastCompleted=level; localStorage.setItem("lastCompleted", lastCompleted); }
   if(level==100){ showLevelScreen(); return; }
   const goNext=()=>{ isAdShowing=false; showLevelScreen(); };
-
-  if(shouldShowInterstitial(level)){
-    showInterstitialCascade(goNext);
-  } else {
-    setTimeout(goNext, 200);
-  }
+  if(shouldShowInterstitial(level)){ showInterstitialCascade(goNext); } else { setTimeout(goNext, 300); }
 }
 
 async function handleTap(col){
@@ -155,4 +129,4 @@ async function checkAndMerge(r,c){
   while(q.length){ let [cr,cc]=q.shift(); for(let [dr,dc] of [[0,-1],[0,1],[-1,0],[1,0]]){ let nr=cr+dr, nc=cc+dc; if(nr>=0&&nr<5&&nc>=0&&nc<5&&!visited[nr][nc]&&board[nr][nc]==val){ visited[nr][nc]=true; q.push([nr,nc]); toMerge.push([nr,nc]); } } }
   if(toMerge.length>=2){ toMerge.forEach(([mr,mc])=>{ let el=document.getElementById(`cell-${mr}-${mc}`); if(el) el.classList.add("merge-pop"); }); await new Promise(r=>setTimeout(r,220)); let newVal=val*2; if(toMerge.length==3) newVal=val*4; if(toMerge.length>=4) newVal=val*8; toMerge.forEach(([mr,mc])=> board[mr][mc]=0); let topRow=Math.min(...toMerge.map(p=>p[0])); let avgCol=Math.round(toMerge.reduce((s,p)=>s+p[1],0)/toMerge.length); board[topRow][avgCol]=newVal; score+=newVal; render(); await new Promise(r=>setTimeout(r,150)); await checkAndMerge(topRow,avgCol); }
 }
-showLevelScreen(); 
+showLevelScreen();
