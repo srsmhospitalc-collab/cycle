@@ -1,62 +1,57 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Block Blast</title>
+<link rel="stylesheet" href="block.css">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-<!-- 1. RichAds SDK - LIVE -->
+<!-- RichAds -->
 <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
 <script>
   try {
-    window.TelegramAdsController = new TelegramAdsController();
-    window.TelegramAdsController.initialize({
-      pubId: "1013423",
-      appId: "7744",
-      debug: false
-    });
-  } catch(e) { console.log('RichAds init fail:', e) }
+    if(window.parent && window.parent.TelegramAdsController){
+      window.TelegramAdsController = window.parent.TelegramAdsController;
+    } else {
+      window.TelegramAdsController = new TelegramAdsController();
+      window.TelegramAdsController.initialize({ pubId: "1013423", appId: "7744" });
+    }
+  } catch(e){}
 </script>
 
-<!-- 2. Monetag SDK - LIVE -->
-<script src='//libtl.com/sdk.js' data-zone='11215599' data-sdk='show_11215599'></script>
-
-<link rel="stylesheet" href="block.css">
+<!-- Monetag -->
+<script>
+  if(window.parent && window.parent.show_11215599){
+    window.show_11215599 = window.parent.show_11215599;
+  }
+</script>
+<script src="https://libtl.com/sdk.js" data-zone="11215599" data-sdk="show_11215599"></script>
 </head>
 <body>
 
-<!-- Top Bar with Arrow for index.html -->
-<div class="top" style="position:sticky;top:0;z-index:10;">
-  <a href="index.html" style="text-decoration:none;font-size:22px;font-weight:bold;color:#fff;padding:8px 12px;">←</a>
-  <span>🧱 Block Blast</span>
+<div id="levelScreen" class="main">
+  <h1>BLOCK<span>BLAST</span></h1>
+  <p class="subtitle">Select Level - <span id="highTxt">1</span> / Total: <span id="totalTxt">0</span></p>
+  <div class="progress-bar"><div id="overallProgress"></div></div>
+  <div class="back-wrapper-middle">
+    <button class="back-btn-pro-middle" onclick="if(window.parent && window.parent.closeGame) window.parent.closeGame(); else window.location.href='index.html'">← Back</button>
+  </div>
+  <div id="levelGrid"></div>
 </div>
 
-<div id="levelScreen">
-  <div class="top"><span>Levels</span><div class="scores"><span>High: <b id="highTxt">1</b></span> <span>Total: <b id="totalTxt">0</b></span></div></div>
-  <div class="progress-bg"><div id="overallProgress" class="progress"></div></div>
-  <div class="level-grid" id="levelGrid"></div>
-</div>
-
-<div id="gameScreen" class="hidden">
-  <div class="top"><button class="back" onclick="showLevels()">← Levels</button><div class="scores">Lv <b id="level">1</b> | Score <b id="score">0</b></div></div>
-  <div class="stats"><span>Target: <b id="targetTxt">0/300</b></span><span>Next: <b id="nextTxt">300</b></span></div>
-  <div class="progress-bg"><div id="progress" class="progress"></div></div>
-  <div class="board-wrap"><div class="board" id="board"></div></div>
-  <div class="tray" id="tray"></div>
-  <div class="actions"><button class="ad-btn" onclick="watchAd()">📺 Watch Ad +500</button><button class="reset-btn" onclick="resetLevel()">↻ Reset</button></div>
+<div id="gameScreen" class="main hidden">
+  <div class="top">
+    <button class="back-btn" onclick="showLevels()">← LEVELS</button>
+    <div class="score-box"><div class="label">SCORE</div><div><span id="score">0</span> / <span id="nextTxt">300</span></div></div>
+  </div>
+  <div class="level-info-bar">LEVEL <b id="level">1</b> - <span id="targetTxt">0/300</span></div>
+  <div class="progress-bar"><div id="progress"></div></div>
+  <div id="board"></div>
+  <div id="tray"></div>
+  <div class="next-card"><button onclick="resetLevel()">RESTART</button> <button onclick="watchAd()">+500 AD</button></div>
 </div>
 
 <script src="block.js"></script>
-<script>
-// Mobile back + Telegram back = index.html
-history.pushState(null, "", location.href);
-window.onpopstate = () => location.href = "index.html";
-
-if (window.Telegram && Telegram.WebApp) {
-  Telegram.WebApp.BackButton.show();
-  Telegram.WebApp.BackButton.onClick(() => location.href = "index.html");
-}
-</script>
 </body>
 </html>
