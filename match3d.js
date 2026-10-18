@@ -1,34 +1,48 @@
 const ICONS=["🍎","🍊","🍋","🍇","🍓","🍒","🍉","🍍","🥝","🍑","🍐","🥭","🍌","🥥","🍈","⚽","🎃","🌸","🍩","🧁","🎮","🚀","⭐","❤️","🔥","💎","🍪","🌽","🥑","🍔"];
-let level=1, tray=[], tiles=[], lastTap=0, lastMonetag=0;
+let level=1, tray=[], tiles=[], lastTap=0;
 let unlocked=parseInt(localStorage.getItem('match3d_unlocked')||'1');
 let total=parseInt(localStorage.getItem('match3d_total')||'0');
 document.getElementById('totalScore').innerText=total;
 
-// AD ORDER AS YOU SAID
+// AD - FINAL NO ADSBITVEX
 function showInterstitial(){
+  // INTERSTITIAL = RICHADS PAHLE, MONETAG BAAD ME
   try{
-    window.TelegramAdsController.triggerInterstitialBanner(true).then(()=>{}).catch(()=>{
-      try{ window.showadsbitvex_init().then(()=>{}).catch(()=>{});}catch(e){}
-    });
-  }catch(e){ try{ window.showadsbitvex_init().then(()=>{}).catch(()=>{});}catch(e){} }
+    if(window.TelegramAdsController && window.TelegramAdsController.triggerInterstitialBanner){
+      window.TelegramAdsController.triggerInterstitialBanner(true).then(()=>{}).catch(()=>{
+        // fail -> Monetag
+        if(typeof show_11215599 === 'function'){
+          try{
+            show_11215599({
+              type: 'inApp',
+              inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
+            });
+          }catch(e){}
+        }
+      });
+      return;
+    }
+  }catch(e){}
+  // direct Monetag if RichAds not available
+  if(typeof show_11215599 === 'function'){
+    try{
+      show_11215599({
+        type: 'inApp',
+        inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
+      });
+    }catch(e){}
+  }
 }
+
 function watchRewarded(cb){
-  try{
-    window.TelegramAdsController.triggerNativeNotification(true).then(()=>cb()).catch(()=>{
-      let now=Date.now();
-      if(now-lastMonetag>120000 && window.show_11215599){
-        show_11215599().then(()=>{ lastMonetag=Date.now(); cb(); }).catch(()=>{
-          try{ window.showadsbitvex().then(()=>cb()).catch(()=>cb()); }catch(e){cb();}
-        });
-      }else{
-        try{ window.showadsbitvex().then(()=>cb()).catch(()=>cb()); }catch(e){cb();}
-      }
+  // REWARDED = SIRF MONETAG
+  if(typeof show_11215599 === 'function'){
+    show_11215599().then(()=>{ cb(); }).catch(()=>{
+      // ad fail, cb mat karo ya fir retry bolo - yaha cb nahi karenge taki free reward na mile
+      console.log('Monetag rewarded failed');
     });
-  }catch(e){
-    let now=Date.now();
-    if(now-lastMonetag>120000 && window.show_11215599){
-      show_11215599().then(()=>{ lastMonetag=Date.now(); cb(); }).catch(()=>{ try{window.showadsbitvex().then(()=>cb()).catch(()=>cb());}catch(e){cb();} });
-    }else{ try{window.showadsbitvex().then(()=>cb()).catch(()=>cb());}catch(e){cb();} }
+  } else {
+    console.log('Monetag not loaded');
   }
 }
 
@@ -55,7 +69,6 @@ function startLevel(lvl){
   icons=icons.sort(()=>Math.random()-0.5);
 
   let id=0;
-  // create layered positions with half offset
   for(let z=0;z<layers;z++){
     let offset = (z%2)*18;
     let c = z==layers-1? cols-1 : cols;
@@ -63,7 +76,7 @@ function startLevel(lvl){
     for(let y=0;y<r;y++){
       for(let x=0;x<c;x++){
         if(id>=totalTiles) break;
-        if(Math.random()<0.12 && z>0) continue; // random gaps for natural look
+        if(Math.random()<0.12 && z>0) continue;
         tiles.push({
           id:id,
           icon:icons[id],
@@ -76,7 +89,6 @@ function startLevel(lvl){
       }
     }
   }
-  // if less tiles, fill random
   while(id<totalTiles){
     tiles.push({id:id, icon:icons[id], x: 20+Math.random()*240, y: 20+Math.random()*300, z: Math.floor(Math.random()*layers), removed:false}); id++;
   }
@@ -90,11 +102,10 @@ function startLevel(lvl){
 
 function isBlocked(tile){
   if(tile.removed) return true;
-  // check if any tile above overlaps
   for(let other of tiles){
     if(other.removed || other.z<=tile.z) continue;
     let dx=Math.abs(other.x-tile.x), dy=Math.abs(other.y-tile.y);
-    if(dx<48 && dy<48) return true; // overlapped
+    if(dx<48 && dy<48) return true;
   }
   return false;
 }
@@ -132,7 +143,6 @@ function tapTile(id){
   let tile=tiles.find(t=>t.id==id); if(!tile || tile.removed || isBlocked(tile)) return;
   if(tray.length>=7) return gameOver();
   tile.removed=true; tray.push(tile.icon);
-  // check 3 same
   let counts={}; tray.forEach(ic=>counts[ic]=(counts[ic]||0)+1);
   for(let ic in counts){
     if(counts[ic]>=3){
@@ -156,12 +166,9 @@ document.getElementById('shuffleBtn').onclick=()=>watchRewarded(()=>{ let avail=
 document.getElementById('hintBtn').onclick=()=>watchRewarded(()=>{
   let free=tiles.filter(t=>!t.removed &&!isBlocked(t));
   if(!free.length) return;
-  // find matching pair
   let map={}; free.forEach(t=>{ map[t.icon]=map[t.icon]||[]; map[t.icon].push(t); });
   let hintTile=null; for(let k in map){ if(map[k].length>=2){ hintTile=map[k][0]; break; } }
   if(!hintTile) hintTile=free[Math.floor(Math.random()*free.length)];
-  let els=document.querySelectorAll('.tile3d.free');
-  // flash one
   render();
   setTimeout(()=>{
     let el=[...document.querySelectorAll('.tile3d')].find(e=>e.textContent.includes(hintTile.icon));
