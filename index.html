@@ -33,6 +33,71 @@
         <p style="color:#666;margin-bottom:20px;text-align:center;font-size:16px">PLAY & FUN</p>
         
         <div style="text-align:center">
+          <!-- EARN MONEY BUTTON - PREMIUM -->
+<style>
+.earn-money-wrap{
+  display:flex;justify-content:center;margin:20px 0;
+}
+.btn-earn-money{
+  position:relative;
+  display:flex;align-items:center;gap:12px;
+  padding:16px 32px;
+  background:linear-gradient(135deg,#a78bfa 0%,#7c3aed 50%,#ff2e7a 100%);
+  border:none;
+  border-radius:100px;
+  color:#fff;
+  font-family:'Outfit',sans-serif;
+  font-size:16px;
+  font-weight:800;
+  letter-spacing:1px;
+  cursor:pointer;
+  box-shadow:0 0 0 1px #ffffff20 inset, 0 10px 30px #7c3aed60, 0 0 40px #ff2e7a30;
+  overflow:hidden;
+  transition:.3s;
+  animation:earnPulse 2s infinite;
+}
+.btn-earn-money::before{
+  content:'';
+  position:absolute;
+  top:-50%;left:-50%;
+  width:200%;height:200%;
+  background:linear-gradient(120deg,transparent 30%,#ffffff60 50%,transparent 70%);
+  transform:translateX(-100%) rotate(20deg);
+  animation:earnShine 2.5s infinite;
+}
+.btn-earn-money:active{transform:scale(.95)}
+.btn-earn-money .coin{
+  width:34px;height:34px;
+  background:linear-gradient(135deg,#ffe600,#ffb800);
+  border-radius:50%;
+  display:grid;place-items:center;
+  color:#000;font-size:18px;
+  box-shadow:0 4px 10px #00000040;
+}
+.btn-earn-money .arrow{
+  background:#ffffff25;
+  width:28px;height:28px;
+  border-radius:50%;
+  display:grid;place-items:center;
+  font-size:14px;
+}
+@keyframes earnPulse{
+  0%,100%{box-shadow:0 0 0 1px #ffffff20 inset, 0 10px 30px #7c3aed60, 0 0 40px #ff2e7a30}
+  50%{box-shadow:0 0 0 1px #ffffff30 inset, 0 15px 40px #7c3aed90, 0 0 60px #ff2e7a50}
+}
+@keyframes earnShine{
+  0%{transform:translateX(-100%) rotate(20deg)}
+  100%{transform:translateX(100%) rotate(20deg)}
+}
+</style>
+
+<div class="earn-money-wrap">
+  <button class="btn-earn-money" onclick="window.location.href='earn.html'">
+    <span class="coin">🪙</span>
+    EARN MONEY
+    <span class="arrow">→</span>
+  </button>
+</div>
             <button class="btn" onclick="showLevelSelect()">Ball Sort</button><br><br>
             <button class="btn" onclick="openGame('2048.html')">2048 GAME</button><br><br>
             <button class="btn" onclick="openGame('block.html')">Block Brick</button><br><br>
