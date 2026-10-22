@@ -1,30 +1,64 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SFA Earn - Tap</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<style>
-  body{background:#0f0f0f;color:#fff;font-family:Arial;text-align:center;padding:20px}
-  .card{background:#1e1e1e;border-radius:20px;padding:20px;margin-top:20px}
-  #coin{font-size:40px;font-weight:bold;color:#ffcc00}
-  #tapBtn{width:200px;height:200px;border-radius:50%;background:radial-gradient(#ffcc00,#ff9900);border:none;font-size:22px;font-weight:bold;margin:20px}
-  #tapBtn:active{transform:scale(0.92)}
-  #progress{width:100%;height:20px;background:#333;border-radius:10px;overflow:hidden}
-  #bar{height:100%;width:0%;background:#ffcc00;transition:0.1s}
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>SFA Earn</title>
+<script src="https://telegram.org/js/telegram-web-app.js?56"></script>
+<!-- RichAds Interstitial -->
+<script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
+<script>
+window.TelegramAdsController = new TelegramAdsController();
+window.TelegramAdsController.initialize({ pubId: "792361", appId: "1396" });
+</script>
+<!-- Monetag SDK -->
+<script src='//libtl.com/sdk.js' data-zone='11215599' data-sdk='show_11215599'></script>
+<link rel="stylesheet" href="earn.css">
 </head>
 <body>
-<h2>⚡ SFA EARN TAP</h2>
-<div id="coin">0 Coins</div>
-<div class="card">
-  <div id="progress"><div id="bar"></div></div>
-  <p><span id="tapCount">0</span> / 100 Taps</p>
-  <button id="tapBtn">TAP ME</button>
-  <p>100 Taps = 10 Coins</p>
-  <p id="userInfo">Loading...</p>
+<div class="bg"></div>
+<div class="header">
+  <div class="logo">SFA <span>EARN</span></div>
+  <div class="coin-pill">🪙 <span id="coinBal">0</span></div>
 </div>
-<script type="module" src="./earn.js"></script>
+
+<div class="container">
+  <!-- BUTTON 1 - PLAY & EARN -->
+  <div class="card c1" id="btn1Card" onclick="handleBtn1()">
+    <div class="left"><div class="icon">1</div><div class="info"><h3 id="btn1Title">Play & Earn 1750 Coin</h3><p>100 Taps Challenge</p><span class="badge easy">EASY • 5X/DAY</span></div></div>
+    <div class="right"><b id="btn1Right">1750 COIN</b><span id="btn1Sub">Tap to start</span></div>
+  </div>
+
+  <!-- BUTTON 2 - HARD NO COIN -->
+  <div class="card c2" onclick="openLink2()">
+    <div class="left"><div class="icon">2</div><div class="info"><h3>Earn Upto 8500 Coin</h3><p>Partner task - Hard</p><span class="badge hard">HARD</span></div></div>
+    <div class="right"><b>UPTO 8500</b><span>External</span></div>
+  </div>
+
+  <!-- BUTTON 3 - EASY 350 COIN -->
+  <div class="card c3" id="btn3Card" onclick="handleBtn3()">
+    <div class="left"><div class="icon">3</div><div class="info"><h3>Earn Upto 350 Coin</h3><p>Visit & stay 10 sec</p><span class="badge easy">EASY</span></div></div>
+    <div class="right"><b id="btn3Right">350 COIN</b><span id="btn3Sub">Tap to earn</span></div>
+  </div>
+
+  <!-- BUTTON 4 - MEDIUM NO COIN -->
+  <div class="card c4" onclick="openLink4()">
+    <div class="left"><div class="icon">4</div><div class="info"><h3>Earn Up To 1750 Coin</h3><p>Partner Offer</p><span class="badge medium">MEDIUM</span></div></div>
+    <div class="right"><b>UPTO 1750</b><span>External</span></div>
+  </div>
+
+  <!-- 5-10 COMING SOON -->
+  <div class="card coming" onclick="comingSoon()"><div class="left"><div class="icon">5</div><div class="info"><h3>Coming Soon</h3></div></div><div class="soon">SOON</div></div>
+  <div class="card coming" onclick="comingSoon()"><div class="left"><div class="icon">6</div><div class="info"><h3>Coming Soon</h3></div></div><div class="soon">SOON</div></div>
+  <div class="card coming" onclick="comingSoon()"><div class="left"><div class="icon">7</div><div class="info"><h3>Coming Soon</h3></div></div><div class="soon">SOON</div></div>
+  <div class="card coming" onclick="comingSoon()"><div class="left"><div class="icon">8</div><div class="info"><h3>Coming Soon</h3></div></div><div class="soon">SOON</div></div>
+  <div class="card coming" onclick="comingSoon()"><div class="left"><div class="icon">9</div><div class="info"><h3>Coming Soon</h3></div></div><div class="soon">SOON</div></div>
+  <div class="card coming" onclick="comingSoon()"><div class="left"><div class="icon">10</div><div class="info"><h3>Coming Soon</h3></div></div><div class="soon">SOON</div></div>
+</div>
+
+<div id="tapModal"><div class="tap-card"><h2 id="tapNum">0/100</h2><div class="progress"><i id="tapBar"></i></div><button class="tap-btn" onclick="doTap()">TAP</button><p class="close" onclick="closeTap()">Close</p></div></div>
+<div id="congratsModal"><div class="tap-card"><h2>🎉 Congrats!</h2><p>100 Taps Done</p><span>Showing Ad...</span></div></div>
+
+<script type="module" src="earn.js"></script>
 </body>
 </html>
