@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SFA Earn - Tap</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  body{background:#0f0f0f;color:#fff;font-family:Arial;text-align:center;padding:20px}
+  .card{background:#1e1e1e;border-radius:20px;padding:20px;margin-top:20px}
+  #coin{font-size:40px;font-weight:bold;color:#ffcc00}
+  #tapBtn{width:200px;height:200px;border-radius:50%;background:radial-gradient(#ffcc00,#ff9900);border:none;font-size:22px;font-weight:bold;margin:20px}
+  #tapBtn:active{transform:scale(0.92)}
+  #progress{width:100%;height:20px;background:#333;border-radius:10px;overflow:hidden}
+  #bar{height:100%;width:0%;background:#ffcc00;transition:0.1s}
+</style>
+</head>
+<body>
+<h2>⚡ SFA EARN TAP</h2>
+<div id="coin">0 Coins</div>
+<div class="card">
+  <div id="progress"><div id="bar"></div></div>
+  <p><span id="tapCount">0</span> / 100 Taps</p>
+  <button id="tapBtn">TAP ME</button>
+  <p>100 Taps = 10 Coins</p>
+  <p id="userInfo">Loading...</p>
+</div>
+<script type="module" src="./earn.js"></script>
+</body>
+</html>
