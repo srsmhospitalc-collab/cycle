@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
 import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
 
-// FIREBASE - TERA WALA SAME
 const firebaseConfig = {
   apiKey: "AIzaSyBBaxVAyNYG6v2Xs6_yF-Z_f1Tm3oftpQk",
   authDomain: "sfaearn.firebaseapp.com",
@@ -14,6 +13,11 @@ const db = getDatabase(app);
 const tg = window.Telegram.WebApp;
 const uid = tg.initDataUnsafe?.user?.id?.toString() || "test_123";
 
+// --- UNIVERSAL FIX: Future me bhi Chrome me nahi jayega ---
+window.open = function(url) {
+  tg.openLink(url, {try_instant_view: false});
+};
+
 let bal=0, taps=0, gameDone=false;
 
 async function initBalance(){
@@ -23,7 +27,6 @@ async function initBalance(){
 }
 initBalance();
 
-// ---- BUTTON 1 LOGIC ----
 function b1State(){
   const today = new Date().toDateString();
   if(localStorage.getItem('b1_date')!==today){
@@ -102,11 +105,14 @@ window.showRewarded=()=>{
   }).catch(()=>{});
 }
 
-// BUTTON 2 & 4 - NO COIN
-window.openLink2=()=>{ window.open('https://iflylink.com/bLlr235','_blank'); }
-window.openLink4=()=>{ window.open('https://direct-link.net/6173303/pStP7x9ElxQj','_blank'); }
+// --- FIXED BUTTON 2 & 4 - Ab Chrome me nahi jayega ---
+window.openLink2=()=>{ 
+  tg.openLink('https://iflylink.com/bLlr235', {try_instant_view: false});
+}
+window.openLink4=()=>{ 
+  tg.openLink('https://direct-link.net/6173303/pStP7x9ElxQj', {try_instant_view: false});
+}
 
-// BUTTON 3 - EASY 350 + 10 SEC + 24H LOCK
 function b3State(){
   const lock=parseInt(localStorage.getItem('b3_lock')||'0');
   if(lock>Date.now()){
@@ -118,10 +124,11 @@ function b3State(){
 }
 setInterval(b3State,1000); b3State();
 
+// --- FIXED BUTTON 3 ---
 window.handleBtn3=()=>{
   if(b3State()) return;
   localStorage.setItem('b3_start',Date.now().toString());
-  window.open('https://uplcm.com/4/10921997','_blank');
+  tg.openLink('https://uplcm.com/4/10921997', {try_instant_view: false});
 }
 
 document.addEventListener('visibilitychange', async()=>{
@@ -144,4 +151,6 @@ document.addEventListener('visibilitychange', async()=>{
   }
 });
 
-window.comingSoon=()=>{ window.location.href='earn.html'; }
+window.comingSoon=()=>{ 
+  tg.showPopup({message: 'Coming Soon 🔜'});
+}
