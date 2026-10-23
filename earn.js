@@ -47,7 +47,7 @@ window.handlePopupOk = () => {
   tg.openLink(currentLink, {try_instant_view: false});
 }
 
-// BUTTON 3 - Coin Add + Link
+// BUTTON 3 - SECURE Coin Add + Link
 function b3State(){
   const lock=parseInt(localStorage.getItem('b3_lock')||'0');
   if(lock>Date.now()){
@@ -62,12 +62,22 @@ setInterval(b3State,1000); b3State();
 window.handleBtn3 = async () => {
   if(b3State()) return;
   try{
-    bal += 350;
+    // SECURE: Firebase se real balance lo, local bal se nahi
+    const snap = await get(ref(db,'users/'+uid));
+    let realBal = 0;
+    if(snap.exists()) realBal = snap.val().balance || 0;
+    
+    realBal += 350;
+    bal = realBal; // local bhi update
+    
     document.getElementById('coinBal').innerText = bal;
-    await update(ref(db, 'users/' + uid), { balance: bal });
+    await update(ref(db, 'users/' + uid), { balance: realBal });
+    
     localStorage.setItem('b3_lock', (Date.now() + 24*60*60*1000).toString());
     b3State();
     tg.showPopup({ message: '350 Coins Added!' });
-  }catch(e){}
+  }catch(e){
+    console.log(e);
+  }
   tg.openLink('https://uplcm.com/4/10921997', {try_instant_view: false});
 }
