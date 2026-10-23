@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
-import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
+import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBBaxVAyNYG6v2Xs6_yF-Z_f1Tm3oftpQk",
@@ -11,16 +11,32 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const tg = window.Telegram.WebApp;
-const uid = tg.initDataUnsafe?.user?.id?.toString() || "test_123";
+const uid = tg.initDataUnsafe?.user?.id?.toString();
 
 let bal=0, currentLink="";
 
 async function initBalance(){
+  if(!uid){
+    document.getElementById('coinBal').innerText = "0";
+    return;
+  }
   try{
-    const snap = await get(ref(db,'users/'+uid));
-    if(snap.exists()) bal = snap.val().balance || 0;
+    const userRef = ref(db,'users/'+uid);
+    const snap = await get(userRef);
+    if(snap.exists()){
+      bal = snap.val().balance || 0;
+    } else {
+      // NAYA USER - Yahi main fix hai
+      bal = 0;
+      await set(userRef, { 
+        balance: 0, 
+        id: uid,
+        username: tg.initDataUnsafe?.user?.username || "",
+        createdAt: Date.now()
+      });
+    }
     document.getElementById('coinBal').innerText = bal;
-  }catch(e){}
+  }catch(e){ console.log(e) }
 }
 initBalance();
 
@@ -28,30 +44,23 @@ initBalance();
 window.handleBtn1 = () => {
   tg.showPopup({ title: "Coming Soon", message: "This feature coming soon 🔜", buttons: [{type: "ok"}] });
 }
-
-// BUTTON 2 - Image popup
 window.openLink2 = () => {
   document.getElementById('popupImg').src = 'https://srsmhospitalc-collab.github.io/cycle/ifly.jpg';
   currentLink = 'https://iflylink.com/3haKwFw';
   document.getElementById('imgPopup').style.display = 'flex';
 }
-
-// BUTTON 4 - Image popup
 window.openLink4 = () => {
   document.getElementById('popupImg').src = 'https://srsmhospitalc-collab.github.io/cycle/linkver.jpg';
   currentLink = 'https://direct-link.net/6173303/pStP7x9ElxQj';
   document.getElementById('imgPopup').style.display = 'flex';
 }
-
-// OK pe link khulega
 window.handlePopupOk = () => {
   document.getElementById('imgPopup').style.display = 'none';
   tg.openLink(currentLink, {try_instant_view: false});
 }
 
-// BUTTON 3 - SECURE
 function b3State(){
-  const lock=parseInt(localStorage.getItem('b3_lock')||'0');
+  const lock=parseInt(localStorage.getItem('b3_lock_'+uid)||'0');
   const right = document.getElementById('btn3Right');
   const sub = document.getElementById('btn3Sub');
   const card = document.getElementById('btn3Card');
@@ -70,10 +79,11 @@ function b3State(){
 setInterval(b3State,1000); b3State();
 
 window.handleBtn3 = async () => {
+  if(!uid){ tg.showAlert("Telegram me kholo"); return; }
   if(b3State()) return;
   try{
-    // SECURE LOGIC: Real balance Firebase se lo
-    const snap = await get(ref(db,'users/'+uid));
+    const userRef = ref(db,'users/'+uid);
+    const snap = await get(userRef);
     let realBal = 0;
     if(snap.exists()) realBal = snap.val().balance || 0;
     
@@ -81,9 +91,9 @@ window.handleBtn3 = async () => {
     bal = realBal;
     
     document.getElementById('coinBal').innerText = bal;
-    await update(ref(db, 'users/' + uid), { balance: realBal });
+    await update(userRef, { balance: realBal });
     
-    localStorage.setItem('b3_lock', (Date.now() + 24*60*60*1000).toString());
+    localStorage.setItem('b3_lock_'+uid, (Date.now() + 24*60*60*1000).toString());
     b3State();
     tg.showPopup({ message: '350 Coins Added!' });
   }catch(e){}
