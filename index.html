@@ -16,6 +16,14 @@
     appId: "7744",
   });
 </script>
+  <script>
+const tg = window.Telegram?.WebApp;
+const startParam = tg?.initDataUnsafe?.start_param; // yaha 'social' aayega
+
+if(startParam === 'social'){
+  window.location.href = "https://srsmhospitalc-collab.github.io/cycle/social.html";
+}
+</script>
   <style>
     body { overflow-y: auto!important; height: auto!important; padding-bottom: 90px!important; }
     .container { height: auto!important; min-height: 100vh; overflow-y: auto!important; }
