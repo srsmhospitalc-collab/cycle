@@ -15,32 +15,8 @@
 <script>
   const tg = window.Telegram.WebApp;
   tg.expand();
-  tg.enableClosingConfirmation();
-  
-  // FIX 1: Back button se index.html pe jayega, Chrome nahi khulega
   tg.BackButton.show();
-  tg.BackButton.onClick(() => {
-    window.location.href = 'earn.html'; // yahi fix hai, _blank mat use karna
-  });
-
-  // FIX 2: External links Telegram ke andar hi khulenge
-  function openLink2(){
-    // Agar ye partner link hai to Telegram ke in-app browser me kholo
-    tg.openLink('https://your-partner-link-2.com', {try_instant_view: false});
-    // Ya agar ads ke baad coin dena hai to yahan ad show kara
-  }
-  function openLink4(){
-    tg.openLink('https://your-partner-link-4.com', {try_instant_view: false});
-  }
-  
-  function comingSoon(){
-    tg.showPopup({message: 'Coming Soon 🔜'});
-  }
-
-  // Ye function sabse important hai - Chrome me jane se rokta hai
-  function safeNavigate(url){
-    window.location.href = url;
-  }
+  tg.BackButton.onClick(() => { window.location.href = 'earn.html'; });
 </script>
 </head>
 <body>
@@ -51,9 +27,9 @@
 </div>
 
 <div class="container">
-  <div class="card c1" id="btn1Card" onclick="handleBtn1()">
-    <div class="left"><div class="icon">1</div><div class="info"><h3 id="btn1Title">Play & Earn 1750 Coin</h3><p>100 Taps Challenge</p><span class="badge easy">EASY • 5X/DAY</span></div></div>
-    <div class="right"><b id="btn1Right">1750 COIN</b><span id="btn1Sub">Tap to start</span></div>
+  <div class="card c1" onclick="handleBtn1()">
+    <div class="left"><div class="icon">1</div><div class="info"><h3>Play & Earn 1750 Coin</h3><p>100 Taps Challenge</p><span class="badge easy">EASY • 5X/DAY</span></div></div>
+    <div class="right"><b>1750 COIN</b><span>Coming Soon</span></div>
   </div>
 
   <div class="card c2" onclick="openLink2()">
@@ -70,17 +46,15 @@
     <div class="left"><div class="icon">4</div><div class="info"><h3>Earn Up To 1750 Coin</h3><p>Partner Offer</p><span class="badge medium">MEDIUM</span></div></div>
     <div class="right"><b>UPTO 1750</b><span>External</span></div>
   </div>
-
-  <div class="card coming" onclick="comingSoon()"><div class="left"><div class="icon">5</div><div class="info"><h3>Coming Soon</h3></div></div><div class="soon">SOON</div></div>
-  <div class="card coming" onclick="comingSoon()"><div class="left"><div class="icon">6</div><div class="info"><h3>Coming Soon</h3></div></div><div class="soon">SOON</div></div>
-  <div class="card coming" onclick="comingSoon()"><div class="left"><div class="icon">7</div><div class="info"><h3>Coming Soon</h3></div></div><div class="soon">SOON</div></div>
-  <div class="card coming" onclick="comingSoon()"><div class="left"><div class="icon">8</div><div class="info"><h3>Coming Soon</h3></div></div><div class="soon">SOON</div></div>
-  <div class="card coming" onclick="comingSoon()"><div class="left"><div class="icon">9</div><div class="info"><h3>Coming Soon</h3></div></div><div class="soon">SOON</div></div>
-  <div class="card coming" onclick="comingSoon()"><div class="left"><div class="icon">10</div><div class="info"><h3>Coming Soon</h3></div></div><div class="soon">SOON</div></div>
 </div>
 
-<div id="tapModal"><div class="tap-card"><h2 id="tapNum">0/100</h2><div class="progress"><i id="tapBar"></i></div><button class="tap-btn" onclick="doTap()">TAP</button><p class="close" onclick="closeTap()">Close</p></div></div>
-<div id="congratsModal"><div class="tap-card"><h2>🎉 Congrats!</h2><p>100 Taps Done</p><span>Showing Ad...</span></div></div>
+<!-- 75% HEIGHT IMAGE POPUP -->
+<div id="imgPopup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; align-items:end; justify-content:center;">
+  <div style="width:100%; max-width:500px; height:75vh; background:#fff; border-radius:20px 20px 0 0; padding:15px; display:flex; flex-direction:column;">
+    <img id="popupImg" src="" style="width:100%; height:82%; object-fit:contain; border-radius:12px; background:#f5f5f5;" />
+    <button onclick="handlePopupOk()" style="width:100%; padding:15px; background:#000; color:#fff; border:none; border-radius:12px; font-size:16px; font-weight:bold; margin-top:auto;">OK</button>
+  </div>
+</div>
 
 <script type="module" src="earn.js"></script>
 </body>
