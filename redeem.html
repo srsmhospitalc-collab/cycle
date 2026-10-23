@@ -3,33 +3,37 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Redeem - SFA Earn</title>
+<title>Redeem</title>
 <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
-<link rel="stylesheet" href="earn.css">
 <style>
-.redeem-wrap{ padding:0 16px 30px 16px; }
-.redeem-box{ background:#fff; border-radius:20px; padding:22px; margin-top:15px; }
-.balance-card{ background:#000; color:#fff; border-radius:14px; padding:14px; text-align:center; margin:15px 0; }
-.redeem-box input, .redeem-box select{ width:100%; padding:14px; margin:10px 0; border-radius:12px; border:1.5px solid #ddd; font-size:15px; box-sizing:border-box; }
-.redeem-btn{ width:100%; padding:15px; background:#000; color:#fff; border:none; border-radius:12px; font-weight:bold; font-size:16px; margin-top:10px; }
-.info{ text-align:center; color:#666; font-size:13px; margin:8px 0; }
-.history{ margin-top:20px; }
-.hist-card{ background:#fff; border-radius:12px; padding:12px; margin:8px 0; border-left:4px solid orange; }
-.hist-card.approved{ border-left-color:green; }
-.code-box{ background:#e8f5e9; padding:8px; border-radius:8px; font-weight:bold; margin-top:6px; font-family:monospace; user-select:all; }
+*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif}
+body{background:#1a0f2e;min-height:100vh}
+.bg{position:fixed;top:0;left:0;width:100%;height:100%;background:#1a0f2e;z-index:-1}
+.header{display:flex;justify-content:space-between;align-items:center;padding:15px;color:#fff}
+.coin-pill{background:#ffcc00;color:#000;padding:8px 18px;border-radius:20px;font-weight:bold}
+.wrap{padding:0 16px 30px 16px}
+.box{background:#f5f0ff;border-radius:22px;padding:20px;margin-top:12px}
+.balance{background:#1c1233;color:#fff;border-radius:16px;padding:16px;text-align:center;margin:12px 0}
+.balance b{font-size:22px}
+select,input{width:100%;padding:14px;margin:8px 0;border-radius:12px;border:1.5px solid #ddd;font-size:15px;background:#eee8ff}
+.btn{width:100%;padding:15px;background:#1c1233;color:#fff;border:none;border-radius:12px;font-weight:bold;font-size:16px;margin-top:10px}
+.info{text-align:center;color:#666;font-size:13px;margin:8px 0}
+.hist-title{font-weight:bold;margin-bottom:10px}
+.hist-card{background:#fff;border-radius:12px;padding:12px;margin:8px 0;border-left:4px solid orange;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+.hist-card.ok{border-left-color:#00b300}
+.code-box{background:#d4edda;padding:10px;border-radius:8px;font-weight:bold;margin-top:8px;font-family:monospace;color:#155724;border:1px dashed green;user-select:all;word-break:break-all}
 </style>
 </head>
 <body>
 <div class="bg"></div>
 <div class="header">
-  <div class="logo" onclick="window.location.href='earn.html'" style="cursor:pointer">← BACK</div>
+  <div onclick="window.location.href='earn.html'" style="cursor:pointer">← BACK</div>
   <div class="coin-pill">🪙 <span id="bal">0</span></div>
 </div>
 
-<div class="redeem-wrap">
-  <div class="redeem-box">
-    <h2 style="text-align:center">💸 Redeem Coins</h2>
-    <div class="balance-card">Your Balance<br><b id="bal2">0</b> Coins</div>
+<div class="wrap">
+  <div class="box">
+    <div class="balance">Your Balance<br><b id="bal2">0</b> Coins</div>
     <p class="info">Min: <b>250000 Coins = ₹10</b></p>
     
     <select id="rtype" onchange="changeType()">
@@ -41,22 +45,21 @@
       <input type="text" id="upi" placeholder="Enter UPI ID (e.g. 98xxxx@paytm)">
     </div>
 
-    <input type="number" id="amount" placeholder="Coins - Min 250000" value="250000">
+    <input type="number" id="amount" value="250000">
     <p class="info" id="calc">You will get: ₹10.00</p>
-    
-    <button class="redeem-btn" onclick="doRedeem()">REDEEM NOW</button>
+    <button class="btn" onclick="doRedeem()">REDEEM NOW</button>
     <p class="info" id="msg"></p>
   </div>
 
-  <div class="redeem-box history">
-    <h3>📋 My Redeems</h3>
+  <div class="box">
+    <div class="hist-title">📋 My Redeem History</div>
     <div id="historyList"><p class="info">Loading...</p></div>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
-import { getDatabase, ref, get, update, push, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
+import { getDatabase, ref, get, update, push } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBBaxVAyNYG6v2Xs6_yF-Z_f1Tm3oftpQk",
@@ -69,14 +72,14 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const tg = window.Telegram.WebApp;
 tg.expand();
-tg.BackButton.show();
-tg.BackButton.onClick(()=> window.location.href='earn.html');
 const uid = tg.initDataUnsafe?.user?.id?.toString() || "test_123";
 let bal=0;
 
 async function init(){
-  const snap = await get(ref(db,'users/'+uid));
-  if(snap.exists()) bal = snap.val().balance || 0;
+  try{
+    const snap = await get(ref(db,'users/'+uid));
+    if(snap.exists()) bal = snap.val().balance || 0;
+  }catch(e){}
   document.getElementById('bal').innerText=bal;
   document.getElementById('bal2').innerText=bal;
   loadHistory();
@@ -100,53 +103,68 @@ window.doRedeem = async () => {
   const coins = parseInt(document.getElementById('amount').value);
   const msg = document.getElementById('msg');
   
-  if(type==='upi' && !upi.includes('@')){ msg.innerText='❌ Valid UPI ID dalo'; return; }
+  if(type==='upi' && !upi.includes('@')){ msg.innerText='❌ Valid UPI dalo'; return; }
   if(isNaN(coins) || coins < 250000){ msg.innerText='❌ Minimum 250000 Coins'; return; }
   if(coins > bal){ msg.innerText='❌ Balance kam hai'; return; }
   
   msg.innerText='Processing...';
-  
-  bal -= coins;
-  await update(ref(db,'users/'+uid),{balance:bal});
-  await push(ref(db,'redeems'),{
-    uid: uid,
-    username: tg.initDataUnsafe?.user?.username || '',
-    type: type,
-    upi: type==='upi' ? upi : '',
-    coins: coins,
-    rupees: coins/25000,
-    code: '',
-    status: 'pending',
-    time: Date.now()
-  });
-  
-  document.getElementById('bal').innerText=bal;
-  document.getElementById('bal2').innerText=bal;
-  msg.innerText='✅ Request sent! Check history below';
-  loadHistory();
+  try{
+    const snap = await get(ref(db,'users/'+uid));
+    let realBal = snap.exists() ? (snap.val().balance || 0) : 0;
+    if(coins > realBal){ msg.innerText='❌ Balance kam hai'; return; }
+    realBal -= coins;
+    await update(ref(db,'users/'+uid),{balance:realBal});
+    bal = realBal;
+    document.getElementById('bal').innerText=bal;
+    document.getElementById('bal2').innerText=bal;
+    
+    await push(ref(db,'redeems'),{
+      uid: uid,
+      type: type,
+      upi: type==='upi' ? upi : '',
+      coins: coins,
+      rupees: 10,
+      code: '',
+      status: 'pending',
+      time: Date.now()
+    });
+    msg.innerText='✅ Request sent! 24h me milega';
+    loadHistory();
+  }catch(e){ msg.innerText='Error: '+e.message; }
 }
 
 async function loadHistory(){
-  const snap = await get(ref(db,'redeems'));
   const list = document.getElementById('historyList');
-  list.innerHTML='';
-  if(!snap.exists()){ list.innerHTML='<p class=info>No history</p>'; return; }
-  let found=false;
-  snap.forEach(child=>{
-    const d = child.val();
-    if(d.uid!==uid) return;
-    found=true;
-    const date = new Date(d.time).toLocaleString();
-    const isApproved = d.status==='approved';
-    list.innerHTML += `
-      <div class="hist-card ${isApproved?'approved':''}">
-        <div><b>${d.type.toUpperCase()}</b> - ${d.coins} Coins (₹${d.rupees})</div>
-        <div style="font-size:12px; color:#888">${date} - Status: ${d.status}</div>
-        ${d.type==='upi' ? `<div style="font-size:12px">UPI: ${d.upi}</div>` : ''}
-        ${isApproved && d.code ? `<div class="code-box">CODE: ${d.code}</div><div style="font-size:11px; color:green">Tap to copy code</div>` : (d.status==='pending' ? '<div style="font-size:12px; color:orange">⏳ Pending - 24h me milega</div>' : '')}
-      </div>`;
-  });
-  if(!found) list.innerHTML='<p class=info>No history</p>';
+  try{
+    const snap = await get(ref(db,'redeems'));
+    list.innerHTML='';
+    if(!snap.exists()){ list.innerHTML='<p class=info>No redeem yet</p>'; return; }
+    let items=[];
+    snap.forEach(child=>{
+      const d = child.val();
+      if(d.uid==uid) items.push(d);
+    });
+    items.sort((a,b)=> b.time - a.time);
+    if(items.length==0){ list.innerHTML='<p class=info>No redeem yet</p>'; return; }
+    
+    items.forEach(d=>{
+      const date = new Date(d.time).toLocaleString();
+      const isOk = d.status==='approved';
+      let html = `<div class="hist-card ${isOk?'ok':''}">
+        <div><b>${d.type.toUpperCase()}</b> - ${d.coins} Coins</div>
+        <div style="font-size:11px;color:#888">${date} | ${d.status.toUpperCase()}</div>`;
+      if(d.type==='upi' && d.upi) html+=`<div style="font-size:12px">UPI: ${d.upi}</div>`;
+      if(isOk && d.code){
+        html+=`<div class="code-box">🎁 CODE: ${d.code}</div><div style="font-size:11px;color:green">Tap and hold to copy</div>`;
+      }else if(d.status==='pending'){
+        html+=`<div style="font-size:12px;color:orange">⏳ Pending - 24h me code ayega</div>`;
+      }
+      html+=`</div>`;
+      list.innerHTML+=html;
+    });
+  }catch(e){
+    list.innerHTML='<p class=info>Error loading history</p>';
+  }
 }
 </script>
 </body>
