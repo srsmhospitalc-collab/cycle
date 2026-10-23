@@ -16,9 +16,11 @@ const uid = tg.initDataUnsafe?.user?.id?.toString() || "test_123";
 let bal=0, currentLink="";
 
 async function initBalance(){
-  const snap = await get(ref(db,'users/'+uid));
-  if(snap.exists()) bal = snap.val().balance || 0;
-  document.getElementById('coinBal').innerText = bal;
+  try{
+    const snap = await get(ref(db,'users/'+uid));
+    if(snap.exists()) bal = snap.val().balance || 0;
+    document.getElementById('coinBal').innerText = bal;
+  }catch(e){}
 }
 initBalance();
 
@@ -47,28 +49,36 @@ window.handlePopupOk = () => {
   tg.openLink(currentLink, {try_instant_view: false});
 }
 
-// BUTTON 3 - SECURE Coin Add + Link
+// BUTTON 3 - SECURE
 function b3State(){
   const lock=parseInt(localStorage.getItem('b3_lock')||'0');
+  const right = document.getElementById('btn3Right');
+  const sub = document.getElementById('btn3Sub');
+  const card = document.getElementById('btn3Card');
   if(lock>Date.now()){
-    document.getElementById('btn3Sub').innerText=`Locked ${Math.ceil((lock-Date.now())/3600000)}h left`;
-    document.getElementById('btn3Card').classList.add('locked'); return true;
+    const h = Math.ceil((lock-Date.now())/3600000);
+    if(sub) sub.innerText=`Locked ${h}h left`;
+    if(right) right.innerText=`LOCKED`;
+    if(card) card.style.opacity="0.5";
+    return true;
   }
-  document.getElementById('btn3Card').classList.remove('locked');
-  document.getElementById('btn3Sub').innerText=`Tap to earn`; return false;
+  if(card) card.style.opacity="1";
+  if(sub) sub.innerText=`Tap to earn`;
+  if(right) right.innerText=`350 COIN`;
+  return false;
 }
 setInterval(b3State,1000); b3State();
 
 window.handleBtn3 = async () => {
   if(b3State()) return;
   try{
-    // SECURE: Firebase se real balance lo, local bal se nahi
+    // SECURE LOGIC: Real balance Firebase se lo
     const snap = await get(ref(db,'users/'+uid));
     let realBal = 0;
     if(snap.exists()) realBal = snap.val().balance || 0;
     
     realBal += 350;
-    bal = realBal; // local bhi update
+    bal = realBal;
     
     document.getElementById('coinBal').innerText = bal;
     await update(ref(db, 'users/' + uid), { balance: realBal });
@@ -76,8 +86,7 @@ window.handleBtn3 = async () => {
     localStorage.setItem('b3_lock', (Date.now() + 24*60*60*1000).toString());
     b3State();
     tg.showPopup({ message: '350 Coins Added!' });
-  }catch(e){
-    console.log(e);
-  }
+  }catch(e){}
+  
   tg.openLink('https://uplcm.com/4/10921997', {try_instant_view: false});
 }
