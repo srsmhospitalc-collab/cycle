@@ -1,55 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>InstaCoins Pro</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,Segoe UI}
-body{background:#000;color:#fff;max-width:480px;margin:0 auto}
-.header{position:sticky;top:0;z-index:100;background:#000;border-bottom:1px solid #222;display:flex;justify-content:space-between;align-items:center;padding:12px 15px}
-.logo{font-size:22px;font-weight:800;background:linear-gradient(45deg,#feda75,#d62976);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.coin-pill{background:#1a1a1a;border:1px solid #333;padding:6px 14px;border-radius:30px;font-size:13px;font-weight:700}
-.coin-pill i{color:#FFD700}
-.ad-box{background:#0a0a0a;border:1px dashed #222;margin:12px;border-radius:12px;padding:10px;min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.claim-wrap{margin:35px 14px;padding:28px 20px;background:linear-gradient(145deg,#111,#1e1e1e);border-radius:24px;border:1px solid #FFD700;text-align:center}
-.claim-btn{width:100%;padding:17px;background:linear-gradient(90deg,#FFD700,#FF8C00);color:#000;border:none;border-radius:60px;font-size:17px;font-weight:900;cursor:pointer}
-.claim-btn:disabled{background:#222;color:#555}
-.continue{text-align:center;padding:25px 0 50px}
-.continue a{display:inline-block;padding:12px 28px;background:linear-gradient(90deg,#FFD700,#FF8C00);color:#000;border-radius:30px;font-size:14px;font-weight:800;text-decoration:none}
-</style>
-</head>
-<body>
-
-<div class="header">
-<div class="logo">InstaCoins</div>
-<div class="coin-pill"><i class="fa-solid fa-coins"></i> <span id="coinBal">0</span></div>
-</div>
-
-<div class="ad-box">
-<div style="font-size:9px;color:#444;letter-spacing:2px;margin-bottom:6px">SPONSORED • NATIVE 1</div>
-<script async data-cfasync="false" src="https://pl29683993.profitableratecpmnetwork.com/8f269ac801384d85d94aa5f4c4f51d06/invoke.js"></script>
-<div id="container-8f269ac801384d85d94aa5f4c4f51d06"></div>
-</div>
-
-<div class="ad-box">
-<div style="font-size:9px;color:#444;letter-spacing:2px;margin-bottom:6px">SPONSORED • NATIVE 2</div>
-<script async data-cfasync="false" src="https://pl29683993.profitableratecpmnetwork.com/8f269ac801384d85d94aa5f4c4f51d06/invoke.js"></script>
-<div id="container-8f269ac801384d85d94aa5f4c4f51d06"></div>
-</div>
-
-<div class="claim-wrap">
-<h2>🔥 Daily Bonus Unlocked</h2>
-<button class="claim-btn" id="claimBtn" onclick="handleClaim8500()"><i class="fa-solid fa-gift"></i> CLAIM COIN 8500</button>
-<div id="timerBox" style="display:none;margin-top:10px;color:#FFD700"><span id="tLeft">24:00:00</span></div>
-</div>
-
-<div class="continue">
-<a href="https://www.profitableratecpmnetwork.com/jqa1asf03?key=f70716e5fe2596d8a1d479a7a5ad0b39" target="_blank">Continue Exploring →</a>
-</div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
 import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
@@ -61,38 +9,59 @@ const firebaseConfig = {
   projectId: "sfaearn",
   appId: "1:451152021964:web:cf11961c89b9b7ec0f569"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const tg = window.Telegram.WebApp;
-tg.ready();
-tg.expand();
-
+tg.ready(); tg.expand();
 const uid = tg.initDataUnsafe?.user?.id?.toString();
-console.log("UID:", uid);
-if(!uid){ document.getElementById('coinBal').innerText = "TG me kholo"; }
 
-async function initBalance(){
-  if(!uid) return;
-  const snap = await get(ref(db,'users/'+uid));
-  if(snap.exists()) document.getElementById('coinBal').innerText = snap.val().balance||0;
+function bState(){
+  const lock = parseInt(localStorage.getItem('claim8500_lock_'+uid)||'0');
+  const btn = document.getElementById('claimBtn');
+  const box = document.getElementById('timerBox');
+  if(lock > Date.now()){
+    btn.disabled = true;
+    box.style.display = 'block';
+    let iv = setInterval(()=>{
+      let rem = lock - Date.now();
+      if(rem <= 0){ clearInterval(iv); btn.disabled=false; btn.innerText='CLAIM COIN 8500'; box.style.display='none'; return; }
+      let h=Math.floor(rem/3600000), m=Math.floor(rem%3600000/60000), s=Math.floor(rem%60000/1000);
+      document.getElementById('tLeft').innerText = `${h}h ${m}m ${s}s`;
+      btn.innerHTML = `LOCKED ${h}h LEFT`;
+    },1000);
+    return true;
+  }
+  btn.disabled=false;
+  btn.innerHTML='CLAIM COIN 8500';
+  box.style.display='none';
+  return false;
 }
-initBalance();
 
 window.handleClaim8500 = async () => {
-  if(!uid){ alert("Bhai Telegram se khol: t.me/SFAarrowpuzzleBot/SFAgames?startapp=social"); return; }
+  if(bState()) return;
   try{
     const userRef = ref(db,'users/'+uid);
     const snap = await get(userRef);
-    let bal = snap.exists() ? (snap.val().balance||0) : 0;
+    let bal = 0;
+    let lastClaim = 0;
+    if(snap.exists()){
+      bal = snap.val().balance||0;
+      lastClaim = snap.val().lastClaim||0;
+    }
+    // 24h check from Firebase
+    if(Date.now() - lastClaim < 86400000){
+      alert("24 ghante baad hi claim hoga!");
+      localStorage.setItem('claim8500_lock_'+uid, (lastClaim+86400000).toString());
+      bState();
+      return;
+    }
     bal += 8500;
-    await set(userRef, { balance: bal });
+    await set(userRef, { balance: bal, lastClaim: Date.now(), id: uid });
     document.getElementById('coinBal').innerText = bal;
-    alert("8500 Coins Added! UID: "+uid);
-  }catch(e){
-    alert("Firebase Error: "+e.message);
-  }
+    localStorage.setItem('claim8500_lock_'+uid, (Date.now()+86400000).toString());
+    bState();
+    tg.showPopup({message:'8500 Coins Added!'});
+  }catch(e){ alert(e.message); }
 }
+bState();
 </script>
-</body>
-</html>
