@@ -32,7 +32,7 @@ window.handleBtn1 = () => {
 // BUTTON 2 - Image popup
 window.openLink2 = () => {
   document.getElementById('popupImg').src = 'https://srsmhospitalc-collab.github.io/cycle/ifly.jpg';
-  currentLink = 'https://iflylink.com/bLlr235';
+  currentLink = 'https://iflylink.com/3haKwFw';
   document.getElementById('imgPopup').style.display = 'flex';
 }
 
