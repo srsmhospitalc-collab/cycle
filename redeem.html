@@ -8,15 +8,15 @@
 <link rel="stylesheet" href="earn.css">
 <style>
 .redeem-wrap{ padding:0 16px 30px 16px; }
-.redeem-box{ background:#fff; border-radius:20px; padding:22px; margin-top:15px; box-shadow:0 10px 30px rgba(0,0,0,0.15); }
-.redeem-box h2{ margin:0; text-align:center; font-size:22px; }
+.redeem-box{ background:#fff; border-radius:20px; padding:22px; margin-top:15px; }
 .balance-card{ background:#000; color:#fff; border-radius:14px; padding:14px; text-align:center; margin:15px 0; }
-.balance-card b{ font-size:20px; }
-.redeem-box input{ width:100%; padding:14px; margin:10px 0; border-radius:12px; border:1.5px solid #ddd; font-size:15px; box-sizing:border-box; }
+.redeem-box input, .redeem-box select{ width:100%; padding:14px; margin:10px 0; border-radius:12px; border:1.5px solid #ddd; font-size:15px; box-sizing:border-box; }
 .redeem-btn{ width:100%; padding:15px; background:#000; color:#fff; border:none; border-radius:12px; font-weight:bold; font-size:16px; margin-top:10px; }
-.redeem-btn:active{ opacity:0.8; }
 .info{ text-align:center; color:#666; font-size:13px; margin:8px 0; }
-.rate-box{ background:#f6f6f6; border-radius:12px; padding:10px; text-align:center; font-size:13px; margin:10px 0; }
+.history{ margin-top:20px; }
+.hist-card{ background:#fff; border-radius:12px; padding:12px; margin:8px 0; border-left:4px solid orange; }
+.hist-card.approved{ border-left-color:green; }
+.code-box{ background:#e8f5e9; padding:8px; border-radius:8px; font-weight:bold; margin-top:6px; font-family:monospace; user-select:all; }
 </style>
 </head>
 <body>
@@ -28,31 +28,35 @@
 
 <div class="redeem-wrap">
   <div class="redeem-box">
-    <h2>💸 Redeem Coins</h2>
+    <h2 style="text-align:center">💸 Redeem Coins</h2>
+    <div class="balance-card">Your Balance<br><b id="bal2">0</b> Coins</div>
+    <p class="info">Min: <b>250000 Coins = ₹10</b></p>
     
-    <div class="balance-card">
-      Your Balance<br><b id="bal2">0</b> Coins
+    <select id="rtype" onchange="changeType()">
+      <option value="upi">UPI Payment - ₹10</option>
+      <option value="playstore">Play Store Code - ₹10</option>
+    </select>
+
+    <div id="upiBox">
+      <input type="text" id="upi" placeholder="Enter UPI ID (e.g. 98xxxx@paytm)">
     </div>
 
-    <div class="rate-box">
-      Rate: <b>25000 Coins = ₹1</b><br>
-      Min Redeem: <b>250000 Coins = ₹10</b>
-    </div>
-    
-    <input type="text" id="upi" placeholder="Enter UPI ID (e.g. 9876543210@paytm)">
-    <input type="number" id="amount" placeholder="Coins - Min 250000">
-
-    <p class="info" id="calc">₹0.00</p>
+    <input type="number" id="amount" placeholder="Coins - Min 250000" value="250000">
+    <p class="info" id="calc">You will get: ₹10.00</p>
     
     <button class="redeem-btn" onclick="doRedeem()">REDEEM NOW</button>
     <p class="info" id="msg"></p>
-    <p class="info" style="margin-top:15px;">Payment will be done within 24 hours.<br>Check your UPI ID carefully.</p>
+  </div>
+
+  <div class="redeem-box history">
+    <h3>📋 My Redeems</h3>
+    <div id="historyList"><p class="info">Loading...</p></div>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
-import { getDatabase, ref, get, update, push } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
+import { getDatabase, ref, get, update, push, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBBaxVAyNYG6v2Xs6_yF-Z_f1Tm3oftpQk",
@@ -67,7 +71,6 @@ const tg = window.Telegram.WebApp;
 tg.expand();
 tg.BackButton.show();
 tg.BackButton.onClick(()=> window.location.href='earn.html');
-
 const uid = tg.initDataUnsafe?.user?.id?.toString() || "test_123";
 let bal=0;
 
@@ -76,8 +79,14 @@ async function init(){
   if(snap.exists()) bal = snap.val().balance || 0;
   document.getElementById('bal').innerText=bal;
   document.getElementById('bal2').innerText=bal;
+  loadHistory();
 }
 init();
+
+window.changeType = () => {
+  const t = document.getElementById('rtype').value;
+  document.getElementById('upiBox').style.display = t==='upi' ? 'block' : 'none';
+}
 
 document.getElementById('amount').addEventListener('input', (e)=>{
   const coins = parseInt(e.target.value) || 0;
@@ -86,37 +95,58 @@ document.getElementById('amount').addEventListener('input', (e)=>{
 });
 
 window.doRedeem = async () => {
+  const type = document.getElementById('rtype').value;
   const upi = document.getElementById('upi').value.trim();
   const coins = parseInt(document.getElementById('amount').value);
   const msg = document.getElementById('msg');
   
-  if(!upi.includes('@')){ msg.innerText='❌ Valid UPI ID dalo'; return; }
+  if(type==='upi' && !upi.includes('@')){ msg.innerText='❌ Valid UPI ID dalo'; return; }
   if(isNaN(coins) || coins < 250000){ msg.innerText='❌ Minimum 250000 Coins'; return; }
-  if(coins > bal){ msg.innerText='❌ Balance kam hai, '+bal+' hi hai'; return; }
+  if(coins > bal){ msg.innerText='❌ Balance kam hai'; return; }
   
   msg.innerText='Processing...';
   
-  try{
-    bal -= coins;
-    await update(ref(db,'users/'+uid),{balance:bal});
-    await push(ref(db,'redeems'),{
-      uid: uid,
-      username: tg.initDataUnsafe?.user?.username || '',
-      upi: upi,
-      coins: coins,
-      rupees: coins/25000,
-      status: 'pending',
-      time: Date.now()
-    });
-    
-    document.getElementById('bal').innerText=bal;
-    document.getElementById('bal2').innerText=bal;
-    msg.innerText='✅ Request sent! 24H me payment hoga';
-    tg.showPopup({message: 'Redeem request sent! ₹'+(coins/25000)+' will be paid in 24H'});
-    document.getElementById('amount').value='';
-  }catch(err){
-    msg.innerText='❌ Error, try again';
-  }
+  bal -= coins;
+  await update(ref(db,'users/'+uid),{balance:bal});
+  await push(ref(db,'redeems'),{
+    uid: uid,
+    username: tg.initDataUnsafe?.user?.username || '',
+    type: type,
+    upi: type==='upi' ? upi : '',
+    coins: coins,
+    rupees: coins/25000,
+    code: '',
+    status: 'pending',
+    time: Date.now()
+  });
+  
+  document.getElementById('bal').innerText=bal;
+  document.getElementById('bal2').innerText=bal;
+  msg.innerText='✅ Request sent! Check history below';
+  loadHistory();
+}
+
+async function loadHistory(){
+  const snap = await get(ref(db,'redeems'));
+  const list = document.getElementById('historyList');
+  list.innerHTML='';
+  if(!snap.exists()){ list.innerHTML='<p class=info>No history</p>'; return; }
+  let found=false;
+  snap.forEach(child=>{
+    const d = child.val();
+    if(d.uid!==uid) return;
+    found=true;
+    const date = new Date(d.time).toLocaleString();
+    const isApproved = d.status==='approved';
+    list.innerHTML += `
+      <div class="hist-card ${isApproved?'approved':''}">
+        <div><b>${d.type.toUpperCase()}</b> - ${d.coins} Coins (₹${d.rupees})</div>
+        <div style="font-size:12px; color:#888">${date} - Status: ${d.status}</div>
+        ${d.type==='upi' ? `<div style="font-size:12px">UPI: ${d.upi}</div>` : ''}
+        ${isApproved && d.code ? `<div class="code-box">CODE: ${d.code}</div><div style="font-size:11px; color:green">Tap to copy code</div>` : (d.status==='pending' ? '<div style="font-size:12px; color:orange">⏳ Pending - 24h me milega</div>' : '')}
+      </div>`;
+  });
+  if(!found) list.innerHTML='<p class=info>No history</p>';
 }
 </script>
 </body>
