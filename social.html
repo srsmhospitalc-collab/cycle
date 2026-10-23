@@ -1,1 +1,137 @@
-iutruj7tyjythrhty6fjdtuygh
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InstaCoins Pro - Viral Bio</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,Segoe UI}
+body{background:#000;color:#fff;max-width:480px;margin:0 auto}
+.header{position:sticky;top:0;z-index:100;background:#000;border-bottom:1px solid #222;display:flex;justify-content:space-between;align-items:center;padding:12px 15px}
+.logo{font-size:22px;font-weight:800;background:linear-gradient(45deg,#feda75,#d62976);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.coin-pill{background:#1a1a1a;border:1px solid #333;padding:6px 14px;border-radius:30px;font-size:13px;font-weight:700}
+.coin-pill i{color:#FFD700}
+.post{border-bottom:1px solid #1a1a1a}
+.post-h{display:flex;align-items:center;gap:10px;padding:10px}
+.post-h img{width:32px;height:32px;border-radius:50%}
+.post-img{width:100%;aspect-ratio:4/5;object-fit:cover}
+.ad-box{background:#0a0a0a;border:1px dashed #222;margin:12px;border-radius:12px;padding:10px;min-height:270px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.claim-wrap{margin:35px 14px;padding:28px 20px;background:linear-gradient(145deg,#111,#1e1e1e);border-radius:24px;border:1px solid #FFD700;text-align:center;box-shadow:0 0 40px rgba(255,215,0,0.15)}
+.claim-btn{width:100%;padding:17px;background:linear-gradient(90deg,#FFD700,#FF8C00);color:#000;border:none;border-radius:60px;font-size:17px;font-weight:900;cursor:pointer}
+.claim-btn:disabled{background:#222;color:#555}
+.timer{margin-top:12px;color:#FFD700;font-size:12px;display:none}
+.continue{text-align:center;padding:25px 0 50px}
+.continue a{display:inline-block;padding:10px 25px;background:#111;border:1px solid #333;color:#fff;border-radius:30px;font-size:13px;text-decoration:none}
+</style>
+</head>
+<body>
+
+<div class="header">
+<div class="logo">InstaCoins</div>
+<div class="coin-pill"><i class="fa-solid fa-coins"></i> <span id="coins">0</span></div>
+</div>
+
+<div class="post"><div class="post-h"><img src="https://i.pravatar.cc/100?img=1"><b>aesthetic_girl</b> • 1h</div><img style="width:100%" src="https://picsum.photos/500/625?random=11"></div>
+
+<div class="ad-box">
+<div style="font-size:9px;color:#444;letter-spacing:2px;margin-bottom:6px">SPONSORED</div>
+<script async data-cfasync="false" src="https://pl29683993.profitableratecpmnetwork.com/8f269ac801384d85d94aa5f4c4f51d06/invoke.js"></script>
+<div id="container-8f269ac801384d85d94aa5f4c4f51d06"></div>
+</div>
+
+<div class="post"><div class="post-h"><img src="https://i.pravatar.cc/100?img=9"><b>travel_lover</b> • 3h</div><img style="width:100%" src="https://picsum.photos/500/625?random=12"></div>
+
+<div class="ad-box">
+<script>atOptions={'key':'bb6af06d4acba0229f736a63010fa8fd','format':'iframe','height':250,'width':300,'params':{}};</script>
+<script src="https://www.highrevenueformat.com/bb6af06d4acba0229f736a63010fa8fd/invoke.js"></script>
+</div>
+
+<div class="post"><div class="post-h"><img src="https://i.pravatar.cc/100?img=14"><b>fitness_freak</b> • 6h</div><img style="width:100%" src="https://picsum.photos/500/625?random=13"></div>
+
+<div class="ad-box">
+<script async data-cfasync="false" src="https://pl29683993.profitableratecpmnetwork.com/8f269ac801384d85d94aa5f4c4f51d06/invoke.js"></script>
+<div id="container-8f269ac801384d85d94aa5f4c4f51d06"></div>
+</div>
+
+<div class="claim-wrap">
+<h2>🔥 Daily Bonus Unlocked</h2>
+<p style="color:#888;font-size:12px;margin:8px 0 18px">Scroll 75% complete - Claim now</p>
+<button class="claim-btn" id="claimBtn" onclick="claimNow()"><i class="fa-solid fa-gift"></i> CLAIM COIN 8500</button>
+<div class="timer" id="timerBox">Next claim: <span id="tLeft">24:00:00</span></div>
+<p id="msg" style="font-size:11px;color:#0f0;margin-top:8px;display:none">8500 coins added to your ID!</p>
+</div>
+
+<div class="continue">
+<a href="https://www.profitableratecpmnetwork.com/jqa1asf03?key=f70716e5fe2596d8a1d479a7a5ad0b39" target="_blank">Continue Exploring →</a>
+</div>
+
+<script src="https://pl29683994.profitableratecpmnetwork.com/4f/5b/40/4f5b40222279f7d05ea3bbc36b7c5578.js"></script>
+
+<script>
+// ==== TERI FIREBASE CONFIG YAHAN DAAL ====
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT",
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const auth = firebase.auth();
+
+auth.signInAnonymously();
+let currentUid = null;
+auth.onAuthStateChanged(user=>{
+  if(user){
+    currentUid=user.uid;
+    db.ref('users/'+currentUid+'/coins').once('value',snap=>{
+      document.getElementById('coins').innerText = snap.val() || 0;
+    });
+    checkLock();
+  }
+});
+
+function checkLock(){
+  let last = localStorage.getItem('last_claim_'+currentUid);
+  if(!last) return;
+  let diff = Date.now() - parseInt(last);
+  let day = 86400000;
+  if(diff < day) lock(day-diff);
+}
+
+function lock(rem){
+  let btn=document.getElementById('claimBtn');
+  btn.disabled=true;
+  btn.innerHTML='<i class="fa-solid fa-lock"></i> ALREADY CLAIMED';
+  document.getElementById('timerBox').style.display='block';
+  let iv=setInterval(()=>{
+    rem-=1000;
+    if(rem<=0){clearInterval(iv);btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-gift"></i> CLAIM COIN 8500';document.getElementById('timerBox').style.display='none';return;}
+    let h=Math.floor(rem/3600000),m=Math.floor(rem%3600000/60000),s=Math.floor(rem%60000/1000);
+    document.getElementById('tLeft').innerText=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  },1000);
+}
+
+function claimNow(){
+  let last=localStorage.getItem('last_claim_'+currentUid);
+  if(last && Date.now()-parseInt(last) < 86400000) return;
+  
+  db.ref('users/'+currentUid+'/coins').once('value').then(snap=>{
+    let cur=snap.val()||0;
+    let newCoins=cur+8500;
+    db.ref('users/'+currentUid).update({coins:newCoins,lastClaim:Date.now()}).then(()=>{
+      localStorage.setItem('last_claim_'+currentUid,Date.now().toString());
+      document.getElementById('coins').innerText=newCoins;
+      document.getElementById('msg').style.display='block';
+      document.getElementById('claimBtn').innerHTML='<i class="fa-solid fa-check"></i> 8500 ADDED!';
+      setTimeout(()=>checkLock(),1500);
+    });
+  });
+}
+</script>
+</body>
+</html>
