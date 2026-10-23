@@ -1,59 +1,71 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Redeem - SFA Earn</title>
-<script src="https://telegram.org/js/telegram-web-app.js?56"></script>
-<link rel="stylesheet" href="earn.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InstaCoins Pro</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
-.redeem-wrap{ padding:0 16px 30px 16px; }
-.redeem-box{ background:#fff; border-radius:20px; padding:22px; margin-top:15px; box-shadow:0 10px 30px rgba(0,0,0,0.15); }
-.redeem-box h2{ margin:0; text-align:center; font-size:22px; }
-.balance-card{ background:#000; color:#fff; border-radius:14px; padding:14px; text-align:center; margin:15px 0; }
-.balance-card b{ font-size:20px; }
-.redeem-box input{ width:100%; padding:14px; margin:10px 0; border-radius:12px; border:1.5px solid #ddd; font-size:15px; box-sizing:border-box; }
-.redeem-btn{ width:100%; padding:15px; background:#000; color:#fff; border:none; border-radius:12px; font-weight:bold; font-size:16px; margin-top:10px; }
-.redeem-btn:active{ opacity:0.8; }
-.info{ text-align:center; color:#666; font-size:13px; margin:8px 0; }
-.rate-box{ background:#f6f6f6; border-radius:12px; padding:10px; text-align:center; font-size:13px; margin:10px 0; }
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,Segoe UI}
+body{background:#000;color:#fff;max-width:480px;margin:0 auto}
+.header{position:sticky;top:0;z-index:100;background:#000;border-bottom:1px solid #222;display:flex;justify-content:space-between;align-items:center;padding:12px 15px}
+.logo{font-size:22px;font-weight:800;background:linear-gradient(45deg,#feda75,#d62976);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.coin-pill{background:#1a1a1a;border:1px solid #333;padding:6px 14px;border-radius:30px;font-size:13px;font-weight:700}
+.coin-pill i{color:#FFD700}
+.post{border-bottom:1px solid #1a1a1a}
+.post-h{display:flex;align-items:center;gap:10px;padding:10px}
+.post-h img{width:32px;height:32px;border-radius:50%}
+.ad-box{background:#0a0a0a;border:1px dashed #222;margin:12px;border-radius:12px;padding:10px;min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.claim-wrap{margin:35px 14px;padding:28px 20px;background:linear-gradient(145deg,#111,#1e1e1e);border-radius:24px;border:1px solid #FFD700;text-align:center}
+.claim-btn{width:100%;padding:17px;background:linear-gradient(90deg,#FFD700,#FF8C00);color:#000;border:none;border-radius:60px;font-size:17px;font-weight:900;cursor:pointer}
+.claim-btn:disabled{background:#222;color:#555}
+.timer{margin-top:12px;color:#FFD700;font-size:12px;display:none}
+.continue{text-align:center;padding:25px 0 50px}
+.continue a{display:inline-block;padding:12px 28px;background:linear-gradient(90deg,#FFD700,#FF8C00);color:#000;border:none;border-radius:30px;font-size:14px;font-weight:800;text-decoration:none}
 </style>
 </head>
 <body>
-<div class="bg"></div>
+
 <div class="header">
-  <div class="logo" onclick="window.location.href='earn.html'" style="cursor:pointer">← BACK</div>
-  <div class="coin-pill">🪙 <span id="bal">0</span></div>
+<div class="logo">InstaCoins</div>
+<div class="coin-pill"><i class="fa-solid fa-coins"></i> <span id="coinBal">0</span></div>
 </div>
 
-<div class="redeem-wrap">
-  <div class="redeem-box">
-    <h2>💸 Redeem Coins</h2>
-    
-    <div class="balance-card">
-      Your Balance<br><b id="bal2">0</b> Coins
-    </div>
+<div class="post"><div class="post-h"><img src="https://i.pravatar.cc/100?img=1"><b>aesthetic_girl</b> • 1h</div><img style="width:100%" src="https://picsum.photos/500/625?random=11"></div>
 
-    <div class="rate-box">
-      Rate: <b>25000 Coins = ₹1</b><br>
-      Min Redeem: <b>250000 Coins = ₹10</b>
-    </div>
-    
-    <input type="text" id="upi" placeholder="Enter UPI ID (e.g. 9876543210@paytm)">
-    <input type="number" id="amount" placeholder="Coins - Min 250000">
+<!-- NATIVE BANNER 1 -->
+<div class="ad-box">
+<div style="font-size:9px;color:#444;letter-spacing:2px;margin-bottom:6px">SPONSORED • NATIVE 1</div>
+<script async data-cfasync="false" src="https://pl29683993.profitableratecpmnetwork.com/8f269ac801384d85d94aa5f4c4f51d06/invoke.js"></script>
+<div id="container-8f269ac801384d85d94aa5f4c4f51d06"></div>
+</div>
 
-    <p class="info" id="calc">₹0.00</p>
-    
-    <button class="redeem-btn" onclick="doRedeem()">REDEEM NOW</button>
-    <p class="info" id="msg"></p>
-    <p class="info" style="margin-top:15px;">Payment will be done within 24 hours.<br>Check your UPI ID carefully.</p>
-  </div>
+<div class="post"><div class="post-h"><img src="https://i.pravatar.cc/100?img=9"><b>travel_lover</b> • 3h</div><img style="width:100%" src="https://picsum.photos/500/625?random=12"></div>
+
+<!-- NATIVE BANNER 2 -->
+<div class="ad-box">
+<div style="font-size:9px;color:#444;letter-spacing:2px;margin-bottom:6px">SPONSORED • NATIVE 2</div>
+<script async data-cfasync="false" src="https://pl29683993.profitableratecpmnetwork.com/8f269ac801384d85d94aa5f4c4f51d06/invoke.js"></script>
+<div id="container-8f269ac801384d85d94aa5f4c4f51d06"></div>
+</div>
+
+<div class="post"><div class="post-h"><img src="https://i.pravatar.cc/100?img=14"><b>fitness_freak</b> • 6h</div><img style="width:100%" src="https://picsum.photos/500/625?random=13"></div>
+
+<div class="claim-wrap" id="claimWrap">
+<h2>🔥 Daily Bonus Unlocked</h2>
+<p style="color:#888;font-size:12px;margin:8px 0 18px">Scroll 75% complete - Claim now</p>
+<button class="claim-btn" id="claimBtn" onclick="handleClaim8500()"><i class="fa-solid fa-gift"></i> CLAIM COIN 8500</button>
+<div class="timer" id="timerBox">Next claim: <span id="tLeft">24:00:00</span></div>
+</div>
+
+<!-- SMARTLINK ON CONTINUE BUTTON -->
+<div class="continue">
+<a href="https://www.profitableratecpmnetwork.com/jqa1asf03?key=f70716e5fe2596d8a1d479a7a5ad0b39" target="_blank">Continue Exploring →</a>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
-import { getDatabase, ref, get, update, push } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
-
+import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
 const firebaseConfig = {
   apiKey: "AIzaSyBBaxVAyNYG6v2Xs6_yF-Z_f1Tm3oftpQk",
   authDomain: "sfaearn.firebaseapp.com",
@@ -64,60 +76,61 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const tg = window.Telegram.WebApp;
-tg.expand();
-tg.BackButton.show();
-tg.BackButton.onClick(()=> window.location.href='earn.html');
-
-const uid = tg.initDataUnsafe?.user?.id?.toString() || "test_123";
+tg.ready(); tg.expand();
+const uid = tg.initDataUnsafe?.user?.id?.toString();
 let bal=0;
-
-async function init(){
-  const snap = await get(ref(db,'users/'+uid));
-  if(snap.exists()) bal = snap.val().balance || 0;
-  document.getElementById('bal').innerText=bal;
-  document.getElementById('bal2').innerText=bal;
-}
-init();
-
-document.getElementById('amount').addEventListener('input', (e)=>{
-  const coins = parseInt(e.target.value) || 0;
-  const rs = (coins / 25000).toFixed(2);
-  document.getElementById('calc').innerText = `You will get: ₹${rs}`;
-});
-
-window.doRedeem = async () => {
-  const upi = document.getElementById('upi').value.trim();
-  const coins = parseInt(document.getElementById('amount').value);
-  const msg = document.getElementById('msg');
-  
-  if(!upi.includes('@')){ msg.innerText='❌ Valid UPI ID dalo'; return; }
-  if(isNaN(coins) || coins < 250000){ msg.innerText='❌ Minimum 250000 Coins'; return; }
-  if(coins > bal){ msg.innerText='❌ Balance kam hai, '+bal+' hi hai'; return; }
-  
-  msg.innerText='Processing...';
-  
+async function initBalance(){
+  if(!uid) return;
   try{
-    bal -= coins;
-    await update(ref(db,'users/'+uid),{balance:bal});
-    await push(ref(db,'redeems'),{
-      uid: uid,
-      username: tg.initDataUnsafe?.user?.username || '',
-      upi: upi,
-      coins: coins,
-      rupees: coins/25000,
-      status: 'pending',
-      time: Date.now()
-    });
-    
-    document.getElementById('bal').innerText=bal;
-    document.getElementById('bal2').innerText=bal;
-    msg.innerText='✅ Request sent! 24H me payment hoga';
-    tg.showPopup({message: 'Redeem request sent! ₹'+(coins/25000)+' will be paid in 24H'});
-    document.getElementById('amount').value='';
-  }catch(err){
-    msg.innerText='❌ Error, try again';
+    const snap = await get(ref(db,'users/'+uid));
+    if(snap.exists()) bal = snap.val().balance || 0;
+    document.getElementById('coinBal').innerText = bal;
+    bState();
+  }catch(e){ bState(); }
+}
+initBalance();
+function bState(){
+  const lock=parseInt(localStorage.getItem('claim8500_lock_'+uid)||'0');
+  const btn=document.getElementById('claimBtn');
+  const timer=document.getElementById('timerBox');
+  if(lock>Date.now()){
+    btn.disabled=true;
+    const h=Math.ceil((lock-Date.now())/3600000);
+    btn.innerHTML=`<i class="fa-solid fa-lock"></i> LOCKED ${h}h LEFT`;
+    timer.style.display='block';
+    let rem=lock-Date.now();
+    let iv=setInterval(()=>{
+      rem-=1000;
+      if(rem<=0){clearInterval(iv);btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-gift"></i> CLAIM COIN 8500';timer.style.display='none';return;}
+      let hh=Math.floor(rem/3600000),mm=Math.floor(rem%3600000/60000),ss=Math.floor(rem%60000/1000);
+      document.getElementById('tLeft').innerText=`${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+    },1000);
+    return true;
   }
+  btn.disabled=false;
+  btn.innerHTML='<i class="fa-solid fa-gift"></i> CLAIM COIN 8500';
+  timer.style.display='none';
+  return false;
+}
+window.handleClaim8500 = async () => {
+  if(!uid){ alert("Telegram me kholo"); return; }
+  if(bState()) return;
+  try{
+    const userRef = ref(db,'users/'+uid);
+    const snap = await get(userRef);
+    let realBal = snap.exists() ? (snap.val().balance||0) : 0;
+    realBal += 8500;
+    await set(userRef, { balance: realBal });
+    document.getElementById('coinBal').innerText = realBal;
+    localStorage.setItem('claim8500_lock_'+uid, (Date.now() + 86400000).toString());
+    bState();
+    tg.showPopup({ message: '8500 Coins Added!' });
+  }catch(e){ alert('Error: '+e.message); }
 }
 </script>
+
+<!-- SOCIAL BAR + BANNER AD (Safe wale) - Yaha lagega -->
+<script src="https://pl29683993.profitableratecpmnetwork.com/8f269ac801384d85d94aa5f4c4f51d06/invoke.js"></script>
+
 </body>
 </html>
