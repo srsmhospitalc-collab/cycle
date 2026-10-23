@@ -46,7 +46,7 @@ window.handleBtn1 = () => {
 }
 window.openLink2 = () => {
   document.getElementById('popupImg').src = 'https://srsmhospitalc-collab.github.io/cycle/ifly.jpg';
-  currentLink = 'https://iflylink.com/3haKwFw';
+  currentLink = 'https://iflylink.com/XiIJBBU';
   document.getElementById('imgPopup').style.display = 'flex';
 }
 window.openLink4 = () => {
