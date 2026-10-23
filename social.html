@@ -69,7 +69,7 @@ body{background:#000;color:#fff;max-width:480px;margin:0 auto}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
-import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
+import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBBaxVAyNYG6v2Xs6_yF-Z_f1Tm3oftpQk",
@@ -81,18 +81,28 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const tg = window.Telegram.WebApp;
-const uid = tg.initDataUnsafe?.user?.id?.toString() || localStorage.getItem('test_uid') || "test_123";
-localStorage.setItem('test_uid', uid);
+tg.ready();
+tg.expand();
+
+const uid = tg.initDataUnsafe?.user?.id?.toString();
+if(!uid){
+  document.getElementById('coinBal').innerText = "Open in TG";
+}
 
 let bal=0;
 
 async function initBalance(){
   try{
-    const snap = await get(ref(db,'users/'+uid));
+    if(!uid) return;
+    const userRef = ref(db,'users/'+uid);
+    const snap = await get(userRef);
     if(snap.exists()) bal = snap.val().balance || 0;
     document.getElementById('coinBal').innerText = bal;
     bState();
-  }catch(e){ bState(); }
+  }catch(e){ 
+    alert("Init Error: "+e.message);
+    bState(); 
+  }
 }
 initBalance();
 
@@ -100,46 +110,67 @@ function bState(){
   const lock=parseInt(localStorage.getItem('claim8500_lock_'+uid)||'0');
   const btn=document.getElementById('claimBtn');
   const timer=document.getElementById('timerBox');
+  if(!btn) return false;
   if(lock>Date.now()){
-    const h=Math.ceil((lock-Date.now())/3600000);
     btn.disabled=true;
+    const h=Math.ceil((lock-Date.now())/3600000);
     btn.innerHTML=`<i class="fa-solid fa-lock"></i> LOCKED ${h}h LEFT`;
-    timer.style.display='block';
+    if(timer) timer.style.display='block';
     let rem=lock-Date.now();
     let iv=setInterval(()=>{
       rem-=1000;
-      if(rem<=0){clearInterval(iv);btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-gift"></i> CLAIM COIN 8500';timer.style.display='none';return;}
+      if(rem<=0){clearInterval(iv);btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-gift"></i> CLAIM COIN 8500';if(timer) timer.style.display='none';return;}
       let hh=Math.floor(rem/3600000),mm=Math.floor(rem%3600000/60000),ss=Math.floor(rem%60000/1000);
-      document.getElementById('tLeft').innerText=`${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+      const tLeft=document.getElementById('tLeft');
+      if(tLeft) tLeft.innerText=`${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
     },1000);
     return true;
   }
   btn.disabled=false;
   btn.innerHTML='<i class="fa-solid fa-gift"></i> CLAIM COIN 8500';
-  timer.style.display='none';
+  if(timer) timer.style.display='none';
   return false;
 }
 
 window.handleClaim8500 = async () => {
+  if(!uid){
+    alert("Telegram me kholo: t.me/SFAarrowpuzzleBot/SFAgames?startapp=social");
+    return;
+  }
   if(bState()) return;
   try{
-    const snap = await get(ref(db,'users/'+uid));
+    const userRef = ref(db,'users/'+uid);
+    const snap = await get(userRef);
     let realBal = 0;
-    if(snap.exists()) realBal = snap.val().balance || 0;
+    let userData = {};
+    if(snap.exists()){
+      userData = snap.val();
+      realBal = userData.balance || 0;
+    }
+    
     realBal += 8500;
+    
+    // FIX: set se user create bhi hoga aur balance update bhi
+    await set(userRef, {
+      ...userData,
+      balance: realBal,
+      id: uid,
+      username: tg.initDataUnsafe?.user?.username || userData.username || "",
+      lastClaim: Date.now()
+    });
+
     bal = realBal;
     document.getElementById('coinBal').innerText = bal;
-    await update(ref(db, 'users/' + uid), { balance: realBal });
     localStorage.setItem('claim8500_lock_'+uid, (Date.now() + 24*60*60*1000).toString());
     bState();
-    if(tg.showPopup) tg.showPopup({ message: '8500 Coins Added to your ID!' });
+    if(tg.showPopup) tg.showPopup({ message: '8500 Coins Added!' });
     else alert('8500 Coins Added!');
+
   }catch(e){
     console.log(e);
     alert('Error: '+e.message);
   }
 }
-setInterval(bState,1000);
 </script>
 </body>
 </html>
