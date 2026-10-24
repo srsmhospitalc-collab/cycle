@@ -1,0 +1,11 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>UPI Redeem</title></head><body style="background:#111;color:#fff;text-align:center;padding:20px;font-family:sans-serif">
+<h2>UPI Redeem - 250k = ₹10</h2><p>Balance: <span id="bal">Loading...</span></p>
+<input id="upi" placeholder="Enter UPI ID" style="padding:12px;width:90%;max-width:350px;border-radius:8px;border:none"><br><br>
+<button onclick="redeem()" style="padding:12px 25px;background:#00ff88;font-weight:bold;border:none;border-radius:8px">Redeem Now</button><p id="msg" style="color:#00ff88"></p>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js"; import { getDatabase, ref, get, push, update } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
+const firebaseConfig={ apiKey: "AIzaSyBBaxVAyNYG6v2Xs6_yF-Z_f1Tm3oftpQk", authDomain: "sfaearn.firebaseapp.com", databaseURL: "https://sfaearn-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "sfaearn", appId: "1:451152021964:web:cf11961c89b9b7ec0f569" };
+const app=initializeApp(firebaseConfig); const db=getDatabase(app); 
+let uid=localStorage.getItem('sfa_uid'); let bal=0; const userRef=ref(db,'users/'+uid); get(userRef).then(s=>{ bal=s.val()?.balance||0; document.getElementById('bal').innerText=bal; });
+window.redeem=async()=>{ const upi=document.getElementById('upi').value; if(!upi.includes('@')) return alert('Sahi UPI daal'); if(bal<250000) return alert('250k Coins chahiye'); const r=ref(db,'redeems'); await push(r,{ uid, upi, coins:250000, amount:10, status:'pending', time:Date.now() }); await update(userRef,{balance:bal-250000}); document.getElementById('msg').innerText='Request Sent! '+upi; document.getElementById('bal').innerText=bal-250000; }
+</script></body></html>
