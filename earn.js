@@ -52,7 +52,10 @@ window.openLink2=()=>{
 window.openLink4=()=>{
   if(checkLock('b4_lock','btn4Right','btn4Sub','btn4Card','UPTO 1750')) return;
   document.getElementById('popupImg').src='https://srsmhospitalc-collab.github.io/cycle/linkver.jpg';
-  currentLink='task1750.html?uid='+uid;
+  
+  // Button 4 ka Smartlink
+  currentLink='https://certainlywhen.com?ZP3GB=1729550';
+  
   document.getElementById('imgPopup').style.display='flex';
 }
 window.handlePopupOk=()=>{ document.getElementById('imgPopup').style.display='none'; window.open(currentLink, '_blank'); }
