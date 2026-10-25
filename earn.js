@@ -41,8 +41,12 @@ window.handleBtn1=()=>{ alert("Coming Soon 🔜"); }
 
 window.openLink2=()=>{
   if(checkLock('b2_lock','btn2Right','btn2Sub','btn2Card','UPTO 8500')) return;
+  
   document.getElementById('popupImg').src='https://srsmhospitalc-collab.github.io/cycle/ifly.jpg';
-  currentLink='task8500.html?uid='+uid;
+  
+  // YAHAN CHANGE KIYA HAI - Tera Speedy-Links wala Locker
+  currentLink='https://speedy-links.com/s?2C4meyXo';
+  
   document.getElementById('imgPopup').style.display='flex';
 }
 window.openLink4=()=>{
